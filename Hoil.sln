@@ -1,7 +1,7 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2015
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hoil", "Hoil.csproj", "{1E2B2D61-B113-1654-7C0C-392DD7943039}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{F9CB4DD7-8CF1-1140-A8F0-2A9DA2E0EDE4}") = "Hoil", "Assembly-CSharp.csproj", "{5A8C83B0-22B3-04CD-A6BF-AE1D7BFE2A85}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,12 +9,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1E2B2D61-B113-1654-7C0C-392DD7943039}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1E2B2D61-B113-1654-7C0C-392DD7943039}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1E2B2D61-B113-1654-7C0C-392DD7943039}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1E2B2D61-B113-1654-7C0C-392DD7943039}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A8C83B0-22B3-04CD-A6BF-AE1D7BFE2A85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A8C83B0-22B3-04CD-A6BF-AE1D7BFE2A85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A8C83B0-22B3-04CD-A6BF-AE1D7BFE2A85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A8C83B0-22B3-04CD-A6BF-AE1D7BFE2A85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
 	EndGlobalSection
 EndGlobal
