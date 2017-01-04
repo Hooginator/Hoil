@@ -10,7 +10,6 @@ public class MapGridUnit : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		resources = new float[uniqueResources]; // set initial resources from outside I think is best.
-		transform.position = position;// Set position of Map unit
 		// WANT: Create Map tile game object from an Asset (I think)
 		// Change Colour?
 		// Add terrain that belongs to one map (Mountains, trees, buildings)
