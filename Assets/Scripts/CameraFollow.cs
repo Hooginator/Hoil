@@ -12,7 +12,7 @@ public class CameraFollow : MonoBehaviour {
 	void Start () {
 		RB = GetComponent<Rigidbody>();
 		var player = GameObject.Find ("Player");
-		moveSpeed = player.GetComponent<MovementControls>().moveSpeed; // takes max "move speed" which is really a force from the Player so we can match it.
+		moveSpeed = player.GetComponent<MovementControls>().moveSpeed*4.2f; // takes max "move speed" which is really a force from the Player so we can match it.
 		Initialpos = transform.position; // read camera default position
 	}
 
