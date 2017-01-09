@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Hoil.unity
+- path: Assets/Battle.unity
   isLoaded: 1
   isActive: 1

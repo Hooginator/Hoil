@@ -19,10 +19,13 @@ public class MapGridUnit : MonoBehaviour {
 
 	public void Initialize(float[] resourcesIn, int uniqueResourcesIn, int maxResourcesIn){
 		uniqueResources = uniqueResourcesIn;
+		// Needed for colour
 		rend = GetComponent<Renderer>();
+		// Set resources to what was input
 		resources = new float[uniqueResourcesIn];
 		resources = resourcesIn;
 		maxResources = maxResourcesIn;
+		// Change colour
 		if(uniqueResources >= 3){
 			rend.material.color = new Color(resources[0]/maxResources,resources[1]/maxResources,resources[2]/maxResources,255);
 		}
