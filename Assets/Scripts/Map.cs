@@ -39,6 +39,15 @@ public class Map : MonoBehaviour {
 
 			}
 		}
+		// Move some resources around so that there isn't such a sharp contrast
+		for (int i = 0; i < 3; i++) {
+			redistributeResources ();
+		}
+		for (int z = 0; z < NcellZ; z++) {
+			for (int x = 0; x < NcellX; x++) {
+				tiles [x, z].GetComponent<MapGridUnit> ().reColour ();
+			}
+		}
 	}
 	float[] getResources(int x, int z){
 		// Function to generate the number of each resource that will be in a tile once it spawns. 
@@ -48,6 +57,46 @@ public class Map : MonoBehaviour {
 			generatedResources [i] = randomNumber;
 		}
 		return generatedResources;
+	}
+
+	void redistributeResources(){
+		// If we are not on the border, do trade with neighbour
+		for (int z = 0; z < NcellZ; z++) {
+			for (int x = 0; x < NcellX; x++) {
+				if (x != 0) {
+					tradeResources (x, x - 1, z, z);
+				}
+				if (z != 0) {
+					tradeResources (x, x, z-1, z);
+				}
+				if (x != NcellX-1) {
+					tradeResources (x, x + 1, z, z);
+				}
+				if (z != NcellZ-1) {
+					tradeResources (x, x, z, z+1);
+				}
+			}
+		}
+	}
+	void tradeResources(int x1, int x2, int y1, int y2){
+		// Difference between the two grid units' resources
+		int rDiff;
+		// Square root of that difference for changing values
+		int sqrtDiff;
+		// Loop over all resources
+		for (int i = 0; i < uniqueResources; i++) {
+			// Difference in resources
+			rDiff = (int)(tiles [x1, y1].GetComponent<MapGridUnit> ().resources [i] - tiles [x2, y2].GetComponent<MapGridUnit> ().resources [i]);
+			if (rDiff != 0) {
+				// Sqrt of difference so that everything doesn't get flat too fast
+				sqrtDiff = (int)Mathf.Sqrt (Mathf.Abs (rDiff)) * rDiff / Mathf.Abs (rDiff);
+			} else {
+				sqrtDiff = 0;
+			}
+			// Update Resources
+			tiles [x1, y1].GetComponent<MapGridUnit> ().resources [i] -= sqrtDiff;
+			tiles [x2, y2].GetComponent<MapGridUnit> ().resources [i] += sqrtDiff;
+		}
 	}
 	// Update is called once per frame
 	void Update () {

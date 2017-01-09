@@ -30,7 +30,14 @@ public class MapGridUnit : MonoBehaviour {
 			rend.material.color = new Color(resources[0]/maxResources,resources[1]/maxResources,resources[2]/maxResources,255);
 		}
 	}
-	
+
+	public void reColour(){
+		// Reapply the colour based on resources
+		rend = GetComponent<Renderer>();
+		if(uniqueResources >= 3){
+			rend.material.color = new Color(resources[0]/maxResources,resources[1]/maxResources,resources[2]/maxResources,255);
+		}
+	}
 	// Update is called once per frame
 	void Update () {
 		// WANT: reevaluate over/under use and alter resource value 
