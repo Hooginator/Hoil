@@ -17,5 +17,6 @@ public class MovementControls : MonoBehaviour {
 	void Update () {
 		input = new Vector3 (Input.GetAxis ("Horizontal"), 0.0f, Input.GetAxis ("Vertical")); // get input commands
 		RB.AddForce(input*moveSpeed); // apply force to Player
+
 	}
 }

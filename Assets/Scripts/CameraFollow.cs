@@ -5,15 +5,15 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour {
 	public float moveSpeed; // Set to match the palyer
 	public float buffer; // buffer is the max distance away from the player the acmera will not move at
-	public float initialX; // Initial camera position so we know a good relative distance to the player.  WIll be replaced by 1 distance for the camera if we do cam rotation
-	public float initialZ; // see initialX
+	public Vector3 Initialpos; // Initial camera position so we know a good relative distance to the player.  WIll be replaced by 1 distance for the camera if we do cam rotation
 	public Rigidbody RB; // needed to add force (ie move) the camera
 	private Vector3 input; // the Force that will be applied to the camera to get it to follow the player
 	// Use this for initialization
 	void Start () {
 		RB = GetComponent<Rigidbody>();
 		var player = GameObject.Find ("Player");
-		moveSpeed = player.GetComponent<MovementControls>().moveSpeed; // takes max "move speed" which is really a force from the Player so we can match it.
+		moveSpeed = player.GetComponent<MovementControls>().moveSpeed*4.2f; // takes max "move speed" which is really a force from the Player so we can match it.
+		Initialpos = transform.position; // read camera default position
 	}
 
 	// Update is called once per frame
@@ -25,14 +25,14 @@ public class CameraFollow : MonoBehaviour {
 
 		//Here decides which direction gets a force applied, and later how much will be applied if we try to smooth this out.  
 		// Compares Camera position with the spot initialX and initialZ away from the Player .  Based on where the camera is with respect to this desired position a force will be applied.
-		if (Playpos [0] + initialX > Campos [0] + buffer) {
+		if (Playpos [0] + Initialpos[0] > Campos [0] + buffer) {
 			input [0] = 1;
-		}else if(Playpos [0] + initialX < Campos [0] - buffer){
+		}else if(Playpos [0] + Initialpos[0] < Campos [0] - buffer){
 			input[0] = -1;
 		}
-		if (Playpos [2] + initialZ > Campos [2] + buffer) {
+		if (Playpos [2] + Initialpos[2] > Campos [2] + buffer) {
 			input [2] = 1;
-		}else if(Playpos [2] + initialZ < Campos [2] - buffer){
+		}else if(Playpos [2] + Initialpos[2] < Campos [2] - buffer){
 			input[2] = -1;
 		}
 			
