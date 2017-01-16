@@ -27,14 +27,17 @@ public class MovementControls : MonoBehaviour {
 		TR.rotation = Quaternion.LookRotation(angle);
 	}
 	void OnCollisionEnter(Collision col){
-		// When colliding with anything (change that to enemies..)
-		var gameManager = GameObject.Find ("GameManager");
-		// If we're not already in battle, load it up. 
-		if (gameManager.GetComponent<sceneManager> ().inBattle != true) {
-			print ("Gonna Load Up Battle");
-			gameManager.GetComponent<sceneManager> ().LoadScene ("Battle");
-			//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
-			gameManager.GetComponent<sceneManager> ().inBattle = true;
+		// Only if what we collided with was an enemy
+		if (col.gameObject.GetComponent<EnemyBehavior>() != null) {
+			// Find game manager as that has the loading and unloading functions
+			var gameManager = GameObject.Find ("GameManager");
+			// If we're not already in battle, load it up. 
+			if (gameManager.GetComponent<sceneManager> ().inBattle != true) {
+				print ("Gonna Load Up Battle");
+				gameManager.GetComponent<sceneManager> ().LoadScene ("Battle");
+				//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
+				gameManager.GetComponent<sceneManager> ().inBattle = true;
+			}
 		}
 	}
 }
