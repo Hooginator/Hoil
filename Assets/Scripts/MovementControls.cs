@@ -26,4 +26,15 @@ public class MovementControls : MonoBehaviour {
 		// Apply angle
 		TR.rotation = Quaternion.LookRotation(angle);
 	}
+	void OnCollisionEnter(Collision col){
+		// When colliding with anything (change that to enemies..)
+		var gameManager = GameObject.Find ("GameManager");
+		// If we're not already in battle, load it up. 
+		if (gameManager.GetComponent<sceneManager> ().inBattle != true) {
+			print ("Gonna Load Up Battle");
+			gameManager.GetComponent<sceneManager> ().LoadScene ("Battle");
+			//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
+			gameManager.GetComponent<sceneManager> ().inBattle = true;
+		}
+	}
 }

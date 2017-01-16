@@ -40,7 +40,8 @@ public class Map : MonoBehaviour {
 			}
 		}
 		// Move some resources around so that there isn't such a sharp contrast
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < 2; i++) {
+			//redistributeResources ();
 			redistributeResources ();
 		}
 		for (int z = 0; z < NcellZ; z++) {
@@ -78,6 +79,8 @@ public class Map : MonoBehaviour {
 			}
 		}
 	}
+
+
 	void tradeResources(int x1, int x2, int y1, int y2){
 		// Difference between the two grid units' resources
 		int rDiff;
