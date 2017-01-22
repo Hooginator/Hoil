@@ -6,6 +6,8 @@ public class Map : MonoBehaviour {
 	//Size of the Map's grid
 	public int NcellX;
 	public int NcellZ;
+	// X and Z dimensional size of each grid unit used used to space them out appropriately.
+	public int gridSize = 10;
 	// Number of Unique Resources that will be in the game
 	public int uniqueResources;
 	// Prefabricated Tile Game Object used for the map visual
@@ -16,10 +18,19 @@ public class Map : MonoBehaviour {
 	private int maxResources = 255;
 	// 2D Array of the tiles used for the map
 	public GameObject[,] tiles;
-
+	// Boundaries of the map
+	private float Xmin;
+	private float Zmin;
+	private float Xmax;
+	private float Zmax;
 	System.Random random = new System.Random();
 	// Use this for initialization
 	void Start () {
+		// Set Boundaries of the map
+		Xmin =  -0.5f*gridSize;
+		Zmin =  -0.5f*gridSize;
+		Xmax =  (NcellZ-0.5f)*gridSize;
+		Zmax =  (NcellZ-0.5f)*gridSize;
 		// Initialize arrays
 		resources = new float[uniqueResources];
 		tiles = new GameObject[NcellX,NcellZ];
@@ -27,7 +38,7 @@ public class Map : MonoBehaviour {
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
 				// Create instance of prefab
-				tiles[x,z] = Instantiate (Prefab, new Vector3 (x, 0, z), Quaternion.identity);
+				tiles[x,z] = Instantiate (Prefab, new Vector3 (x*10, 0, z*10), Quaternion.identity);
 				// Add MapGridUnit to prefab (maybe could just be in prefab?)
 				tiles[x,z].AddComponent<MapGridUnit>();
 				// Assign Map.cs as the parent of the Map Tiles
@@ -78,6 +89,34 @@ public class Map : MonoBehaviour {
 				}
 			}
 		}
+	}
+	public Vector3 ForceInsideBoundaries(Vector3 pos){
+		// takes a vector and places it barely within the borders if it is outside.
+		if (pos [0] < Xmin) {
+			pos [0] = Xmin;
+		} else if (pos [0] > Xmax) {
+			pos [0] = Xmax;
+		}
+		if (pos [2] < Zmin) {
+			pos [2] = Zmin;
+		} else if (pos [2] > Zmax) {
+			pos [2] = Zmax;
+		}
+		return pos;
+	}
+	public Vector3 MirrorInsideBoundaries(Vector3 pos){
+		// Takes
+		if (pos [0] < Xmin) {
+			pos [0] = 2*Xmin-pos[0];
+		} else if (pos [0] > Xmax) {
+			pos [0] = 2*Xmax-pos[0];
+		}
+		if (pos [2] < Zmin) {
+			pos [2] = 2*Zmin-pos[2];
+		} else if (pos [2] > Zmax) {
+			pos [2] = 2*Zmax-pos[2];
+		}
+		return pos;
 	}
 
 

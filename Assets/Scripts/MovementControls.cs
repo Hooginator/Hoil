@@ -19,12 +19,16 @@ public class MovementControls : MonoBehaviour {
 	void Update () {
 		// Read input from user and turn it into a vector
 		input = new Vector3 (Input.GetAxis ("Horizontal"), 0.0f, Input.GetAxis ("Vertical"));
+
 		// apply force to Player
 		RB.AddForce(input*moveSpeed); 
 		// Get angle to look at
 		Vector3 angle = Vector3.RotateTowards(transform.forward, input, RotationSpeed, 0.0F);
 		// Apply angle
 		TR.rotation = Quaternion.LookRotation(angle);
+		// Keep player within World map
+		var map = GameObject.Find ("World Map");
+		TR.position = map.GetComponent<Map> ().ForceInsideBoundaries (TR.position);
 	}
 	void OnCollisionEnter(Collision col){
 		// Only if what we collided with was an enemy
