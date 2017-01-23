@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MovementControls : MonoBehaviour {
+public class WorldMovementControls : MonoBehaviour {
 	public float moveSpeed; // max Force that can be applied to object
 	public Rigidbody RB; // needed to apply forces to object.
 	public Transform TR; // Needed to rotate object
 	public int RotationSpeed;
 	private Vector3 input;
+	private Vector3 currentPos;
 	// Use this for initialization
 	void Start () {
 		RB = GetComponent<Rigidbody> ();
@@ -28,7 +29,8 @@ public class MovementControls : MonoBehaviour {
 		TR.rotation = Quaternion.LookRotation(angle);
 		// Keep player within World map
 		var map = GameObject.Find ("World Map");
-		TR.position = map.GetComponent<Map> ().ForceInsideBoundaries (TR.position);
+		currentPos = TR.position;
+		TR.position = map.GetComponent<Map> ().ForceInsideBoundaries (currentPos);
 	}
 	void OnCollisionEnter(Collision col){
 		// Only if what we collided with was an enemy
