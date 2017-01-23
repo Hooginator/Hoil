@@ -31,3 +31,4 @@ sysinfo.txt
 *.apk
 *.unitypackage
 Library/metadata/*
+Library/metadata/*/*
