@@ -6,10 +6,13 @@ using UnityEngine.SceneManagement;
 public class sceneManager : MonoBehaviour {
 	public bool inBattle = false;
 	public static sceneManager instance = null;
+
 	public void LoadScene(string sceneName){
+		// Used to load different gamef files, IE loading from the battle scene to the world map and back.
 		SceneManager.LoadScene (sceneName);
 	}
 	public void UnLoadScene(string sceneName){
+		// Takes all the stuff from a scene out of memory
 		this.UnLoadScene (sceneName);
 	}
 	void Start(){
