@@ -23,6 +23,7 @@ public class Map : MonoBehaviour {
 	private float Zmin;
 	private float Xmax;
 	private float Zmax;
+	// RNG for map generation
 	System.Random random = new System.Random();
 	// Use this for initialization
 	void Start () {
@@ -31,9 +32,11 @@ public class Map : MonoBehaviour {
 		Zmin =  -0.5f*gridSize;
 		Xmax =  (NcellZ-0.5f)*gridSize;
 		Zmax =  (NcellZ-0.5f)*gridSize;
+
 		// Initialize arrays
 		resources = new float[uniqueResources];
 		tiles = new GameObject[NcellX,NcellZ];
+
 		// Loop through all grid places to be used for initialization
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
