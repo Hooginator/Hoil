@@ -1,21 +1,8 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-<<<<<<< HEAD
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\StatusEffect.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\CharacterClass.cs">
     <Files>
-      <File FileName="Assets\Scripts\CharacterClass.cs" Line="35" Column="22" />
-      <File FileName="Assets\Scripts\StatusEffect.cs" Line="15" Column="1" />
-      <File FileName="Assets\Scripts\Map.cs" Line="43" Column="2" />
-=======
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\MovementControls.cs">
-    <Files>
-      <File FileName="Assets\Scripts\Map.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\MovementControls.cs" Line="39" Column="63" />
-      <File FileName="Assets\Scripts\MapGridUnit.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\CameraFollow.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\EnemyBehavior.cs" Line="8" Column="17" />
-      <File FileName="Assets\Scripts\sceneManager.cs" Line="7" Column="22" />
->>>>>>> refs/remotes/origin/Hoog
+      <File FileName="Assets\Scripts\CharacterClass.cs" Line="35" Column="25" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

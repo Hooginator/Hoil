@@ -47,19 +47,13 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\CameraFollow.cs" />
-<<<<<<< HEAD
      <Compile Include="Assets\Scripts\CharacterClass.cs" />
-     <Compile Include="Assets\Scripts\Map.cs" />
-     <Compile Include="Assets\Scripts\MapGridUnit.cs" />
-     <Compile Include="Assets\Scripts\MovementControls.cs" />
-     <Compile Include="Assets\Scripts\StatusEffect.cs" />
-=======
      <Compile Include="Assets\Scripts\EnemyBehavior.cs" />
      <Compile Include="Assets\Scripts\Map.cs" />
      <Compile Include="Assets\Scripts\MapGridUnit.cs" />
      <Compile Include="Assets\Scripts\MovementControls.cs" />
+     <Compile Include="Assets\Scripts\StatusEffect.cs" />
      <Compile Include="Assets\Scripts\sceneManager.cs" />
->>>>>>> refs/remotes/origin/Hoog
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
