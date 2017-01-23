@@ -30,5 +30,6 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
-Library/metadata/*
+Library/metadata/*0
+Library/metadata/*.info
 Library/metadata/*/*
