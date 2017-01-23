@@ -18,7 +18,7 @@ public class EnemyBehavior : MonoBehaviour {
 		TR = GetComponent<Transform> ();
 		current = TR.position;
 		NewTarget ();
-		moveSpeed = 1;
+		moveSpeed = 0.2f;
 	}
 
 	// Update is called once per frame
