@@ -7,7 +7,8 @@ public class gameManager : MonoBehaviour {
 	public bool inBattle = false;
 	public static gameManager instance = null;
 	// Characters that will stick around after scenes.
-	public CharacterClass[] playerCharacters;
+	//public CharacterClass[] playerCharacters;
+	public List<CharacterClass> playerCharacters;// = new  List<CharacterClass>();
 	public int maxPlayerCharacters = 4;
 	public int currentPlayerCharacters;
 
@@ -27,14 +28,26 @@ public class gameManager : MonoBehaviour {
 			/****************************************** Start of the game here ***********************************************************/
 			// This will be called once at the very start of the game and then never again, good place to set up one time events at the start.
 			// Create Main character, probably will be more involved than this later :P
-			playerCharacters = new CharacterClass[maxPlayerCharacters];
-			playerCharacters[0] = new CharacterClass();
-			playerCharacters [0].Initialize ();
+			playerCharacters = new  List<CharacterClass>();
+			// Make temp something that should definitely not be Null...
+			CharacterClass temp = new CharacterClass();
+			temp.Initialize ();
+			// Add temp to the list
+			playerCharacters.Add(temp);
+			playerCharacters.Add(new CharacterClass());// = new CharacterClass[maxPlayerCharacters];
+			//playerCharacters[0] = new CharacterClass();
+			//playerCharacters [0].Initialize ();
+			// Successfully print strength from the list unit that was created from temp
+			print(playerCharacters[0].Strength.ToString());
+			print (temp.Strength.ToString ());
 			currentPlayerCharacters += 1;
-			if (playerCharacters [0].Equals(null)) {
-				print ("Player 0 is NULL from the start");
+			if (temp != null) {
+				print ("Player 0 is NOT NULL from the start");
 			} else {
-				print ("Player 0 is not NULL at start");
+				print ("Player 0 is NULL at start");
+				// WHY IS THIS NULL!! I LITERALLY JUST MADE IT NOT THAT
+				// FUUUUUUUUUUUUUUUUUUUU
+				// Found it! Apparently any classes that inherit from MonoDevelop can not be created with 'new' so that messed with everything.
 			}
 			print ("Built new character with Strength " + playerCharacters[0].Strength.ToString());
 			printPlayer0Stats ();

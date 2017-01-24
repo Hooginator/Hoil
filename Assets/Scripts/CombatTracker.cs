@@ -4,25 +4,27 @@ using UnityEngine;
 
 public class CombatTracker : MonoBehaviour {
 	// Good Guys
-	public CharacterClass[] playerCharacters;
+	public List<CharacterClass> playerCharacters;
 	int maxPlayerCharacters;
 	// Bad Guys
-	public CharacterClass[] enemyCharacters;
+	public List<CharacterClass> enemyCharacters;
 	int maxEnemyCharacters;
 
 	GameObject BattleMenu;
-
-	public void StartBattle(int numPlayers, CharacterClass[] players){
+	// Number of turns that have gone by, so I can kill the infinite loops witha  failsafe
+	private int nTurns = 0;
+	public void StartBattle(int numPlayers, List<CharacterClass> players){
 		// Set Player characters based on inputs.
 		maxPlayerCharacters = numPlayers;
-		playerCharacters = new CharacterClass[numPlayers];
+		playerCharacters = new  List<CharacterClass>();
 		playerCharacters = players;
 		print ("Battle Starting");
 		// Set Enemies, for now just 1 random
 		maxEnemyCharacters = 1;
-		enemyCharacters = new CharacterClass[maxEnemyCharacters];
+		enemyCharacters = new List<CharacterClass>();
 		for (int i = 0; i < maxEnemyCharacters; i++) {
-			enemyCharacters [i] = new CharacterClass ();
+			enemyCharacters.Add(new CharacterClass ());
+			enemyCharacters [i].Initialize ();
 			enemyCharacters [i].SetupStats ();
 			enemyCharacters [i].FullHeal ();
 		}
@@ -38,7 +40,8 @@ public class CombatTracker : MonoBehaviour {
 		for (int i = 0; i < maxEnemyCharacters; i++) {
 			enemyCharacters [i].AP = enemyCharacters [i].APmax;
 			// Enemies only attack Player 1 for now.
-			enemyCharacters [i].Attack (playerCharacters [0]);
+			string battleMessage = enemyCharacters [i].Attack (playerCharacters [0]);
+			print (battleMessage);
 		}
 		if (CheckWin()) {
 			print ("You win");
@@ -53,10 +56,15 @@ public class CombatTracker : MonoBehaviour {
 
 		// Show the Battle Menu
 		ShowBattleMenu();
+
+		nTurns++;
+		if (nTurns < 5) {
+			EnemyTurn ();
+		}
+
 		// Hide the Battle Menu
 		//HideBattleMenu();
 		// Once done go to Enemy Turn
-		EnemyTurn ();
 	}
 	// Checks to see if you have won the game
 	bool CheckWin(){
@@ -84,8 +92,8 @@ public class CombatTracker : MonoBehaviour {
 		var sceneMan = gameManager.instance;
 		int currentPlayerCharacters = sceneMan.currentPlayerCharacters;
 		print (currentPlayerCharacters.ToString ());
-		playerCharacters = new CharacterClass[currentPlayerCharacters];
-		playerCharacters[0] = sceneMan.playerCharacters[0];
+		playerCharacters = new List<CharacterClass>();
+		playerCharacters = sceneMan.playerCharacters;
 		//sceneMan.printPlayer0Stats ();
 		if (playerCharacters[0] == null) {
 			print ("Did not load any characters");
