@@ -4,62 +4,93 @@ using UnityEngine;
 
 public class CombatTracker : MonoBehaviour {
 	// Good Guys
-	public List<CharacterClass> playerCharacters;
+	public List<CharacterClass> playerCharacters  = new  List<CharacterClass>();
 	int maxPlayerCharacters;
 	// Bad Guys
-	public List<CharacterClass> enemyCharacters;
+	public List<CharacterClass> enemyCharacters  = new  List<CharacterClass>();
 	int maxEnemyCharacters;
 
 	GameObject BattleMenu;
 	// Number of turns that have gone by, so I can kill the infinite loops witha  failsafe
 	private int nTurns = 0;
 	public void StartBattle(int numPlayers, List<CharacterClass> players){
+		print ("Battle Starting");
 		// Set Player characters based on inputs.
 		maxPlayerCharacters = numPlayers;
-		playerCharacters = new  List<CharacterClass>();
+		//playerCharacters = new  List<CharacterClass>();
 		playerCharacters = players;
-		print ("Battle Starting");
+		for (int i = 0; i < maxPlayerCharacters; i++) {
+			playerCharacters [i].SetupStats ();
+			playerCharacters [i].FullHeal ();
+		}
 		// Set Enemies, for now just 1 random
 		maxEnemyCharacters = 1;
-		enemyCharacters = new List<CharacterClass>();
+		//enemyCharacters = new List<CharacterClass>();
 		for (int i = 0; i < maxEnemyCharacters; i++) {
 			enemyCharacters.Add(new CharacterClass ());
-			enemyCharacters [i].Initialize ();
+			enemyCharacters [i].Initialize ("Enemy");
 			enemyCharacters [i].SetupStats ();
 			enemyCharacters [i].FullHeal ();
+			string printstats = enemyCharacters [i].printStats ();
+			print(printstats);
 		}
 
-
-		PlayerTurn ();
+		bool done = false;
+		while (!done) {
+			nTurns++;
+			done = PlayerTurn ();
+			if (!done) {
+				done = EnemyTurn ();
+			}
+			if (nTurns > 20) {
+				print ("20 Turns went by, aborting battle");
+				break;
+			}
+		}
+		print ("Done Fighting");
 	}
 
 
 
 
-	void EnemyTurn(){
+	bool EnemyTurn(){
+		print ("Start of Enemy Turn");
 		for (int i = 0; i < maxEnemyCharacters; i++) {
 			enemyCharacters [i].AP = enemyCharacters [i].APmax;
 			// Enemies only attack Player 1 for now.
 			string battleMessage = enemyCharacters [i].Attack (playerCharacters [0]);
 			print (battleMessage);
 		}
-		if (CheckWin()) {
+		if (CheckWin ()) {
 			print ("You win");
-		} else if (CheckLoss()) {
+			return true;
+		} else if (CheckLoss ()) {
 			print ("You Lose");
+			return true;
 		} else {
-			// Once Done go to player turn
-			PlayerTurn ();
+			return false;
 		}
 	}
-	void PlayerTurn (){
-
+	bool PlayerTurn (){
+		print ("Start of Player Turn");
 		// Show the Battle Menu
 		ShowBattleMenu();
-
-		nTurns++;
-		if (nTurns < 5) {
-			EnemyTurn ();
+		// Just attack first enemy for now
+		for (int i = 0; i < maxPlayerCharacters; i++) {
+			playerCharacters [i].AP = playerCharacters [i].APmax;
+			// Enemies only attack Player 1 for now.
+			string battleMessage = playerCharacters [i].Attack (enemyCharacters [0]);
+			print (battleMessage);
+		}
+			
+		if (CheckWin()) {
+			print ("You win");
+			return true;
+		} else if (CheckLoss()) {
+			print ("You Lose");
+			return true;
+		} else {
+			return false;
 		}
 
 		// Hide the Battle Menu

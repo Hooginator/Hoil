@@ -31,28 +31,13 @@ public class gameManager : MonoBehaviour {
 			playerCharacters = new  List<CharacterClass>();
 			// Make temp something that should definitely not be Null...
 			CharacterClass temp = new CharacterClass();
-			temp.Initialize ();
+			temp.Initialize ("GoodGuy");
+			string printstats = temp.printStats ();
+			print (printstats);
 			// Add temp to the list
 			playerCharacters.Add(temp);
-			playerCharacters.Add(new CharacterClass());// = new CharacterClass[maxPlayerCharacters];
-			//playerCharacters[0] = new CharacterClass();
-			//playerCharacters [0].Initialize ();
-			// Successfully print strength from the list unit that was created from temp
-			print(playerCharacters[0].Strength.ToString());
-			print (temp.Strength.ToString ());
+			playerCharacters.Add(new CharacterClass());
 			currentPlayerCharacters += 1;
-			if (temp != null) {
-				print ("Player 0 is NOT NULL from the start");
-			} else {
-				print ("Player 0 is NULL at start");
-				// WHY IS THIS NULL!! I LITERALLY JUST MADE IT NOT THAT
-				// FUUUUUUUUUUUUUUUUUUUU
-				// Found it! Apparently any classes that inherit from MonoDevelop can not be created with 'new' so that messed with everything.
-			}
-			print ("Built new character with Strength " + playerCharacters[0].Strength.ToString());
-			printPlayer0Stats ();
-
-
 
 		} else if (instance != this){
 			Destroy (gameObject);
@@ -66,10 +51,8 @@ public class gameManager : MonoBehaviour {
 		print ("Player 0 has Strength " + this.playerCharacters[0].Strength.ToString()); 
 	}
 	public void StartBattle(){
-		printPlayer0Stats ();
 		LoadScene ("Battle");
 		inBattle = true;
-		printPlayer0Stats ();
 		//GameObject.Find("Battle Menu").GetComponent<CombatTracker>().StartBattle()
 		// Calls StartBattle from the combat tracker
 		//CombatTracker battlestatus = new CombatTracker();
