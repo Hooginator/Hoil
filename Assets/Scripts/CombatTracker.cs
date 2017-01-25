@@ -35,7 +35,8 @@ public class CombatTracker : MonoBehaviour {
 			print(printstats);
 		}
 
-		bool done = false;
+		// OLd fighting
+		/*bool done = false;
 		while (!done) {
 			nTurns++;
 			done = PlayerTurn ();
@@ -47,14 +48,20 @@ public class CombatTracker : MonoBehaviour {
 				break;
 			}
 		}
-		print ("Done Fighting");
+		print ("Done Fighting");*/
+		PlayerTurn ();
+	}
+	void EndPlayerTurn (){
+
+
+		EnemyTurn ();
 	}
 
 
 
-
-	bool EnemyTurn(){
+	void EnemyTurn(){
 		print ("Start of Enemy Turn");
+		HideBattleMenu();
 		for (int i = 0; i < maxEnemyCharacters; i++) {
 			enemyCharacters [i].AP = enemyCharacters [i].APmax;
 			// Enemies only attack Player 1 for now.
@@ -63,27 +70,27 @@ public class CombatTracker : MonoBehaviour {
 		}
 		if (CheckWin ()) {
 			print ("You win");
-			return true;
 		} else if (CheckLoss ()) {
 			print ("You Lose");
-			return true;
-		} else {
-			return false;
 		}
+		PlayerTurn ();
 	}
-	bool PlayerTurn (){
+	void PlayerTurn (){
 		print ("Start of Player Turn");
 		// Show the Battle Menu
 		ShowBattleMenu();
-		// Just attack first enemy for now
+		for (int i = 0; i < maxPlayerCharacters; i++) {
+			playerCharacters [i].AP = playerCharacters [i].APmax;
+		}
+		/*// Just attack first enemy for now
 		for (int i = 0; i < maxPlayerCharacters; i++) {
 			playerCharacters [i].AP = playerCharacters [i].APmax;
 			// Enemies only attack Player 1 for now.
 			string battleMessage = playerCharacters [i].Attack (enemyCharacters [0]);
 			print (battleMessage);
-		}
+		}*/
 			
-		if (CheckWin()) {
+		/*if (CheckWin()) {
 			print ("You win");
 			return true;
 		} else if (CheckLoss()) {
@@ -91,11 +98,16 @@ public class CombatTracker : MonoBehaviour {
 			return true;
 		} else {
 			return false;
-		}
+		}*/
 
 		// Hide the Battle Menu
 		//HideBattleMenu();
 		// Once done go to Enemy Turn
+	}
+	public void PlayerAttack(int player, int badguy){
+		string battleMessage = playerCharacters [player].Attack (enemyCharacters [badguy]);
+		print (battleMessage);
+		EnemyTurn ();
 	}
 	// Checks to see if you have won the game
 	bool CheckWin(){
