@@ -48,12 +48,13 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\CameraFollow.cs" />
      <Compile Include="Assets\Scripts\CharacterClass.cs" />
+     <Compile Include="Assets\Scripts\CombatTracker.cs" />
      <Compile Include="Assets\Scripts\EnemyBehavior.cs" />
      <Compile Include="Assets\Scripts\Map.cs" />
      <Compile Include="Assets\Scripts\MapGridUnit.cs" />
      <Compile Include="Assets\Scripts\StatusEffect.cs" />
      <Compile Include="Assets\Scripts\WorldMovementControls.cs" />
-     <Compile Include="Assets\Scripts\sceneManager.cs" />
+     <Compile Include="Assets\Scripts\gameManager.cs" />
  <Reference Include="UnityEngine.Advertisements">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
  </Reference>
