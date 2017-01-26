@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class BattleMenu : MonoBehaviour {
+	// Options for Player Combat Main Menu
 	public Button Attack;
 	public Button Special;
 	public Button Item;
@@ -12,10 +13,12 @@ public class BattleMenu : MonoBehaviour {
 	public CombatTracker combat;
 	// Use this for initialization
 	void Start () {
+		// Initialize the Buttons
 		Attack = Attack.GetComponent<Button> ();
 		Special = Special.GetComponent<Button> ();
 		Item = Item.GetComponent<Button> ();
 		Run = Run.GetComponent<Button> ();
+		// Get the instance of Combat Tracker to switch turns and stuff
 		combat = combat.GetComponent<CombatTracker> ();
 	}
 	public void AttackPress(){
@@ -23,9 +26,19 @@ public class BattleMenu : MonoBehaviour {
 		print ("ATTACKKKKK");
 		combat.PlayerAttack(0,0);
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+	public void ItemPress(){
+		// When you hit the Item Button
+		print ("Item");
+		combat.PlayerItem ();
+	}
+	public void SpecialPress(){
+		// WHen you hit the Special Button
+		print ("Special");
+		combat.PlayerSpecial ();
+	}
+	public void RunPress(){
+		// When you hit the Run button
+		print ("Run");
+		combat.PlayerRun ();
 	}
 }

@@ -40,6 +40,7 @@ public class EnemyBehavior : MonoBehaviour {
 		float randomNumber2 = Random.Range(-maxTargetDistance, maxTargetDistance);
 		target = new Vector3(current[0]+randomNumber1,current[1],current[2]+randomNumber2);
 		var map = GameObject.Find ("World Map");
+		// Mirrors any target that would be outside the boundary back in, this makes the guy not just slide across the edge
 		target = map.GetComponent<Map> ().MirrorInsideBoundaries (target);
 	}
 }

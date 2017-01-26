@@ -25,53 +25,49 @@ public class CombatTracker : MonoBehaviour {
 		}
 		// Set Enemies, for now just 1 random
 		maxEnemyCharacters = 1;
-		//enemyCharacters = new List<CharacterClass>();
+		//Create Enemies Randomly and initialize their stats / HP
 		for (int i = 0; i < maxEnemyCharacters; i++) {
 			enemyCharacters.Add(new CharacterClass ());
 			enemyCharacters [i].Initialize ("Enemy");
 			enemyCharacters [i].SetupStats ();
 			enemyCharacters [i].FullHeal ();
+			// Print Details of Enemy
 			string printstats = enemyCharacters [i].printStats ();
-			print(printstats);
+			print("Enemy Spawned: " + printstats);
 		}
-
-		// OLd fighting
-		/*bool done = false;
-		while (!done) {
-			nTurns++;
-			done = PlayerTurn ();
-			if (!done) {
-				done = EnemyTurn ();
-			}
-			if (nTurns > 20) {
-				print ("20 Turns went by, aborting battle");
-				break;
-			}
-		}
-		print ("Done Fighting");*/
+		// Start the Combat with Player Turn
 		PlayerTurn ();
 	}
+
 	void EndPlayerTurn (){
-
-
+		// Placeholder
 		EnemyTurn ();
 	}
-
+	void EndBattle(){
+		// End Battle, Load up main map
+		var sceneMan = gameManager.instance;
+		sceneMan.EndBattle ();
+	}
 
 
 	void EnemyTurn(){
 		print ("Start of Enemy Turn");
+		// No need to show player options when he has none
 		HideBattleMenu();
 		for (int i = 0; i < maxEnemyCharacters; i++) {
-			enemyCharacters [i].AP = enemyCharacters [i].APmax;
+			enemyCharacters [i].startTurn();
 			// Enemies only attack Player 1 for now.
 			string battleMessage = enemyCharacters [i].Attack (playerCharacters [0]);
 			print (battleMessage);
 		}
+		// Check Vistory
 		if (CheckWin ()) {
 			print ("You win");
+			EndBattle ();
+			// Check Defeat
 		} else if (CheckLoss ()) {
 			print ("You Lose");
+			EndBattle ();
 		}
 		PlayerTurn ();
 	}
@@ -80,34 +76,23 @@ public class CombatTracker : MonoBehaviour {
 		// Show the Battle Menu
 		ShowBattleMenu();
 		for (int i = 0; i < maxPlayerCharacters; i++) {
-			playerCharacters [i].AP = playerCharacters [i].APmax;
+			playerCharacters [i].startTurn();
 		}
-		/*// Just attack first enemy for now
-		for (int i = 0; i < maxPlayerCharacters; i++) {
-			playerCharacters [i].AP = playerCharacters [i].APmax;
-			// Enemies only attack Player 1 for now.
-			string battleMessage = playerCharacters [i].Attack (enemyCharacters [0]);
-			print (battleMessage);
-		}*/
-			
-		/*if (CheckWin()) {
-			print ("You win");
-			return true;
-		} else if (CheckLoss()) {
-			print ("You Lose");
-			return true;
-		} else {
-			return false;
-		}*/
-
-		// Hide the Battle Menu
-		//HideBattleMenu();
-		// Once done go to Enemy Turn
 	}
 	public void PlayerAttack(int player, int badguy){
 		string battleMessage = playerCharacters [player].Attack (enemyCharacters [badguy]);
 		print (battleMessage);
 		EnemyTurn ();
+	}
+	public void PlayerItem(){
+		// Place Holderf for now
+	}
+	public void PlayerSpecial(){
+		// Placeholder for now
+	}
+	public void PlayerRun(){
+	print("Gonna load the Main Map back up... wish me luck");
+		EndBattle ();
 	}
 	// Checks to see if you have won the game
 	bool CheckWin(){
@@ -133,15 +118,15 @@ public class CombatTracker : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		var sceneMan = gameManager.instance;
+		// Number of Ally Participants
 		int currentPlayerCharacters = sceneMan.currentPlayerCharacters;
-		print (currentPlayerCharacters.ToString ());
+		// Get List of Players
 		playerCharacters = new List<CharacterClass>();
 		playerCharacters = sceneMan.playerCharacters;
-		//sceneMan.printPlayer0Stats ();
 		if (playerCharacters[0] == null) {
-			print ("Did not load any characters");
+			print ("Did not load any characters, ADD END BATTLE HERE");
 		}
-		print (sceneMan.playerCharacters[0].Strength.ToString ());
+		// Start the Fighting
 		StartBattle (currentPlayerCharacters, playerCharacters);
 	}
 	
@@ -150,15 +135,17 @@ public class CombatTracker : MonoBehaviour {
 		
 	}
 	void HideBattleMenu(){
+		// Make the Options for battle (Attack, Item...) Invisible
 		var BattleMenu = GameObject.Find ("Battle Menu");
 		BattleMenu.GetComponent<CanvasGroup>().alpha = 0f;
-		//BattleMenu.GetComponent<CanvasGroup>().blocksRaycasts = false;
+		BattleMenu.GetComponent<CanvasGroup>().blocksRaycasts = false;
 	}
 	void ShowBattleMenu(){
+		// Make the Options for battle (Attack, Item...) Visible
 		var BattleMenu = GameObject.Find ("Battle Menu").GetComponent<CanvasGroup>();
 		BattleMenu.alpha = 1f;
 		print ("Show Battle Menu");
-		//BattleMenu.GetComponent<CanvasGroup>().blocksRaycasts = true;
+		BattleMenu.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
 	}
 
