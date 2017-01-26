@@ -8,11 +8,17 @@ public class CameraFollow : MonoBehaviour {
 	public Vector3 Initialpos; // Initial camera position so we know a good relative distance to the player.  WIll be replaced by 1 distance for the camera if we do cam rotation
 	public Rigidbody RB; // needed to add force (ie move) the camera
 	private Vector3 input; // the Force that will be applied to the camera to get it to follow the player
+	private bool inBattle;
 	// Use this for initialization
 	void Start () {
 		RB = GetComponent<Rigidbody>();
 		var player = GameObject.Find ("Player");
-		moveSpeed = player.GetComponent<MovementControls>().moveSpeed*4.2f; // takes max "move speed" which is really a force from the Player so we can match it.
+		inBattle = GameObject.Find ("GameManager").GetComponent<gameManager> ().inBattle;
+		if (inBattle) {
+			moveSpeed = 20;
+		}else{
+			moveSpeed = player.GetComponent<WorldMovementControls>().moveSpeed*4.2f; // takes max "move speed" which is really a force from the Player so we can match it.
+		}
 		Initialpos = transform.position; // read camera default position
 	}
 
