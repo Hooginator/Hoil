@@ -47,19 +47,17 @@ public class gameManager : MonoBehaviour {
 
 	}
 	public void printPlayer0Stats(){
-		
+		// Small test print fundtion
 		print ("Player 0 has Strength " + this.playerCharacters[0].Strength.ToString()); 
 	}
 	public void StartBattle(){
+		// Once collided with enemy, starta  fight. 
+		// I will need enemy information coming through here
 		LoadScene ("Battle");
 		inBattle = true;
-		//GameObject.Find("Battle Menu").GetComponent<CombatTracker>().StartBattle()
-		// Calls StartBattle from the combat tracker
-		//CombatTracker battlestatus = new CombatTracker();
-		//battlestatus.StartBattle(currentPlayerCharacters,playerCharacters);
-		//GameObject.Find("Batle Menu").GetComponent<CombatTracker>().StartBattle(currentPlayerCharacters,playerCharacters);
 	}
 	public void EndBattle(){
+		// Load up the world map again. Maybe apply EXP and items here.
 		LoadScene ("Hoil");
 		inBattle = false;
 	}
