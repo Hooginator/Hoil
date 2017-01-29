@@ -24,7 +24,15 @@ public class BattleMenu : MonoBehaviour {
 	public void AttackPress(){
 		// When you hit that attack button
 		print ("ATTACKKKKK");
-		combat.PlayerAttack(0,0);
+		combat.HideBattleMenu ();
+		//combat.CreateSelectOptions ();
+		combat.ShowSelectMenu ();
+		//combat.PlayerAttack(0,0);
+	}
+	public void AttackTarget(int target){
+		print ("Attacking Target: " + target.ToString ());
+		combat.HideSelectMenu ();
+		combat.PlayerAttack(0,target);
 	}
 	public void ItemPress(){
 		// When you hit the Item Button

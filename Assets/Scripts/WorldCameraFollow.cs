@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraFollow : MonoBehaviour {
+public class WorldCameraFollow : MonoBehaviour {
 	public float moveSpeed; // Set to match the palyer
 	public float buffer; // buffer is the max distance away from the player the acmera will not move at
 	public Vector3 Idealpos = new Vector3(0,7,-5); // Initial camera position so we know a good relative distance to the player.  WIll be replaced by 1 distance for the camera if we do cam rotation

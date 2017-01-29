@@ -11,7 +11,7 @@ public class gameManager : MonoBehaviour {
 	public List<CharacterClass> playerCharacters;// = new  List<CharacterClass>();
 	public int maxPlayerCharacters = 4;
 	public int currentPlayerCharacters;
-	public Vector3 playerMapPosition = new Vector3(0,3,0);
+	public Vector3 playerMapPosition;
 
 
 	public void LoadScene(string sceneName){
@@ -26,13 +26,16 @@ public class gameManager : MonoBehaviour {
 		// Makes sure that the GameManager this is attached to is always the same one, so we can use it to keep values through scenes.
 		if (instance == null) {
 			instance = this;
+			//playerMapPosition = new Vector3(0,3,0);
+			//playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
 			/****************************************** Start of the game here ***********************************************************/
 			// This will be called once at the very start of the game and then never again, good place to set up one time events at the start.
 			// Create Main character, probably will be more involved than this later :P
 			playerCharacters = new  List<CharacterClass>();
 			// Make temp something that should definitely not be Null...
 			CharacterClass temp = new CharacterClass();
-			temp.Initialize ("GoodGuy");
+			// Initialize stats to level 5 so we can beat level 1 generated badguy easily
+			temp.Initialize ("GoodGuy",5,0);
 			string printstats = temp.printStats ();
 			print (printstats);
 			// Add temp to the list

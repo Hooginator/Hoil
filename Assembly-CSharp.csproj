@@ -47,13 +47,14 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\BattleMenu.cs" />
-     <Compile Include="Assets\Scripts\CameraFollow.cs" />
      <Compile Include="Assets\Scripts\CharacterClass.cs" />
      <Compile Include="Assets\Scripts\CombatTracker.cs" />
      <Compile Include="Assets\Scripts\EnemyBehavior.cs" />
      <Compile Include="Assets\Scripts\Map.cs" />
      <Compile Include="Assets\Scripts\MapGridUnit.cs" />
+     <Compile Include="Assets\Scripts\SelectTarget.cs" />
      <Compile Include="Assets\Scripts\StatusEffect.cs" />
+     <Compile Include="Assets\Scripts\WorldCameraFollow.cs" />
      <Compile Include="Assets\Scripts\WorldMovementControls.cs" />
      <Compile Include="Assets\Scripts\gameManager.cs" />
  <Reference Include="UnityEngine.UI">
