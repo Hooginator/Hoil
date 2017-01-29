@@ -13,6 +13,8 @@ public class WorldMovementControls : MonoBehaviour {
 	void Start () {
 		RB = GetComponent<Rigidbody> ();
 		TR = GetComponent<Transform> ();
+		var gameManager = GameObject.Find ("GameManager");
+		TR.position = gameManager.GetComponent<gameManager> ().playerMapPosition;
 		RotationSpeed = 5;
 	}
 	

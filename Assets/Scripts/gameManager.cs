@@ -11,6 +11,7 @@ public class gameManager : MonoBehaviour {
 	public List<CharacterClass> playerCharacters;// = new  List<CharacterClass>();
 	public int maxPlayerCharacters = 4;
 	public int currentPlayerCharacters;
+	public Vector3 playerMapPosition = new Vector3(0,3,0);
 
 
 	public void LoadScene(string sceneName){
@@ -53,6 +54,9 @@ public class gameManager : MonoBehaviour {
 	public void StartBattle(){
 		// Once collided with enemy, starta  fight. 
 		// I will need enemy information coming through here
+		playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
+		print (playerMapPosition.ToString ());
+
 		LoadScene ("Battle");
 		inBattle = true;
 	}
@@ -60,5 +64,6 @@ public class gameManager : MonoBehaviour {
 		// Load up the world map again. Maybe apply EXP and items here.
 		LoadScene ("Hoil");
 		inBattle = false;
+		//GameObject.Find ("Player").GetComponent<WorldMovementControls> ().Initialize ();
 	}
 }
