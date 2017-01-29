@@ -13,6 +13,7 @@ public class CombatTracker : MonoBehaviour {
 	// Prefabs of the visuals used for characters in battle
 	public GameObject[] CharacterPrefabs;// = new GameObject[3];
 
+	// List of Players and Enemies visuals in the current battle.
 	public GameObject[] playerSprites;
 	public GameObject[] enemySprites;
 
@@ -55,7 +56,7 @@ public class CombatTracker : MonoBehaviour {
 
 	void EndPlayerTurn (){
 		// Placeholder
-		EnemyTurn ();
+		EnemyTurn (0);
 	}
 	void EndBattle(){
 		// End Battle, Load up main map
@@ -64,15 +65,22 @@ public class CombatTracker : MonoBehaviour {
 	}
 
 
-	void EnemyTurn(){
+	void EnemyTurn(int target){
 		print ("Start of Enemy Turn");
 		// No need to show player options when he has none
 		HideBattleMenu();
 		for (int i = 0; i < maxEnemyCharacters; i++) {
-			enemyCharacters [i].startTurn();
-			// Enemies only attack Player 1 for now.
-			string battleMessage = enemyCharacters [i].Attack (playerCharacters [0]);
-			print (battleMessage);
+			// Only living enemies get a turn
+			if (!enemyCharacters [i].isDead) {
+				enemyCharacters [i].startTurn ();
+				// Enemies only attack player targeted
+				string battleMessage = enemyCharacters [i].Attack (playerCharacters [target]);
+				// Destroy visual gameobject if enemy dies
+				if (playerCharacters [target].checkDead ()) {
+					Destroy(enemySprites [target].gameObject);
+				}
+				print (battleMessage);
+			}
 		}
 		// Check Vistory
 		if (CheckWin ()) {
@@ -96,6 +104,7 @@ public class CombatTracker : MonoBehaviour {
 		}
 	}
 	void PrintAllBattleStats(){
+		// Prints each chraacter's name, level, HP and AP
 		string temp;
 		for (int i = 0; i < maxPlayerCharacters; i++) {
 			temp = playerCharacters [i].printBattleStats ();
@@ -107,9 +116,14 @@ public class CombatTracker : MonoBehaviour {
 		}
 	}
 	public void PlayerAttack(int player, int badguy){
+		// Given integer value for Player attacking and enemy being attacked, perform attack calculation
 		string battleMessage = playerCharacters [player].Attack (enemyCharacters [badguy]);
+		// Check if you killed the enemy
+		if (enemyCharacters [badguy].checkDead ()) {
+			Destroy(enemySprites [badguy].gameObject);
+		}
 		print (battleMessage);
-		EnemyTurn ();
+		EnemyTurn (0);
 	}
 	public void PlayerItem(){
 		// Place Holderf for now
@@ -125,7 +139,7 @@ public class CombatTracker : MonoBehaviour {
 	bool CheckWin(){
 		bool win = true;
 		for (int i = 0; i < maxEnemyCharacters; i++) {
-			if (enemyCharacters [i].HP > 0) {
+			if (!enemyCharacters [i].isDead) {
 				win = false;
 			}
 		}
@@ -135,7 +149,7 @@ public class CombatTracker : MonoBehaviour {
 	bool CheckLoss(){
 		bool loss = true;
 		for (int i = 0; i < maxPlayerCharacters; i++) {
-			if (playerCharacters [i].HP > 0) {
+			if (!playerCharacters [i].isDead) {
 				loss = false;
 			}
 		}
@@ -175,6 +189,7 @@ public class CombatTracker : MonoBehaviour {
 		print ("Show Battle Menu");
 		BattleMenu.GetComponent<CanvasGroup>().blocksRaycasts = true;
 		BattleMenu.GetComponent<CanvasGroup>().interactable = true;
+		// Select Attack as default.
 		BattleMenu.GetComponent<BattleMenu> ().Attack.Select ();
 
 	}
@@ -184,6 +199,7 @@ public class CombatTracker : MonoBehaviour {
 		SelectMenu.GetComponent<CanvasGroup>().alpha = 0f;
 		SelectMenu.GetComponent<CanvasGroup>().blocksRaycasts = false;
 		SelectMenu.GetComponent<CanvasGroup>().interactable = false;
+		// Destroy old buttons
 		SelectMenu.GetComponent<SelectTarget> ().DestroyOptions ();
 	}
 	public void ShowSelectMenu(){
@@ -193,13 +209,8 @@ public class CombatTracker : MonoBehaviour {
 		print ("Show Select Menu");
 		SelectMenu.GetComponent<CanvasGroup>().blocksRaycasts = true;
 		SelectMenu.GetComponent<CanvasGroup>().interactable = true;
-		SelectMenu.GetComponent<SelectTarget> ().CreateOptions (3);
+		SelectMenu.GetComponent<SelectTarget> ().CreateOptions (maxEnemyCharacters,enemyCharacters);
+		// Default select first option
 		SelectMenu.GetComponent<SelectTarget> ().option[0].Select ();
-	}
-	public void CreateSelectOptions()
-	{
-		var SelectMenu = GameObject.Find ("SelectTarget").GetComponent<SelectTarget>();
-		// Just gives number of enemies for now, eventually it will be alist of enemies
-		SelectMenu.CreateOptions (maxEnemyCharacters);
 	}
 }
