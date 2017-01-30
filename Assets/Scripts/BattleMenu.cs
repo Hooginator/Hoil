@@ -26,7 +26,7 @@ public class BattleMenu : MonoBehaviour {
 		print ("ATTACKKKKK");
 		combat.HideBattleMenu ();
 		//combat.CreateSelectOptions ();
-		combat.ShowSelectMenu ();
+		combat.ShowSelectMenu (combat.maxEnemyCharacters,combat.enemyCharacters);
 		//combat.PlayerAttack(0,0);
 	}
 	public void AttackTarget(int target){

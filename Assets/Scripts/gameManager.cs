@@ -10,7 +10,7 @@ public class gameManager : MonoBehaviour {
 	//public CharacterClass[] playerCharacters;
 	public List<CharacterClass> playerCharacters;// = new  List<CharacterClass>();
 	public int maxPlayerCharacters = 4;
-	public int currentPlayerCharacters;
+	public int currentPlayerCharacters = 0;
 	public Vector3 playerMapPosition;
 
 
@@ -40,7 +40,7 @@ public class gameManager : MonoBehaviour {
 			print (printstats);
 			// Add temp to the list
 			playerCharacters.Add(temp);
-			playerCharacters.Add(new CharacterClass());
+			//playerCharacters.Add(new CharacterClass());
 			currentPlayerCharacters += 1;
 
 		} else if (instance != this){
@@ -63,8 +63,11 @@ public class gameManager : MonoBehaviour {
 		LoadScene ("Battle");
 		inBattle = true;
 	}
-	public void EndBattle(){
+	public void EndBattle(float EXP){
 		// Load up the world map again. Maybe apply EXP and items here.
+		for (int i = 0; i < playerCharacters.Count; i++) {
+			print(playerCharacters [i].GainExperience (EXP));
+		}
 		LoadScene ("Hoil");
 		inBattle = false;
 		//GameObject.Find ("Player").GetComponent<WorldMovementControls> ().Initialize ();
