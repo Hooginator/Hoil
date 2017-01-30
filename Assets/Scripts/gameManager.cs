@@ -10,7 +10,8 @@ public class gameManager : MonoBehaviour {
 	//public CharacterClass[] playerCharacters;
 	public List<CharacterClass> playerCharacters;// = new  List<CharacterClass>();
 	public int maxPlayerCharacters = 4;
-	public int currentPlayerCharacters;
+	public int currentPlayerCharacters = 0;
+	public Vector3 playerMapPosition;
 
 
 	public void LoadScene(string sceneName){
@@ -25,18 +26,21 @@ public class gameManager : MonoBehaviour {
 		// Makes sure that the GameManager this is attached to is always the same one, so we can use it to keep values through scenes.
 		if (instance == null) {
 			instance = this;
+			//playerMapPosition = new Vector3(0,3,0);
+			//playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
 			/****************************************** Start of the game here ***********************************************************/
 			// This will be called once at the very start of the game and then never again, good place to set up one time events at the start.
 			// Create Main character, probably will be more involved than this later :P
 			playerCharacters = new  List<CharacterClass>();
 			// Make temp something that should definitely not be Null...
 			CharacterClass temp = new CharacterClass();
-			temp.Initialize ("GoodGuy");
+			// Initialize stats to level 5 so we can beat level 1 generated badguy easily
+			temp.Initialize ("GoodGuy",10,0);
 			string printstats = temp.printStats ();
 			print (printstats);
 			// Add temp to the list
 			playerCharacters.Add(temp);
-			playerCharacters.Add(new CharacterClass());
+			//playerCharacters.Add(new CharacterClass());
 			currentPlayerCharacters += 1;
 
 		} else if (instance != this){
@@ -53,12 +57,19 @@ public class gameManager : MonoBehaviour {
 	public void StartBattle(){
 		// Once collided with enemy, starta  fight. 
 		// I will need enemy information coming through here
+		playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
+		print (playerMapPosition.ToString ());
+
 		LoadScene ("Battle");
 		inBattle = true;
 	}
-	public void EndBattle(){
+	public void EndBattle(float EXP){
 		// Load up the world map again. Maybe apply EXP and items here.
+		for (int i = 0; i < playerCharacters.Count; i++) {
+			print(playerCharacters [i].GainExperience (EXP));
+		}
 		LoadScene ("Hoil");
 		inBattle = false;
+		//GameObject.Find ("Player").GetComponent<WorldMovementControls> ().Initialize ();
 	}
 }

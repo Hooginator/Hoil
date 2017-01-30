@@ -7,12 +7,15 @@ public class WorldMovementControls : MonoBehaviour {
 	public Rigidbody RB; // needed to apply forces to object.
 	public Transform TR; // Needed to rotate object
 	public int RotationSpeed;
-	private Vector3 input;
+	private Vector3 input = new Vector3(0,0,1);
 	private Vector3 currentPos;
 	// Use this for initialization
 	void Start () {
 		RB = GetComponent<Rigidbody> ();
 		TR = GetComponent<Transform> ();
+		var gameManager = GameObject.Find ("GameManager");
+		TR.position = gameManager.GetComponent<gameManager> ().playerMapPosition;
+		RB.angularVelocity = Vector3.zero;
 		RotationSpeed = 5;
 	}
 	
