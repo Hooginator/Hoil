@@ -13,7 +13,7 @@ public class CameraFollow : MonoBehaviour {
 	void Start () {
 		RB = GetComponent<Rigidbody>();
 		var player = GameObject.Find ("Player");
-		inBattle = GameObject.Find ("GameManager").GetComponent<sceneManager> ().inBattle;
+		inBattle = GameObject.Find ("GameManager").GetComponent<gameManager> ().inBattle;
 		if (inBattle) {
 			moveSpeed = 20;
 		}else{

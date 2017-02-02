@@ -38,11 +38,10 @@ public class WorldMovementControls : MonoBehaviour {
 			// Find game manager as that has the loading and unloading functions
 			var gameManager = GameObject.Find ("GameManager");
 			// If we're not already in battle, load it up. 
-			if (gameManager.GetComponent<sceneManager> ().inBattle != true) {
+			if (gameManager.GetComponent<gameManager> ().inBattle != true) {
 				print ("Gonna Load Up Battle");
-				gameManager.GetComponent<sceneManager> ().LoadScene ("Battle");
+				gameManager.GetComponent<gameManager> ().StartBattle();
 				//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
-				gameManager.GetComponent<sceneManager> ().inBattle = true;
 			}
 		}
 	}
