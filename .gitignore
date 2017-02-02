@@ -32,10 +32,6 @@ sysinfo.txt
 *.apk
 *.unitypackage
 <<<<<<< HEAD
-Library/metadata/00/0000000000000000b000000000000000
-Library/assetDatabase3
-=======
-<<<<<<< HEAD
 Library/assetDatabase3
 Library/CurrentLayout.dwlt
 Library/metadata/00/0000000000000000b000000000000000
@@ -46,4 +42,5 @@ Library/metadata/*0
 Library/metadata/*.info
 Library/metadata/*/*
 >>>>>>> origin/Phillip
->>>>>>> refs/remotes/origin/Phillip
+Library/metadata/00/0000000000000000b000000000000000
+*.info
