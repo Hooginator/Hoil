@@ -57,6 +57,7 @@
      <Compile Include="Assets\Scripts\WorldCameraFollow.cs" />
      <Compile Include="Assets\Scripts\WorldMovementControls.cs" />
      <Compile Include="Assets\Scripts\gameManager.cs" />
+     <Compile Include="Assets\Scripts\sceneManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
