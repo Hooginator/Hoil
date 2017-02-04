@@ -31,20 +31,12 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
-<<<<<<< HEAD
-Library/metadata/00/0000000000000000b000000000000000
+
 Library/assetDatabase3
-=======
-<<<<<<< HEAD
-Library/assetDatabase3
-Library/CurrentLayout.dwlt
-Library/metadata/00/0000000000000000b000000000000000
-Library/metadata/fc/fc78a27fa59b5af43a050e18911f6110.info
 *.dll
 =======
-Library/metadata/*0
-Library/metadata/*.info
-Library/metadata/*/*
+Library/metadata/
 Library/shadercompiler-UnityShaderCompiler.exe0.log
 Library/CurrentLayout.dwlt
 
+Library/shadercompiler-UnityShaderCompiler.exe0.log
