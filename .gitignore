@@ -37,10 +37,13 @@ Library/assetDatabase3
 =======
 <<<<<<< HEAD
 Library/assetDatabase3
+Assembly-CSharp.csproj
 Library/CurrentLayout.dwlt
 Library/metadata/
 *.dll
 *.meta
+*.mdb
+*.log
 *metadata*
 *userprefs*
 =======
