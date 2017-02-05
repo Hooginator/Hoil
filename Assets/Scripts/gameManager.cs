@@ -42,6 +42,7 @@ public class gameManager : MonoBehaviour {
 			playerCharacters.Add(temp);
 			//playerCharacters.Add(new CharacterClass());
 			currentPlayerCharacters += 1;
+			InitializeWorld ();
 
 		} else if (instance != this){
 			Destroy (gameObject);
@@ -49,6 +50,8 @@ public class gameManager : MonoBehaviour {
 		DontDestroyOnLoad (gameObject);
 
 
+	}
+	void InitializeWorld(){
 	}
 	public void printPlayer0Stats(){
 		// Small test print fundtion
@@ -69,6 +72,7 @@ public class gameManager : MonoBehaviour {
 			print(playerCharacters [i].GainExperience (EXP));
 		}
 		LoadScene ("Hoil");
+		InitializeWorld ();
 		inBattle = false;
 		//GameObject.Find ("Player").GetComponent<WorldMovementControls> ().Initialize ();
 	}

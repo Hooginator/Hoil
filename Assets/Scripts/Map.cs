@@ -47,30 +47,39 @@ public class Map : MonoBehaviour {
 				// Assign Map.cs as the parent of the Map Tiles
 				tiles[x,z].transform.SetParent (this.transform);
 				// Function to randomly assign resources
-				resources = getResources (x, z);
+				resources = getResources ((float)x/NcellX, (float)z/NcellZ);
 				// Initialize MapGridUnit with the resource values.
 				tiles[x,z].GetComponent<MapGridUnit>().Initialize(resources,uniqueResources,maxResources);
 
 			}
 		}
 		// Move some resources around so that there isn't such a sharp contrast
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 1; i++) {
 			//redistributeResources ();
 			redistributeResources ();
 		}
+		// Apply Colour to each tile
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
 				tiles [x, z].GetComponent<MapGridUnit> ().reColour ();
 			}
 		}
 	}
-	float[] getResources(int x, int z){
+	float[] getResources(float x, float z){
+		// X and Z are the amount through the map (0 to 1)
+		//print (x.ToString() + "  " + z.ToString ());
 		// Function to generate the number of each resource that will be in a tile once it spawns. 
 		float[] generatedResources = new float[uniqueResources];
-		for (int i = 0; i < uniqueResources; i++) {
+		// RNG WAY I'M LEAVING OUT FOR NOW
+		/*for (int i = 0; i < uniqueResources; i++) {
+
 			int randomNumber = random.Next(0, maxResources);
 			generatedResources [i] = randomNumber;
-		}
+		}*/
+
+		generatedResources [0] = (int) maxResources * (x + z) / 2;
+		generatedResources [1] = (int) maxResources *( 1-(x + z) / 2);
+
 		return generatedResources;
 	}
 

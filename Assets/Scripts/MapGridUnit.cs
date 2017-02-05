@@ -8,9 +8,14 @@ public class MapGridUnit : MonoBehaviour {
 	private int uniqueResources;
 	private int maxResources;
 	public Renderer rend;
+	public int reduceSaturation; // max saturation for a grid unit
 
 	// Use this for initialization
 	void Start () {
+		reduceSaturation = 180;
+		if (reduceSaturation >= uniqueResources) {
+			reduceSaturation = uniqueResources - 1;
+		}
 		// WANT: Create Map tile game object from an Asset (I think)
 		// Change Colour?
 		// Add terrain that belongs to one map (Mountains, trees, buildings)
@@ -27,7 +32,7 @@ public class MapGridUnit : MonoBehaviour {
 		maxResources = maxResourcesIn;
 		// Change colour
 		if(uniqueResources >= 3){
-			rend.material.color = new Color(resources[0]/maxResources,resources[1]/maxResources,resources[2]/maxResources,255);
+			rend.material.color = new Color((int) (resources[0]/(maxResources-reduceSaturation)),(int) (resources[1]/maxResources),0,255);
 		}
 	}
 
@@ -36,6 +41,9 @@ public class MapGridUnit : MonoBehaviour {
 		rend = GetComponent<Renderer>();
 		if(uniqueResources >= 3){
 			rend.material.color = new Color(resources[0]/maxResources,resources[1]/maxResources,resources[2]/maxResources,255);
+		}
+		if (uniqueResources == 2) {
+			rend.material.color = new Color((resources[0]/(maxResources-reduceSaturation)),0,resources[1]/(maxResources-reduceSaturation),255);
 		}
 	}
 	// Update is called once per frame

@@ -12,6 +12,7 @@ public class EnemyBehavior : MonoBehaviour {
 	private Vector3 tempPos; // temp position vector so I can do the math before applying it.
 	private Vector3 difference;
 	private float maxDistanceDelta = 0.1f;
+	private int RotationSpeed = 5;
 	// Use this for initialization
 	void Start () {
 		RB = GetComponent<Rigidbody> ();
@@ -32,6 +33,11 @@ public class EnemyBehavior : MonoBehaviour {
 		if (difference.magnitude < 0.0000001) {
 			NewTarget ();
 		}
+		// Move angle towards where eemy is going
+		Vector3 angle = Vector3.RotateTowards(TR.forward, target, RotationSpeed, 0.0F);
+		// Apply angle
+		TR.rotation = Quaternion.LookRotation(angle);
+
 	}
 
 	void NewTarget(){
