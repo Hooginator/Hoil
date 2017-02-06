@@ -14,6 +14,9 @@ public class EnemyBehavior : MonoBehaviour {
 	private float maxDistanceDelta = 0.1f;
 	private int RotationSpeed = 5;
 	// Use this for initialization
+	public Color colour;
+
+
 	void Start () {
 		RB = GetComponent<Rigidbody> ();
 		TR = GetComponent<Transform> ();

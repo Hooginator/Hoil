@@ -13,6 +13,8 @@ public class gameManager : MonoBehaviour {
 	public int currentPlayerCharacters = 0;
 	public Vector3 playerMapPosition;
 
+	public List<Team> teams;
+
 
 	public void LoadScene(string sceneName){
 		// Used to load different gamef files, IE loading from the battle scene to the world map and back.
@@ -42,6 +44,10 @@ public class gameManager : MonoBehaviour {
 			playerCharacters.Add(temp);
 			//playerCharacters.Add(new CharacterClass());
 			currentPlayerCharacters += 1;
+
+			//teams = new List<Team> ();
+			teams[0].Initialize(10,"Blue");
+			teams[1].Initialize(10,"Red");
 			InitializeWorld ();
 
 		} else if (instance != this){
