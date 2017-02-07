@@ -16,6 +16,7 @@ public class Team : MonoBehaviour {
 		armies = new List<GameObject>();
 	}
 	public void Initialize(int PWR, string NAM){
+		// Initialize Armies
 		power = PWR;
 		name = NAM;
 		//MeshRenderer rend = enemyPrefab.GetComponent<MeshRenderer> ();
