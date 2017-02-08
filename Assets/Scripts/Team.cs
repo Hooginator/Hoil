@@ -26,7 +26,7 @@ public class Team : MonoBehaviour {
 		}
 	}
 	void spawnEnemy(){
-		GameObject tempArmy = GameObject.Instantiate (enemyPrefab, new Vector3 (45, 2, 35), Quaternion.identity);
+		GameObject tempArmy = GameObject.Instantiate (enemyPrefab, new Vector3 (35+Random.Range(0,30), 2, 25+Random.Range(0,30)), Quaternion.identity);
 		armies.Add (tempArmy);
 	}
 	// Update is called once per frame
