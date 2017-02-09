@@ -14,8 +14,8 @@ public class WorldCameraFollow : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		RB = GetComponent<Rigidbody>();
-		var player = GameObject.Find ("Player");
 		var gameManager = GameObject.Find ("GameManager");
+		var player = gameManager.GetComponent<gameManager>().worldPlayer;
 			inBattle = gameManager.GetComponent<gameManager> ().inBattle;
 		if (inBattle) {
 			moveSpeed = 20;
@@ -28,12 +28,13 @@ public class WorldCameraFollow : MonoBehaviour {
 		// Distance away we will start going towards idealpos
 		bufferx = 28;
 		bufferz = 14;
-		TR.position = gameManager.GetComponent<gameManager>().playerMapPosition + Idealpos; // read camera default position
+		TR.position = gameManager.GetComponent<gameManager>().playerMapPosition.position + Idealpos; // read camera default position
 	}
 
 	// Update is called once per frame
 	void Update () {
-		var player = GameObject.Find ("Player");
+		var gameManager = GameObject.Find ("GameManager");
+		var player = gameManager.GetComponent<gameManager>().worldPlayer;
 		Vector3 Playpos = player.transform.position; // get Player position
 		Vector3 Campos = TR.position; // get Camera Position
 		input = new Vector3(0,0,0); // reset input force

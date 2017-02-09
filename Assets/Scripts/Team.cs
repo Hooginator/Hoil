@@ -14,6 +14,7 @@ public class Team : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		armies = new List<GameObject>();
+		mainBase = gameObject;
 	}
 	public void Initialize(int PWR, string NAM){
 		// Initialize Armies
@@ -25,8 +26,19 @@ public class Team : MonoBehaviour {
 			spawnEnemy ();
 		}
 	}
+	public void spawnEnemies(){
+		for (int i = 0; i < 3; i++) {
+			spawnEnemy ();
+		}
+	}
 	void spawnEnemy(){
-		GameObject tempArmy = GameObject.Instantiate (enemyPrefab, new Vector3 (35+Random.Range(0,30), 2, 25+Random.Range(0,30)), Quaternion.identity);
+		Vector3 basepos = mainBase.GetComponent<Transform> ().position;
+		Vector3 enemypos = target.position;
+		Vector3 spawnPos = (2*basepos + enemypos)/3;
+		print (basepos.ToString () + "  " + enemypos.ToString() + "  " + spawnPos.ToString());
+		GameObject tempArmy = GameObject.Instantiate (enemyPrefab, new Vector3 (spawnPos[0]+Random.Range(0,5), spawnPos[1]+2, spawnPos[2]+Random.Range(0,5)), Quaternion.identity);
+		EnemyBehavior tempBehave = tempArmy.AddComponent<EnemyBehavior>();
+		tempBehave.moveSpeed = 0.5f;
 		armies.Add (tempArmy);
 	}
 	// Update is called once per frame

@@ -14,7 +14,7 @@ public class WorldMovementControls : MonoBehaviour {
 		RB = GetComponent<Rigidbody> ();
 		TR = GetComponent<Transform> ();
 		var gameManager = GameObject.Find ("GameManager");
-		TR.position = gameManager.GetComponent<gameManager> ().playerMapPosition;
+		TR.position = gameManager.GetComponent<gameManager> ().playerMapPosition.position;
 		RB.angularVelocity = Vector3.zero;
 		RotationSpeed = 5;
 	}

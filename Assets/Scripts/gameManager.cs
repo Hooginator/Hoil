@@ -11,10 +11,14 @@ public class gameManager : MonoBehaviour {
 	public List<CharacterClass> playerCharacters;// = new  List<CharacterClass>();
 	public int maxPlayerCharacters = 4;
 	public int currentPlayerCharacters = 0;
-	public Vector3 playerMapPosition;
+	public Transform playerMapPosition;
 
 	public List<Team> teams;
 
+	public GameObject playerWorldSprite;
+	public GameObject worldPlayer;
+
+	public Vector3 startPosition = new Vector3(20,2,20);
 
 	public void LoadScene(string sceneName){
 		// Used to load different gamef files, IE loading from the battle scene to the world map and back.
@@ -28,6 +32,9 @@ public class gameManager : MonoBehaviour {
 		// Makes sure that the GameManager this is attached to is always the same one, so we can use it to keep values through scenes.
 		if (instance == null) {
 			instance = this;
+			playerMapPosition = GetComponent<Transform> ();
+			playerMapPosition.position = startPosition;
+			worldPlayer = GameObject.Instantiate (playerWorldSprite, playerMapPosition);
 			//playerMapPosition = new Vector3(0,3,0);
 			//playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
 			/****************************************** Start of the game here ***********************************************************/
@@ -49,6 +56,9 @@ public class gameManager : MonoBehaviour {
 			teams[0].Initialize(10,"Blue");
 			teams[1].Initialize(10,"Red");
 			InitializeWorld ();
+			WorldMovementControls WMC = worldPlayer.AddComponent<WorldMovementControls> ();
+			WMC.moveSpeed = 20;
+			WMC.RotationSpeed = 1;
 
 		} else if (instance != this){
 			Destroy (gameObject);
@@ -58,6 +68,12 @@ public class gameManager : MonoBehaviour {
 
 	}
 	void InitializeWorld(){
+
+		worldPlayer.SetActive(true);
+		// Spawn Enemies after world battle
+		// Out for now as this references the main base which gets destroyed... might need to add that to the do not destroy list
+		//teams [0].spawnEnemies ();
+		//teams [1].spawnEnemies ();
 	}
 	public void printPlayer0Stats(){
 		// Small test print fundtion
@@ -66,8 +82,10 @@ public class gameManager : MonoBehaviour {
 	public void StartBattle(){
 		// Once collided with enemy, starta  fight. 
 		// I will need enemy information coming through here
-		playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
-		print (playerMapPosition.ToString ());
+		playerMapPosition = worldPlayer.GetComponent<Transform>();
+		print (playerMapPosition.position.ToString ());
+		//GameObject.Destroy (worldPlayer);
+		worldPlayer.SetActive(false);
 
 		LoadScene ("Battle");
 		inBattle = true;
@@ -77,8 +95,8 @@ public class gameManager : MonoBehaviour {
 		for (int i = 0; i < playerCharacters.Count; i++) {
 			print(playerCharacters [i].GainExperience (EXP));
 		}
-		LoadScene ("Hoil");
 		InitializeWorld ();
+		LoadScene ("Hoil");
 		inBattle = false;
 		//GameObject.Find ("Player").GetComponent<WorldMovementControls> ().Initialize ();
 	}
