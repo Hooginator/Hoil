@@ -17,6 +17,7 @@ public class WorldMovementControls : MonoBehaviour {
 		TR.position = gameManager.GetComponent<gameManager> ().playerMapPosition.position;
 		RB.angularVelocity = Vector3.zero;
 		RotationSpeed = 5;
+		moveSpeed = 20;
 	}
 	
 	// Update is called once per frame
@@ -31,7 +32,7 @@ public class WorldMovementControls : MonoBehaviour {
 		// Apply angle
 		TR.rotation = Quaternion.LookRotation(angle);
 		// Keep player within World map
-		var map = GameObject.Find ("World Map");
+		var map = GameObject.Find ("Map");
 		currentPos = TR.position;
 		TR.position = map.GetComponent<Map> ().ForceInsideBoundaries (currentPos);
 	}

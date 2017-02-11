@@ -1,19 +1,19 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Team.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\gameManager.cs">
     <Files>
       <File FileName="Assets\Scripts\CharacterClass.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\WorldMovementControls.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Map.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\WorldCameraFollow.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Map.cs" Line="33" Column="34" />
+      <File FileName="Assets\Scripts\WorldCameraFollow.cs" Line="23" Column="75" />
       <File FileName="Assets\Scripts\EnemyBehavior.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\gameManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\gameManager.cs" Line="34" Column="26" />
       <File FileName="Assets\Scripts\StatusEffect.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\CombatTracker.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\BattleMenu.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\SelectTarget.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\MapGridUnit.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Team.cs" Line="29" Column="102" />
+      <File FileName="Assets\Scripts\MapGridUnit.cs" Line="27" Column="23" />
+      <File FileName="Assets\Scripts\Team.cs" Line="23" Column="46" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

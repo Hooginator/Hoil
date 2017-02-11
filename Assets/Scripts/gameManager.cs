@@ -12,13 +12,15 @@ public class gameManager : MonoBehaviour {
 	public int maxPlayerCharacters = 4;
 	public int currentPlayerCharacters = 0;
 	public Transform playerMapPosition;
+	public Transform teamMapPosition;
 
-	public List<Team> teams;
+	public List<GameObject> teamsPrefabs = new List<GameObject>();
+	public List<GameObject> teams;
 
 	public GameObject playerWorldSprite;
 	public GameObject worldPlayer;
 
-	public Vector3 startPosition = new Vector3(20,2,20);
+	//public Vector3 startPosition = new Vector3(60,2,-10);
 
 	public void LoadScene(string sceneName){
 		// Used to load different gamef files, IE loading from the battle scene to the world map and back.
@@ -33,7 +35,7 @@ public class gameManager : MonoBehaviour {
 		if (instance == null) {
 			instance = this;
 			playerMapPosition = GetComponent<Transform> ();
-			playerMapPosition.position = startPosition;
+			playerMapPosition.position = new Vector3(80,2,20);
 			worldPlayer = GameObject.Instantiate (playerWorldSprite, playerMapPosition);
 			//playerMapPosition = new Vector3(0,3,0);
 			//playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
@@ -41,6 +43,7 @@ public class gameManager : MonoBehaviour {
 			// This will be called once at the very start of the game and then never again, good place to set up one time events at the start.
 			// Create Main character, probably will be more involved than this later :P
 			playerCharacters = new  List<CharacterClass>();
+			teams = new  List<GameObject>();
 			// Make temp something that should definitely not be Null...
 			CharacterClass temp = new CharacterClass();
 			// Initialize stats to level 5 so we can beat level 1 generated badguy easily
@@ -53,9 +56,16 @@ public class gameManager : MonoBehaviour {
 			currentPlayerCharacters += 1;
 
 			//teams = new List<Team> ();
-			teams[0].Initialize(10,"Blue");
-			teams[1].Initialize(10,"Red");
+			GameObject tempTeam1 = GameObject.Instantiate(teamsPrefabs[0],new Vector3(0,1,0),Quaternion.identity) as GameObject;
+			teams.Add(tempTeam1);
+			GameObject tempTeam2 = GameObject.Instantiate(teamsPrefabs[0],new Vector3(0,1,0),Quaternion.identity) as GameObject;
+			teams.Add(tempTeam2);
+
+			teams[0].GetComponent<Team>().Initialize(10,"Blue");
+			teams[1].GetComponent<Team>().Initialize(10,"Red");
+			// Initialize everything that would also be initialized post battle
 			InitializeWorld ();
+			// Apply the movement controls for the world map to the player
 			WorldMovementControls WMC = worldPlayer.AddComponent<WorldMovementControls> ();
 			WMC.moveSpeed = 20;
 			WMC.RotationSpeed = 1;
@@ -68,8 +78,14 @@ public class gameManager : MonoBehaviour {
 
 	}
 	void InitializeWorld(){
-
+		// Reinitialize the Player
 		worldPlayer.SetActive(true);
+		//Reinitialisze the teams bases
+		for (int i = 0; i < teams.Count; i++) {
+			print (i.ToString() + "  " );
+			print (playerCharacters [0].Accuracy.ToString());
+			teams [i].SetActive (true);
+		}
 		// Spawn Enemies after world battle
 		// Out for now as this references the main base which gets destroyed... might need to add that to the do not destroy list
 		//teams [0].spawnEnemies ();
@@ -85,7 +101,12 @@ public class gameManager : MonoBehaviour {
 		playerMapPosition = worldPlayer.GetComponent<Transform>();
 		print (playerMapPosition.position.ToString ());
 		//GameObject.Destroy (worldPlayer);
+		// Disable the World version of player
 		worldPlayer.SetActive(false);
+		// disable the bases for each team on the world map
+		for (int i = 0; i < teams.Count; i++) {
+			teams [i].SetActive (false);
+		}
 
 		LoadScene ("Battle");
 		inBattle = true;
@@ -95,8 +116,9 @@ public class gameManager : MonoBehaviour {
 		for (int i = 0; i < playerCharacters.Count; i++) {
 			print(playerCharacters [i].GainExperience (EXP));
 		}
-		InitializeWorld ();
 		LoadScene ("Hoil");
+
+		InitializeWorld ();
 		inBattle = false;
 		//GameObject.Find ("Player").GetComponent<WorldMovementControls> ().Initialize ();
 	}
