@@ -37,6 +37,7 @@ public class WorldMovementControls : MonoBehaviour {
 		TR.position = map.GetComponent<Map> ().ForceInsideBoundaries (currentPos);
 	}
 	void OnCollisionEnter(Collision col){
+		print ("Collision at:  " + col.collider.transform.position.ToString ());
 		// Only if what we collided with was an enemy
 		if (col.gameObject.GetComponent<EnemyBehavior>() != null) {
 			// Find game manager as that has the loading and unloading functions

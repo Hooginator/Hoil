@@ -30,12 +30,12 @@ public class gameManager : MonoBehaviour {
 		// Takes all the stuff from a scene out of memory
 		this.UnLoadScene (sceneName);
 	}
-	void Start(){
+	void Awake(){
 		// Makes sure that the GameManager this is attached to is always the same one, so we can use it to keep values through scenes.
 		if (instance == null) {
 			instance = this;
 			playerMapPosition = GetComponent<Transform> ();
-			playerMapPosition.position = new Vector3(80,2,20);
+			playerMapPosition.position = new Vector3(90,2,0);
 			worldPlayer = GameObject.Instantiate (playerWorldSprite, playerMapPosition);
 			//playerMapPosition = new Vector3(0,3,0);
 			//playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
@@ -57,12 +57,14 @@ public class gameManager : MonoBehaviour {
 
 			//teams = new List<Team> ();
 			GameObject tempTeam1 = GameObject.Instantiate(teamsPrefabs[0],new Vector3(0,1,0),Quaternion.identity) as GameObject;
+			tempTeam1.GetComponent<Transform> ().parent = gameObject.transform;
 			teams.Add(tempTeam1);
-			GameObject tempTeam2 = GameObject.Instantiate(teamsPrefabs[0],new Vector3(0,1,0),Quaternion.identity) as GameObject;
+			GameObject tempTeam2 = GameObject.Instantiate(teamsPrefabs[1],new Vector3(90,1,90),Quaternion.identity) as GameObject;
+			tempTeam2.GetComponent<Transform> ().parent = gameObject.transform;
 			teams.Add(tempTeam2);
 
-			teams[0].GetComponent<Team>().Initialize(10,"Blue");
-			teams[1].GetComponent<Team>().Initialize(10,"Red");
+			teams[0].GetComponent<Team>().Initialize(10);
+			teams[1].GetComponent<Team>().Initialize(10);
 			// Initialize everything that would also be initialized post battle
 			InitializeWorld ();
 			// Apply the movement controls for the world map to the player
@@ -85,6 +87,7 @@ public class gameManager : MonoBehaviour {
 			print (i.ToString() + "  " );
 			print (playerCharacters [0].Accuracy.ToString());
 			teams [i].SetActive (true);
+			teams [i].GetComponent<Team> ().Initialize (5);
 		}
 		// Spawn Enemies after world battle
 		// Out for now as this references the main base which gets destroyed... might need to add that to the do not destroy list

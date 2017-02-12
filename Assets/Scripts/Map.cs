@@ -26,7 +26,7 @@ public class Map : MonoBehaviour {
 	// RNG for map generation
 	System.Random random = new System.Random();
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		// Set Boundaries of the map
 		Xmin =  -0.5f*gridSize;
 		Zmin =  -0.5f*gridSize;

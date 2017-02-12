@@ -20,13 +20,14 @@ public class Team : MonoBehaviour {
 		armies = new List<GameObject>();
 		mainBase = gameObject;
 	}
-	public void Initialize(int PWR, string NAM){
+	public void Initialize(int PWR){
 		// Initialize Armies
 		power = PWR;
-		name = NAM;
+		//name = NAM;
 		mainBase = gameObject;
 		//MeshRenderer rend = enemyPrefab.GetComponent<MeshRenderer> ();
 		//rend.sharedMaterial.SetColor ("_Color", colour);
+		armies.Clear();
 		spawnEnemies();
 	}
 	public void spawnEnemies(){
@@ -35,16 +36,17 @@ public class Team : MonoBehaviour {
 		}
 	}
 	void spawnEnemy(){
+		print ("Spawning enenmy");
 		Vector3 basepos = mainBase.GetComponent<Transform> ().position;
 		minRange = 10f;
-		maxRange = 50f;
+		maxRange = 40f;
 		float dist = Random.Range (minRange, maxRange);
 		float angle = Random.Range (0f, 2*Mathf.PI);
 		Vector3 relativeSpawn = new Vector3(dist*Mathf.Sin (angle),0,dist*Mathf.Cos (angle));
 		var maaap = GameObject.Find ("Map");
 		Vector3 spawnPos =  maaap.GetComponent<Map> ().MirrorInsideBoundaries (relativeSpawn + basepos);
-		print (basepos.ToString () + "  " + spawnPos.ToString());
-		GameObject tempArmy = GameObject.Instantiate (enemyPrefab, new Vector3 (spawnPos[0]+Random.Range(0,5), spawnPos[1]+2, spawnPos[2]+Random.Range(0,5)), Quaternion.identity);
+		print ("Spawning Unit at:    " + spawnPos.ToString());
+		GameObject tempArmy = GameObject.Instantiate (enemyPrefab, spawnPos, Quaternion.identity);
 		EnemyBehavior tempBehave = tempArmy.AddComponent<EnemyBehavior>();
 		tempBehave.moveSpeed = 0.5f;
 		armies.Add (tempArmy);
