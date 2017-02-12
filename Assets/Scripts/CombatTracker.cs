@@ -24,7 +24,7 @@ public class CombatTracker : MonoBehaviour {
 	// Number of turns that have gone by, so I can kill the infinite loops witha  failsafe
 	private int nTurns = 0;
 	public void StartBattle(int numPlayers, List<CharacterClass> players){
-		//print ("Battle Starting");
+		print ("Battle Starting");
 		experienceEarned = 0;
 		playerSprites = new GameObject[numPlayers];
 		// Set Player characters based on inputs.
@@ -51,7 +51,7 @@ public class CombatTracker : MonoBehaviour {
 			enemySprites[i] = Instantiate(CharacterPrefabs[enemyCharacters[i].BattleSprite], new Vector3 (5, 5, 5*i), Quaternion.identity);
 			// Print Details of Enemy
 			string printstats = enemyCharacters [i].printStats ();
-			//print("Enemy Spawned: " + printstats);
+			print("Enemy Spawned: " + printstats);
 		}
 		// Start the Combat with Player Turn
 		PlayerTurn ();
@@ -69,7 +69,7 @@ public class CombatTracker : MonoBehaviour {
 
 
 	void EnemyTurn(int target){
-		//print ("Start of Enemy Turn");
+		print ("Start of Enemy Turn");
 		// No need to show player options when he has none
 		HideBattleMenu();
 		for (int i = 0; i < maxEnemyCharacters; i++) {
@@ -98,8 +98,7 @@ public class CombatTracker : MonoBehaviour {
 		PlayerTurn ();
 	}
 	void PlayerTurn (){
-		//print ("Start of Player Turn");
-		nTurns++;
+		print ("Start of Player Turn");
 		PrintAllBattleStats ();
 		// Show the Battle Menu
 		ShowBattleMenu();
@@ -192,7 +191,7 @@ public class CombatTracker : MonoBehaviour {
 		// Make the Options for battle (Attack, Item...) Visible
 		var BattleMenu = GameObject.Find ("Battle Menu").GetComponent<CanvasGroup>();
 		BattleMenu.alpha = 1f;
-		//print ("Show Battle Menu");
+		print ("Show Battle Menu");
 		BattleMenu.GetComponent<CanvasGroup>().blocksRaycasts = true;
 		BattleMenu.GetComponent<CanvasGroup>().interactable = true;
 		// Select Attack as default.
@@ -212,7 +211,7 @@ public class CombatTracker : MonoBehaviour {
 		// Make the Options for battle (Attack, Item...) Visible
 		var SelectMenu = GameObject.Find ("SelectTarget").GetComponent<CanvasGroup>();
 		SelectMenu.alpha = 1f;
-		//print ("Show Select Menu");
+		print ("Show Select Menu");
 		SelectMenu.GetComponent<CanvasGroup>().blocksRaycasts = true;
 		SelectMenu.GetComponent<CanvasGroup>().interactable = true;
 		// Currently all I'm using this for.
