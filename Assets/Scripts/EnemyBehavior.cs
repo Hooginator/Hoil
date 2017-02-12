@@ -12,13 +12,17 @@ public class EnemyBehavior : MonoBehaviour {
 	private Vector3 tempPos; // temp position vector so I can do the math before applying it.
 	private Vector3 difference;
 	private float maxDistanceDelta = 0.1f;
+	private int RotationSpeed = 5;
 	// Use this for initialization
+	public Color colour;
+
+
 	void Start () {
 		RB = GetComponent<Rigidbody> ();
 		TR = GetComponent<Transform> ();
 		current = TR.position;
 		NewTarget ();
-		moveSpeed = 0.2f;
+		//moveSpeed = 0.2f;
 	}
 
 	// Update is called once per frame
@@ -32,6 +36,11 @@ public class EnemyBehavior : MonoBehaviour {
 		if (difference.magnitude < 0.0000001) {
 			NewTarget ();
 		}
+		// Move angle towards where eemy is going
+		Vector3 angle = Vector3.RotateTowards(TR.forward, target, RotationSpeed, 0.0F);
+		// Apply angle
+		TR.rotation = Quaternion.LookRotation(angle);
+
 	}
 
 	void NewTarget(){
@@ -39,7 +48,7 @@ public class EnemyBehavior : MonoBehaviour {
 		float randomNumber1 = Random.Range(-maxTargetDistance, maxTargetDistance);
 		float randomNumber2 = Random.Range(-maxTargetDistance, maxTargetDistance);
 		target = new Vector3(current[0]+randomNumber1,current[1],current[2]+randomNumber2);
-		var map = GameObject.Find ("World Map");
+		var map = GameObject.Find ("Map");
 		// Mirrors any target that would be outside the boundary back in, this makes the guy not just slide across the edge
 		target = map.GetComponent<Map> ().MirrorInsideBoundaries (target);
 	}

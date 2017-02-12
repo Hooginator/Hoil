@@ -14,9 +14,10 @@ public class WorldMovementControls : MonoBehaviour {
 		RB = GetComponent<Rigidbody> ();
 		TR = GetComponent<Transform> ();
 		var gameManager = GameObject.Find ("GameManager");
-		TR.position = gameManager.GetComponent<gameManager> ().playerMapPosition;
+		TR.position = gameManager.GetComponent<gameManager> ().playerMapPosition.position;
 		RB.angularVelocity = Vector3.zero;
 		RotationSpeed = 5;
+		moveSpeed = 20;
 	}
 	
 	// Update is called once per frame
@@ -31,11 +32,12 @@ public class WorldMovementControls : MonoBehaviour {
 		// Apply angle
 		TR.rotation = Quaternion.LookRotation(angle);
 		// Keep player within World map
-		var map = GameObject.Find ("World Map");
+		var map = GameObject.Find ("Map");
 		currentPos = TR.position;
 		TR.position = map.GetComponent<Map> ().ForceInsideBoundaries (currentPos);
 	}
 	void OnCollisionEnter(Collision col){
+		print ("Collision at:  " + col.collider.transform.position.ToString ());
 		// Only if what we collided with was an enemy
 		if (col.gameObject.GetComponent<EnemyBehavior>() != null) {
 			// Find game manager as that has the loading and unloading functions

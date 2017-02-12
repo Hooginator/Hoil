@@ -54,8 +54,10 @@
      <Compile Include="Assets\Scripts\MapGridUnit.cs" />
      <Compile Include="Assets\Scripts\SelectTarget.cs" />
      <Compile Include="Assets\Scripts\StatusEffect.cs" />
+     <Compile Include="Assets\Scripts\Team.cs" />
      <Compile Include="Assets\Scripts\WorldCameraFollow.cs" />
      <Compile Include="Assets\Scripts\WorldMovementControls.cs" />
+     <Compile Include="Assets\Scripts\WorldTracker.cs" />
      <Compile Include="Assets\Scripts\gameManager.cs" />
  <Reference Include="UnityEngine.Advertisements">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>

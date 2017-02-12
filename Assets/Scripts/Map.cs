@@ -26,7 +26,7 @@ public class Map : MonoBehaviour {
 	// RNG for map generation
 	System.Random random = new System.Random();
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		// Set Boundaries of the map
 		Xmin =  -0.5f*gridSize;
 		Zmin =  -0.5f*gridSize;
@@ -47,35 +47,48 @@ public class Map : MonoBehaviour {
 				// Assign Map.cs as the parent of the Map Tiles
 				tiles[x,z].transform.SetParent (this.transform);
 				// Function to randomly assign resources
-				resources = getResources (x, z);
+				if (NcellX >= 1 && NcellZ >= 1) {
+					resources = getResources ((float)x / (NcellX + 1), (float)z / (NcellZ + 1));
+				} else { // To prevent divide by zero if there's a 1xwhatever size map
+					resources = getResources (0.5f, 0.5f);
+				}
 				// Initialize MapGridUnit with the resource values.
 				tiles[x,z].GetComponent<MapGridUnit>().Initialize(resources,uniqueResources,maxResources);
 
 			}
 		}
 		// Move some resources around so that there isn't such a sharp contrast
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 1; i++) {
 			//redistributeResources ();
 			redistributeResources ();
 		}
+		// Apply Colour to each tile
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
 				tiles [x, z].GetComponent<MapGridUnit> ().reColour ();
 			}
 		}
 	}
-	float[] getResources(int x, int z){
+	float[] getResources(float x, float z){
+		// X and Z are the amount through the map (0 to 1)
+		//print (x.ToString() + "  " + z.ToString ());
 		// Function to generate the number of each resource that will be in a tile once it spawns. 
 		float[] generatedResources = new float[uniqueResources];
-		for (int i = 0; i < uniqueResources; i++) {
+		// RNG WAY I'M LEAVING OUT FOR NOW
+		/*for (int i = 0; i < uniqueResources; i++) {
+
 			int randomNumber = random.Next(0, maxResources);
 			generatedResources [i] = randomNumber;
-		}
+		}*/
+
+		generatedResources [0] = (int) maxResources * Mathf.Pow(x + z,2) / 2;
+		generatedResources [1] = (int) maxResources * Mathf.Pow(1-(x + z),2)  / 2;
+
 		return generatedResources;
 	}
 
 	void redistributeResources(){
-		// If we are not on the border, do trade with neighbour
+		// If we are not on the border, do trade with nearest neighbour
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
 				if (x != 0) {
@@ -108,7 +121,7 @@ public class Map : MonoBehaviour {
 		return pos;
 	}
 	public Vector3 MirrorInsideBoundaries(Vector3 pos){
-		// Takes
+		// Takes a vector and mirrors it inside the boundaries if it is outside.  The mirroring is done along the edge of the map in each dimension
 		if (pos [0] < Xmin) {
 			pos [0] = 2*Xmin-pos[0];
 		} else if (pos [0] > Xmax) {
