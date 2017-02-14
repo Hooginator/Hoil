@@ -12,18 +12,31 @@ public class EnemyBehavior : MonoBehaviour {
 	private Vector3 tempPos; // temp position vector so I can do the math before applying it.
 	private Vector3 difference;
 	private float maxDistanceDelta = 0.1f;
-	private int RotationSpeed = 5;
+	private float RotationSpeed;
 	// Use this for initialization
 	public Color colour;
 
+	// Battle Stats
+	public int level;
+
 
 	void Start () {
+		level = Random.Range(3,25);
+		updateLevelIndicator ();
 		RB = GetComponent<Rigidbody> ();
 		TR = GetComponent<Transform> ();
 		current = TR.position;
 		NewTarget ();
+		RotationSpeed = 0.1f;
 		//moveSpeed = 0.2f;
 	}
+	// Update level indicator
+	public void updateLevelIndicator(){
+		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
+		print ("Update level strings");
+		levelText.GetComponent<TextMesh>().text = level.ToString ();
+	}
+
 
 	// Update is called once per frame
 	void Update () {
@@ -37,7 +50,7 @@ public class EnemyBehavior : MonoBehaviour {
 			NewTarget ();
 		}
 		// Move angle towards where eemy is going
-		Vector3 angle = Vector3.RotateTowards(TR.forward, target, RotationSpeed, 0.0F);
+		Vector3 angle = Vector3.RotateTowards(TR.forward, difference, RotationSpeed, 2.0F);
 		// Apply angle
 		TR.rotation = Quaternion.LookRotation(angle);
 
