@@ -47,7 +47,11 @@ public class Map : MonoBehaviour {
 				// Assign Map.cs as the parent of the Map Tiles
 				tiles[x,z].transform.SetParent (this.transform);
 				// Function to randomly assign resources
-				resources = getResources ((float)x/NcellX, (float)z/NcellZ);
+				if (NcellX >= 1 && NcellZ >= 1) {
+					resources = getResources ((float)x / (NcellX + 1), (float)z / (NcellZ + 1));
+				} else { // To prevent divide by zero if there's a 1xwhatever size map
+					resources = getResources (0.5f, 0.5f);
+				}
 				// Initialize MapGridUnit with the resource values.
 				tiles[x,z].GetComponent<MapGridUnit>().Initialize(resources,uniqueResources,maxResources);
 
@@ -77,14 +81,14 @@ public class Map : MonoBehaviour {
 			generatedResources [i] = randomNumber;
 		}*/
 
-		generatedResources [0] = (int) maxResources * (x + z) / 2;
-		generatedResources [1] = (int) maxResources *( 1-(x + z) / 2);
+		generatedResources [0] = (int) maxResources * Mathf.Pow(x + z,2) / 2;
+		generatedResources [1] = (int) maxResources * Mathf.Pow(1-(x + z),2)  / 2;
 
 		return generatedResources;
 	}
 
 	void redistributeResources(){
-		// If we are not on the border, do trade with neighbour
+		// If we are not on the border, do trade with nearest neighbour
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
 				if (x != 0) {
@@ -117,7 +121,7 @@ public class Map : MonoBehaviour {
 		return pos;
 	}
 	public Vector3 MirrorInsideBoundaries(Vector3 pos){
-		// Takes
+		// Takes a vector and mirrors it inside the boundaries if it is outside.  The mirroring is done along the edge of the map in each dimension
 		if (pos [0] < Xmin) {
 			pos [0] = 2*Xmin-pos[0];
 		} else if (pos [0] > Xmax) {

@@ -52,7 +52,6 @@ public class Team : MonoBehaviour {
 		var maaap = GameObject.Find ("Map");
 		Vector3 spawnPos =  maaap.GetComponent<Map> ().MirrorInsideBoundaries (relativeSpawn + basepos);
 		//print ("Spawning Unit at:    " + spawnPos.ToString());
-		// Create the enemy
 		GameObject tempArmy = GameObject.Instantiate (enemyPrefab, spawnPos, Quaternion.identity);
 		EnemyBehavior tempBehave = tempArmy.AddComponent<EnemyBehavior>();
 		tempBehave.moveSpeed = 0.5f;

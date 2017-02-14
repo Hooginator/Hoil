@@ -55,11 +55,11 @@ public class gameManager : MonoBehaviour {
 			//playerCharacters.Add(new CharacterClass());
 			currentPlayerCharacters += 1;
 
-			//teams = new List<Team> ();
-			GameObject tempTeam1 = GameObject.Instantiate(teamsPrefabs[0],new Vector3(0,1,0),Quaternion.identity) as GameObject;
+			// Create the two teams and set their parent transforms to this gameobject (to not be destroyed)
+			GameObject tempTeam1 = GameObject.Instantiate(Resources.Load("Blue Base"),new Vector3(0,1,0),Quaternion.identity) as GameObject;
 			tempTeam1.GetComponent<Transform> ().parent = gameObject.transform;
 			teams.Add(tempTeam1);
-			GameObject tempTeam2 = GameObject.Instantiate(teamsPrefabs[1],new Vector3(90,1,90),Quaternion.identity) as GameObject;
+			GameObject tempTeam2 = GameObject.Instantiate(Resources.Load("Red Base"),new Vector3(90,1,90),Quaternion.identity) as GameObject;
 			tempTeam2.GetComponent<Transform> ().parent = gameObject.transform;
 			teams.Add(tempTeam2);
 
@@ -84,8 +84,6 @@ public class gameManager : MonoBehaviour {
 		worldPlayer.SetActive(true);
 		//Reinitialisze the teams bases
 		for (int i = 0; i < teams.Count; i++) {
-			print (i.ToString() + "  " );
-			print (playerCharacters [0].Accuracy.ToString());
 			teams [i].SetActive (true);
 			teams [i].GetComponent<Team> ().Initialize (5);
 		}

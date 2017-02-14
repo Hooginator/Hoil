@@ -2,6 +2,3 @@ sceneSetups:
 - path: Assets/Hoil.unity
   isLoaded: 1
   isActive: 1
-- path: Assets/Battle.unity
-  isLoaded: 0
-  isActive: 0
