@@ -12,6 +12,9 @@ public class Team : MonoBehaviour {
 	public float maxRange;
 	public float minRange;
 
+	public int level = 200; // Current total level of 
+	public int spawnLevelMean;
+	public int spawnLevelRange;
 
 	public List<GameObject> armies;
 
@@ -20,23 +23,41 @@ public class Team : MonoBehaviour {
 		armies = new List<GameObject>();
 		mainBase = gameObject;
 	}
-	public void Initialize(int PWR){
+	public void Initialize(){
 		// Initialize Armies
-		power = PWR;
 		//name = NAM;
 		mainBase = gameObject;
 		//MeshRenderer rend = enemyPrefab.GetComponent<MeshRenderer> ();
 		//rend.sharedMaterial.SetColor ("_Color", colour);
 		armies.Clear();
+		spawnLevelMean = 10;
+		spawnLevelRange = 3;
 		// For some fucking reason this gets done BEFORE loading the main world, and so is in "battle", and so gets unloaded immediately.  even though I call it AFTER the load.  fuck you c#
 		spawnEnemies();
 	}
 	public void spawnEnemies(){
-		for (int i = 0; i < 10; i++) {
-			spawnEnemy ();
+		int tempLevel = level;
+		int spawnLevel;
+		int timer = 0;
+		while (tempLevel >= 0) {
+			spawnLevel = Random.Range (spawnLevelMean - spawnLevelRange, spawnLevelMean + spawnLevelRange);
+			spawnEnemy (spawnLevel);
+			tempLevel -= spawnLevel;
+			print (tempLevel.ToString ());
+			timer++;
+			if (timer > 20) {
+				tempLevel = -10;
+			}
+
 		}
+		/* Old way to spawn enemies
+		for (int i = 0; i < 10; i++) {
+			spawnEnemy (level);
+		}*/
+
+
 	}
-	void spawnEnemy(){
+	void spawnEnemy(int lvl){
 		
 		print ("Spawning enenmy");
 		Vector3 basepos = mainBase.GetComponent<Transform> ().position;
@@ -55,6 +76,8 @@ public class Team : MonoBehaviour {
 		GameObject tempArmy = GameObject.Instantiate (enemyPrefab, spawnPos, Quaternion.identity);
 		EnemyBehavior tempBehave = tempArmy.AddComponent<EnemyBehavior>();
 		tempBehave.moveSpeed = 0.5f;
+		tempBehave.level = lvl;
+		tempBehave.prefab = enemyPrefab;
 		armies.Add (tempArmy);
 	}
 	// Update is called once per frame

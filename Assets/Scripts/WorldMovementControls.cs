@@ -45,7 +45,7 @@ public class WorldMovementControls : MonoBehaviour {
 			// If we're not already in battle, load it up. 
 			if (gameManager.GetComponent<gameManager> ().inBattle != true) {
 				print ("Gonna Load Up Battle");
-				gameManager.GetComponent<gameManager> ().StartBattle();
+				gameManager.GetComponent<gameManager> ().StartBattle(col.gameObject);
 				//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
 			}
 		}

@@ -20,6 +20,10 @@ public class gameManager : MonoBehaviour {
 	public GameObject playerWorldSprite;
 	public GameObject worldPlayer;
 
+	// prefab sprite to use.
+	public GameObject enemyToFight;
+	public int enemyLevel;
+
 	//public Vector3 startPosition = new Vector3(60,2,-10);
 
 	public void LoadScene(string sceneName){
@@ -63,8 +67,8 @@ public class gameManager : MonoBehaviour {
 			tempTeam2.GetComponent<Transform> ().parent = gameObject.transform;
 			teams.Add(tempTeam2);
 
-			teams[0].GetComponent<Team>().Initialize(10);
-			teams[1].GetComponent<Team>().Initialize(10);
+			//teams[0].GetComponent<Team>().Initialize();
+			//teams[1].GetComponent<Team>().Initialize();
 			// Initialize everything that would also be initialized post battle
 			InitializeWorld ();
 			// Apply the movement controls for the world map to the player
@@ -85,7 +89,7 @@ public class gameManager : MonoBehaviour {
 		//Reinitialisze the teams bases
 		for (int i = 0; i < teams.Count; i++) {
 			teams [i].SetActive (true);
-			teams [i].GetComponent<Team> ().Initialize (5);
+			//teams [i].GetComponent<Team> ().Initialize ();
 		}
 		// Spawn Enemies after world battle
 		// Out for now as this references the main base which gets destroyed... might need to add that to the do not destroy list
@@ -96,9 +100,12 @@ public class gameManager : MonoBehaviour {
 		// Small test print fundtion
 		print ("Player 0 has Strength " + this.playerCharacters[0].Strength.ToString()); 
 	}
-	public void StartBattle(){
+	public void StartBattle(GameObject enemyGameObject){
 		// Once collided with enemy, starta  fight. 
 		// I will need enemy information coming through here
+		enemyToFight = enemyGameObject.GetComponent<EnemyBehavior>().prefab;
+		enemyLevel = enemyGameObject.GetComponent<EnemyBehavior> ().level;
+
 		playerMapPosition = worldPlayer.GetComponent<Transform>();
 		print (playerMapPosition.position.ToString ());
 		//GameObject.Destroy (worldPlayer);

@@ -38,17 +38,24 @@ public class CombatTracker : MonoBehaviour {
 			playerSprites[i] = Instantiate(CharacterPrefabs[playerCharacters[i].BattleSprite], new Vector3 (0, 5, 5*i), Quaternion.identity);
 
 		}
+
+		var gameManager = GameObject.Find ("GameManager").GetComponent<gameManager>();
+
 		// Set Enemies, for now just 1 random
 		maxEnemyCharacters = 2;
 		enemySprites = new GameObject[maxEnemyCharacters];
 		//Create Enemies Randomly and initialize their stats / HP
 		for (int i = 0; i < maxEnemyCharacters; i++) {
 			enemyCharacters.Add(new CharacterClass ());
-			enemyCharacters [i].Initialize ("Enemy "+ i.ToString(),1,1);
+			enemyCharacters [i].Initialize ("Enemy "+ i.ToString(),gameManager.enemyLevel,1);
 			enemyCharacters [i].SetupStats ();
 			enemyCharacters [i].FullHeal ();
 			// Create Enemy Visuals
-			enemySprites[i] = Instantiate(CharacterPrefabs[enemyCharacters[i].BattleSprite], new Vector3 (5, 5, 5*i), Quaternion.identity);
+
+
+			enemySprites[i] = Instantiate(gameManager.enemyToFight, new Vector3 (5, 5, 5*i), Quaternion.identity);
+			GameObject levelText = enemySprites[i].transform.GetChild(0).gameObject;
+			levelText.GetComponent<TextMesh>().text = gameManager.enemyLevel.ToString ();
 			// Print Details of Enemy
 			string printstats = enemyCharacters [i].printStats ();
 			//print("Enemy Spawned: " + printstats);

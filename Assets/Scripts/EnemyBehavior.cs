@@ -19,9 +19,11 @@ public class EnemyBehavior : MonoBehaviour {
 	// Battle Stats
 	public int level;
 
+	public GameObject prefab;
+
 
 	void Start () {
-		level = Random.Range(3,25);
+		//level = Random.Range(3,25);
 		updateLevelIndicator ();
 		RB = GetComponent<Rigidbody> ();
 		TR = GetComponent<Transform> ();
