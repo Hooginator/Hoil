@@ -34,8 +34,13 @@ public class WorldMovementControls : MonoBehaviour {
 		// Keep player within World map
 		var map = GameObject.Find ("Map");
 		currentPos = TR.position;
-		TR.position = map.GetComponent<Map> ().ForceInsideBoundaries (currentPos);
+		TR.position = map.GetComponent<Map> ().ForceInsideBoundaries (keepAtY2(currentPos));
 	}
+	Vector3 keepAtY2(Vector3 todo){
+		todo.y = 2;
+		return todo;
+	}
+
 	void OnCollisionEnter(Collision col){
 		print ("Collision at:  " + col.collider.transform.position.ToString ());
 		// Only if what we collided with was an enemy

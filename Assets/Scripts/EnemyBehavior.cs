@@ -16,6 +16,8 @@ public class EnemyBehavior : MonoBehaviour {
 	// Use this for initialization
 	public Color colour;
 
+	public string team;
+
 	// Battle Stats
 	public int level;
 

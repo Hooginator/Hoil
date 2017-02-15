@@ -23,6 +23,7 @@ public class gameManager : MonoBehaviour {
 	// prefab sprite to use.
 	public GameObject enemyToFight;
 	public int enemyLevel;
+	public string enemyTeam;
 
 	//public Vector3 startPosition = new Vector3(60,2,-10);
 
@@ -51,7 +52,7 @@ public class gameManager : MonoBehaviour {
 			// Make temp something that should definitely not be Null...
 			CharacterClass temp = new CharacterClass();
 			// Initialize stats to level 5 so we can beat level 1 generated badguy easily
-			temp.Initialize ("GoodGuy",10,0);
+			temp.Initialize ("GoodGuy",1000,0);
 			string printstats = temp.printStats ();
 			print (printstats);
 			// Add temp to the list
@@ -105,6 +106,7 @@ public class gameManager : MonoBehaviour {
 		// I will need enemy information coming through here
 		enemyToFight = enemyGameObject.GetComponent<EnemyBehavior>().prefab;
 		enemyLevel = enemyGameObject.GetComponent<EnemyBehavior> ().level;
+		enemyTeam = enemyGameObject.GetComponent<EnemyBehavior> ().team;
 
 		playerMapPosition = worldPlayer.GetComponent<Transform>();
 		print (playerMapPosition.position.ToString ());
@@ -123,6 +125,14 @@ public class gameManager : MonoBehaviour {
 		// Load up the world map again. Maybe apply EXP and items here.
 		for (int i = 0; i < playerCharacters.Count; i++) {
 			print(playerCharacters [i].GainExperience (EXP));
+		}
+		if (enemyTeam == "Blue") {
+			teams [0].GetComponent<Team> ().level -= enemyLevel;
+			print ("Blue level now: "+teams [0].GetComponent<Team> ().level.ToString ());
+		}
+		if (enemyTeam == "Red") {
+			teams [1].GetComponent<Team> ().level -= enemyLevel;
+			print ("Red level now: "+teams [1].GetComponent<Team> ().level.ToString ());
 		}
 		LoadScene ("Hoil");
 

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Team : MonoBehaviour {
 	public GameObject mainBase;
 	public int power;
-	public string name;
+	public string teamName;
 	public GameObject enemyPrefab;
 
 	// For Enemy Spawning
@@ -32,7 +32,6 @@ public class Team : MonoBehaviour {
 		armies.Clear();
 		spawnLevelMean = 10;
 		spawnLevelRange = 3;
-		// For some fucking reason this gets done BEFORE loading the main world, and so is in "battle", and so gets unloaded immediately.  even though I call it AFTER the load.  fuck you c#
 		spawnEnemies();
 	}
 	public void spawnEnemies(){
@@ -66,7 +65,7 @@ public class Team : MonoBehaviour {
 		// Distance the enemy will spawn from the main base location
 		float dist = Random.Range (minRange, maxRange);
 		// angle from the base the enemy will spawn
-		float angle = Random.Range (0f, 2*Mathf.PI);
+		float angle = Random.Range (0f, 2f*Mathf.PI);
 		// Calculate teh Vector3 based on the RNG numbers
 		Vector3 relativeSpawn = new Vector3(dist*Mathf.Sin (angle),0,dist*Mathf.Cos (angle));
 		// Force the spawn location to fit inside the map.
@@ -78,6 +77,7 @@ public class Team : MonoBehaviour {
 		tempBehave.moveSpeed = 0.5f;
 		tempBehave.level = lvl;
 		tempBehave.prefab = enemyPrefab;
+		tempBehave.team = teamName;
 		armies.Add (tempArmy);
 	}
 	// Update is called once per frame
