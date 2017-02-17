@@ -121,19 +121,26 @@ public class gameManager : MonoBehaviour {
 		LoadScene ("Battle");
 		inBattle = true;
 	}
+	public void ReduceTeamLevel(int levelAmount, string teamName){
+		// Reduce Teams levels based on the losses of the fight
+		if (teamName == "Blue") {
+			teams [0].GetComponent<Team> ().level -= levelAmount;
+			print ("Blue level now: "+teams [0].GetComponent<Team> ().level.ToString ());
+		}
+		if (teamName == "Red") {
+			teams [1].GetComponent<Team> ().level -= levelAmount;
+			print ("Red level now: "+teams [1].GetComponent<Team> ().level.ToString ());
+		}
+	}
+
 	public void EndBattle(float EXP){
 		// Load up the world map again. Maybe apply EXP and items here.
 		for (int i = 0; i < playerCharacters.Count; i++) {
 			print(playerCharacters [i].GainExperience (EXP));
 		}
-		if (enemyTeam == "Blue") {
-			teams [0].GetComponent<Team> ().level -= enemyLevel;
-			print ("Blue level now: "+teams [0].GetComponent<Team> ().level.ToString ());
-		}
-		if (enemyTeam == "Red") {
-			teams [1].GetComponent<Team> ().level -= enemyLevel;
-			print ("Red level now: "+teams [1].GetComponent<Team> ().level.ToString ());
-		}
+
+		// Reduce Teams levels based on the losses of the fight
+		ReduceTeamLevel(enemyLevel, enemyTeam);
 		LoadScene ("Hoil");
 
 		InitializeWorld ();

@@ -42,7 +42,7 @@ public class Team : MonoBehaviour {
 			spawnLevel = Random.Range (spawnLevelMean - spawnLevelRange, spawnLevelMean + spawnLevelRange);
 			spawnEnemy (spawnLevel);
 			tempLevel -= spawnLevel;
-			print (tempLevel.ToString ());
+			//print ("Spawned "+teamName+" lvl "+spawnLevel.ToString ()+" "+tempLevel+" to go");
 			timer++;
 			if (timer > 20) {
 				tempLevel = -10;
@@ -60,8 +60,8 @@ public class Team : MonoBehaviour {
 		
 		print ("Spawning enenmy");
 		Vector3 basepos = mainBase.GetComponent<Transform> ().position;
-		minRange = 10f;
-		maxRange = 40f;
+		minRange = 30f;
+		maxRange = 60f;
 		// Distance the enemy will spawn from the main base location
 		float dist = Random.Range (minRange, maxRange);
 		// angle from the base the enemy will spawn
