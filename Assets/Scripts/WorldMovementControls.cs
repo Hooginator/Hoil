@@ -34,8 +34,13 @@ public class WorldMovementControls : MonoBehaviour {
 		// Keep player within World map
 		var map = GameObject.Find ("Map");
 		currentPos = TR.position;
-		TR.position = map.GetComponent<Map> ().ForceInsideBoundaries (currentPos);
+		TR.position = map.GetComponent<Map> ().ForceInsideBoundaries (keepAtY2(currentPos));
 	}
+	Vector3 keepAtY2(Vector3 todo){
+		todo.y = 2;
+		return todo;
+	}
+
 	void OnCollisionEnter(Collision col){
 		print ("Collision at:  " + col.collider.transform.position.ToString ());
 		// Only if what we collided with was an enemy
@@ -45,7 +50,7 @@ public class WorldMovementControls : MonoBehaviour {
 			// If we're not already in battle, load it up. 
 			if (gameManager.GetComponent<gameManager> ().inBattle != true) {
 				print ("Gonna Load Up Battle");
-				gameManager.GetComponent<gameManager> ().StartBattle();
+				gameManager.GetComponent<gameManager> ().StartBattle(col.gameObject);
 				//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
 			}
 		}

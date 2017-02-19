@@ -20,6 +20,11 @@ public class gameManager : MonoBehaviour {
 	public GameObject playerWorldSprite;
 	public GameObject worldPlayer;
 
+	// prefab sprite to use.
+	public GameObject enemyToFight;
+	public int enemyLevel;
+	public string enemyTeam;
+
 	//public Vector3 startPosition = new Vector3(60,2,-10);
 
 	public void LoadScene(string sceneName){
@@ -47,7 +52,7 @@ public class gameManager : MonoBehaviour {
 			// Make temp something that should definitely not be Null...
 			CharacterClass temp = new CharacterClass();
 			// Initialize stats to level 5 so we can beat level 1 generated badguy easily
-			temp.Initialize ("GoodGuy",10,0);
+			temp.Initialize ("GoodGuy",1000,0);
 			string printstats = temp.printStats ();
 			print (printstats);
 			// Add temp to the list
@@ -63,8 +68,8 @@ public class gameManager : MonoBehaviour {
 			tempTeam2.GetComponent<Transform> ().parent = gameObject.transform;
 			teams.Add(tempTeam2);
 
-			teams[0].GetComponent<Team>().Initialize(10);
-			teams[1].GetComponent<Team>().Initialize(10);
+			//teams[0].GetComponent<Team>().Initialize();
+			//teams[1].GetComponent<Team>().Initialize();
 			// Initialize everything that would also be initialized post battle
 			InitializeWorld ();
 			// Apply the movement controls for the world map to the player
@@ -85,7 +90,7 @@ public class gameManager : MonoBehaviour {
 		//Reinitialisze the teams bases
 		for (int i = 0; i < teams.Count; i++) {
 			teams [i].SetActive (true);
-			teams [i].GetComponent<Team> ().Initialize (5);
+			//teams [i].GetComponent<Team> ().Initialize ();
 		}
 		// Spawn Enemies after world battle
 		// Out for now as this references the main base which gets destroyed... might need to add that to the do not destroy list
@@ -96,9 +101,13 @@ public class gameManager : MonoBehaviour {
 		// Small test print fundtion
 		print ("Player 0 has Strength " + this.playerCharacters[0].Strength.ToString()); 
 	}
-	public void StartBattle(){
+	public void StartBattle(GameObject enemyGameObject){
 		// Once collided with enemy, starta  fight. 
 		// I will need enemy information coming through here
+		enemyToFight = enemyGameObject.GetComponent<EnemyBehavior>().prefab;
+		enemyLevel = enemyGameObject.GetComponent<EnemyBehavior> ().level;
+		enemyTeam = enemyGameObject.GetComponent<EnemyBehavior> ().team;
+
 		playerMapPosition = worldPlayer.GetComponent<Transform>();
 		print (playerMapPosition.position.ToString ());
 		//GameObject.Destroy (worldPlayer);
@@ -112,11 +121,26 @@ public class gameManager : MonoBehaviour {
 		LoadScene ("Battle");
 		inBattle = true;
 	}
+	public void ReduceTeamLevel(int levelAmount, string teamName){
+		// Reduce Teams levels based on the losses of the fight
+		if (teamName == "Blue") {
+			teams [0].GetComponent<Team> ().level -= levelAmount;
+			print ("Blue level now: "+teams [0].GetComponent<Team> ().level.ToString ());
+		}
+		if (teamName == "Red") {
+			teams [1].GetComponent<Team> ().level -= levelAmount;
+			print ("Red level now: "+teams [1].GetComponent<Team> ().level.ToString ());
+		}
+	}
+
 	public void EndBattle(float EXP){
 		// Load up the world map again. Maybe apply EXP and items here.
 		for (int i = 0; i < playerCharacters.Count; i++) {
 			print(playerCharacters [i].GainExperience (EXP));
 		}
+
+		// Reduce Teams levels based on the losses of the fight
+		ReduceTeamLevel(enemyLevel, enemyTeam);
 		LoadScene ("Hoil");
 
 		InitializeWorld ();

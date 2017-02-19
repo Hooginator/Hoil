@@ -24,10 +24,10 @@ public class WorldCameraFollow : MonoBehaviour {
 		}
 		TR = GetComponent<Transform> ();
 		// Position that the camera will always aim for
-		Idealpos = new Vector3(0,30,0);
+		Idealpos = new Vector3(0,50,0);
 		// Distance away we will start going towards idealpos
 		bufferx = 28;
-		bufferz = 14;
+		bufferz = 8;
 		TR.position = gameManager.GetComponent<gameManager>().playerMapPosition.position + Idealpos; // read camera default position
 	}
 

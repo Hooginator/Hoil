@@ -48,7 +48,7 @@ public class Map : MonoBehaviour {
 				tiles[x,z].transform.SetParent (this.transform);
 				// Function to randomly assign resources
 				if (NcellX >= 1 && NcellZ >= 1) {
-					resources = getResources ((float)x / (NcellX + 1), (float)z / (NcellZ + 1));
+					resources = getResources ((float)x / (NcellX - 1), (float)z / (NcellZ - 1));
 				} else { // To prevent divide by zero if there's a 1xwhatever size map
 					resources = getResources (0.5f, 0.5f);
 				}
@@ -58,10 +58,10 @@ public class Map : MonoBehaviour {
 			}
 		}
 		// Move some resources around so that there isn't such a sharp contrast
-		for (int i = 0; i < 1; i++) {
+		/*for (int i = 0; i < 1; i++) {
 			//redistributeResources ();
 			redistributeResources ();
-		}
+		}*/
 		// Apply Colour to each tile
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
@@ -80,9 +80,9 @@ public class Map : MonoBehaviour {
 			int randomNumber = random.Next(0, maxResources);
 			generatedResources [i] = randomNumber;
 		}*/
-
-		generatedResources [0] = (int) maxResources * Mathf.Pow(x + z,2) / 2;
-		generatedResources [1] = (int) maxResources * Mathf.Pow(1-(x + z),2)  / 2;
+		// Gives gradient that is strong at the extreme but dies off rather quickly so we have uncontested space between teams
+		generatedResources [0] = (int) maxResources * Mathf.Pow((x + z)/2f,5);
+		generatedResources [1] = (int) maxResources * Mathf.Pow(1f-(x + z)/2f,5);
 
 		return generatedResources;
 	}
