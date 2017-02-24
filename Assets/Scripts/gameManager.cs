@@ -125,10 +125,12 @@ public class gameManager : MonoBehaviour {
 		// Reduce Teams levels based on the losses of the fight
 		if (teamName == "Blue") {
 			teams [0].GetComponent<Team> ().level -= levelAmount;
+			teams [0].GetComponent<Team> ().updateLevelIndicator ();
 			print ("Blue level now: "+teams [0].GetComponent<Team> ().level.ToString ());
 		}
 		if (teamName == "Red") {
 			teams [1].GetComponent<Team> ().level -= levelAmount;
+			teams [1].GetComponent<Team> ().updateLevelIndicator ();
 			print ("Red level now: "+teams [1].GetComponent<Team> ().level.ToString ());
 		}
 	}

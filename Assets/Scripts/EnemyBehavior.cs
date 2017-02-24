@@ -72,15 +72,16 @@ public class EnemyBehavior : MonoBehaviour {
 	void doBattle(GameObject enemy){
 		// Battle with another computer enemy.  For now it just checks which is bigger and kills the other one, later they will stall for a while and maybe let you join the battle
 		int enemylevel = enemy.GetComponent<EnemyBehavior> ().level;
+		var gameMan = GameObject.Find ("GameManager").GetComponent<gameManager> ();
 		if (enemylevel > level) {
 			print (team + " army loses D:");
 			// Reduce level of team
-			GameObject.Find("GameManager").GetComponent<gameManager>().ReduceTeamLevel(level, team);
+			gameMan.ReduceTeamLevel(level, team);
 			GameObject.Destroy (gameObject);
 		} else if (enemylevel > level) {
 			print (team + " army wins :D");
 			// reduce level of enemy team
-			GameObject.Find("GameManager").GetComponent<gameManager>().ReduceTeamLevel(enemylevel, enemy.GetComponent<EnemyBehavior> ().team);
+			gameMan.ReduceTeamLevel(enemylevel, enemy.GetComponent<EnemyBehavior> ().team);
 			GameObject.Destroy (enemy);
 		} else {
 			// Still locks enemy movement, I will add to this later
