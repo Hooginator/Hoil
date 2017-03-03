@@ -25,6 +25,10 @@ public class Map : MonoBehaviour {
 	private float Zmax;
 	// RNG for map generation
 	System.Random random = new System.Random();
+
+	// Game Manager Object
+	private gameManager gameMan;
+
 	// Use this for initialization
 	void Awake () {
 		// Set Boundaries of the map
@@ -36,6 +40,9 @@ public class Map : MonoBehaviour {
 		// Initialize arrays
 		resources = new float[uniqueResources];
 		tiles = new GameObject[NcellX,NcellZ];
+
+
+		gameMan = GameObject.Find ("GameManager").GetComponent<gameManager>();
 
 		// Loop through all grid places to be used for initialization
 		for (int z = 0; z < NcellZ; z++) {
@@ -65,9 +72,17 @@ public class Map : MonoBehaviour {
 		// Apply Colour to each tile
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
+				print (x.ToString () + "  " + NcellX.ToString ());
+				print (z.ToString () + "  " + NcellZ.ToString ());
 				tiles [x, z].GetComponent<MapGridUnit> ().reColour ();
 			}
 		}
+	}
+	public GameObject getTileFromPos(Vector3 pos){
+		int posX = (int) Mathf.Floor((pos [0] - Xmin) / gridSize);
+		int posZ = (int) Mathf.Floor((pos [2] - Zmin) / gridSize);
+		print (posX.ToString () + "  " + posZ.ToString ());
+		return tiles [posX, posZ];
 	}
 	float[] getResources(float x, float z){
 		// X and Z are the amount through the map (0 to 1)
@@ -80,10 +95,14 @@ public class Map : MonoBehaviour {
 			int randomNumber = random.Next(0, maxResources);
 			generatedResources [i] = randomNumber;
 		}*/
-		// Gives gradient that is strong at the extreme but dies off rather quickly so we have uncontested space between teams
-		generatedResources [0] = (int) maxResources * Mathf.Pow((x + z)/2f,5);
-		generatedResources [1] = (int) maxResources * Mathf.Pow(1f-(x + z)/2f,5);
+		if(gameMan.inBattle){
+			generatedResources = gameMan.groundTileResources;
+		}else{
 
+			// Gives gradient that is strong at the extreme but dies off rather quickly so we have uncontested space between teams
+			generatedResources [0] = (int) maxResources * Mathf.Pow((x + z)/2f,5);
+			generatedResources [1] = (int) maxResources * Mathf.Pow(1f-(x + z)/2f,5);
+		}
 		return generatedResources;
 	}
 
@@ -156,6 +175,7 @@ public class Map : MonoBehaviour {
 			tiles [x2, y2].GetComponent<MapGridUnit> ().resources [i] += sqrtDiff;
 		}
 	}
+
 	// Update is called once per frame
 	void Update () {
 	}
