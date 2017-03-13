@@ -19,12 +19,18 @@ public class CombatTracker : MonoBehaviour {
 
 	public float experienceEarned;
 
+	public Vector3 targetLocation;
+	bool selectingTargetLocation;
 
 	GameObject BattleMenu;
+
+	public Map map;
+	public Vector3 temppos;
 	// Number of turns that have gone by, so I can kill the infinite loops witha  failsafe
 	private int nTurns = 0;
 	public void StartBattle(int numPlayers, List<CharacterClass> players){
 		//print ("Battle Starting");
+		map = GameObject.Find ("Map").GetComponent<Map> ();
 		experienceEarned = 0;
 		playerSprites = new GameObject[numPlayers];
 		// Set Player characters based on inputs.
@@ -38,6 +44,7 @@ public class CombatTracker : MonoBehaviour {
 			playerSprites[i] = Instantiate(CharacterPrefabs[playerCharacters[i].BattleSprite], new Vector3 (0, 5, 5*i), Quaternion.identity);
 
 		}
+		selectingTargetLocation = false;
 
 		var gameManager = GameObject.Find ("GameManager").GetComponent<gameManager>();
 
@@ -62,6 +69,15 @@ public class CombatTracker : MonoBehaviour {
 		}
 		// Start the Combat with Player Turn
 		PlayerTurn ();
+	}
+
+	public void selectTargetLocation(){
+		selectingTargetLocation = true;
+		map = GameObject.Find ("Map").GetComponent<Map> ();
+		// Default select where Player 0 is
+		targetLocation = playerSprites [0].transform.position;
+
+
 	}
 
 	void EndPlayerTurn (){
@@ -186,7 +202,30 @@ public class CombatTracker : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+		temppos = new Vector3 (0, 0, 0);
+		// Check if we are currenntly picking a cell to attack
+		if (selectingTargetLocation) {
+			if (Input.GetButtonDown ("Left")) {
+				temppos -= new Vector3(map.gridSize,0,0);
+			}else if (Input.GetButtonDown ("Right")) {
+				temppos += new Vector3(map.gridSize,0,0);
+			}	
+			if (Input.GetButtonDown ("Down")) {
+				temppos -= new Vector3(0,0,map.gridSize);
+			}else if (Input.GetButtonDown ("Up")) {
+				temppos += new Vector3(0,0,map.gridSize);
+			}
+			if(temppos != new Vector3(0,0,0)){
+				map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().reColour ();
+				targetLocation += temppos;
+				targetLocation = map.ForceInsideBoundaries (targetLocation);
+				print ("Target: " +targetLocation.ToString ());
+				map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
+			}
+			map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
+		} else {
+
+		}
 	}
 	public void HideBattleMenu(){
 		// Make the Options for battle (Attack, Item...) Invisible

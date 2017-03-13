@@ -34,8 +34,8 @@ public class Map : MonoBehaviour {
 		// Set Boundaries of the map
 		Xmin =  -0.5f*gridSize;
 		Zmin =  -0.5f*gridSize;
-		Xmax =  (NcellZ-0.5f)*gridSize;
-		Zmax =  (NcellZ-0.5f)*gridSize;
+		Xmax =  (NcellX-0.5001f)*gridSize;
+		Zmax =  (NcellZ-0.5001f)*gridSize;
 
 		// Initialize arrays
 		resources = new float[uniqueResources];
@@ -127,6 +127,7 @@ public class Map : MonoBehaviour {
 	}
 	public Vector3 ForceInsideBoundaries(Vector3 pos){
 		// takes a vector and places it barely within the borders if it is outside.
+		print("Force "+pos.ToString()+ " inside " + Xmax.ToString()+" "+Xmin.ToString());
 		if (pos [0] < Xmin) {
 			pos [0] = Xmin;
 		} else if (pos [0] > Xmax) {
