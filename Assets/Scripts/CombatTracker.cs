@@ -132,7 +132,7 @@ public class CombatTracker : MonoBehaviour {
 		string battleMessage = playerCharacters [player].Attack (enemyCharacters [badguy]);
 		// Check if you killed the enemy
 		if (enemyCharacters [badguy].checkDead ()) {
-			experienceEarned += enemyCharacters [badguy].baseEmperienceGiven;
+			experienceEarned += enemyCharacters [badguy].baseExperienceGiven;
 			Destroy(enemySprites [badguy].gameObject);
 		}
 		print (battleMessage);
