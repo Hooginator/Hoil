@@ -51,4 +51,8 @@ public class MapGridUnit : MonoBehaviour {
 		// WANT: reevaluate over/under use and alter resource value 
 		// Is it close to player? If not maybe destroy it until you're close again.
 	}
+	public void Select(){
+		// Colour the square green to show it is selected
+		rend.material.color = new Color(0,255,0,255);
+	}
 }

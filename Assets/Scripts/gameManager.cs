@@ -25,6 +25,9 @@ public class gameManager : MonoBehaviour {
 	public int enemyLevel;
 	public string enemyTeam;
 
+	// Ground tile to be used to generate battle map
+	public float[] groundTileResources;
+
 	//public Vector3 startPosition = new Vector3(60,2,-10);
 
 	public void LoadScene(string sceneName){
@@ -39,9 +42,9 @@ public class gameManager : MonoBehaviour {
 		// Makes sure that the GameManager this is attached to is always the same one, so we can use it to keep values through scenes.
 		if (instance == null) {
 			instance = this;
-			playerMapPosition = GetComponent<Transform> ();
-			playerMapPosition.position = new Vector3(90,2,0);
-			worldPlayer = GameObject.Instantiate (playerWorldSprite, playerMapPosition);
+			worldPlayer = GameObject.Instantiate (playerWorldSprite, new Vector3(90,2,0),Quaternion.identity);
+			worldPlayer.transform.SetParent (gameObject.transform);
+			playerMapPosition = worldPlayer.transform;
 			//playerMapPosition = new Vector3(0,3,0);
 			//playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
 			/****************************************** Start of the game here ***********************************************************/
@@ -107,7 +110,8 @@ public class gameManager : MonoBehaviour {
 		enemyToFight = enemyGameObject.GetComponent<EnemyBehavior>().prefab;
 		enemyLevel = enemyGameObject.GetComponent<EnemyBehavior> ().level;
 		enemyTeam = enemyGameObject.GetComponent<EnemyBehavior> ().team;
-
+		// Get the colour of the tile the enemy was on for the battle
+		groundTileResources = GameObject.Find ("Map").GetComponent<Map> ().getTileFromPos (enemyGameObject.transform.position).GetComponent<MapGridUnit>().resources;
 		playerMapPosition = worldPlayer.GetComponent<Transform>();
 		print (playerMapPosition.position.ToString ());
 		//GameObject.Destroy (worldPlayer);
@@ -125,10 +129,12 @@ public class gameManager : MonoBehaviour {
 		// Reduce Teams levels based on the losses of the fight
 		if (teamName == "Blue") {
 			teams [0].GetComponent<Team> ().level -= levelAmount;
+			teams [0].GetComponent<Team> ().updateLevelIndicator ();
 			print ("Blue level now: "+teams [0].GetComponent<Team> ().level.ToString ());
 		}
 		if (teamName == "Red") {
 			teams [1].GetComponent<Team> ().level -= levelAmount;
+			teams [1].GetComponent<Team> ().updateLevelIndicator ();
 			print ("Red level now: "+teams [1].GetComponent<Team> ().level.ToString ());
 		}
 	}

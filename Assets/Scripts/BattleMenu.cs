@@ -40,6 +40,7 @@ public class BattleMenu : MonoBehaviour {
 		combat.PlayerItem ();
 	}
 	public void SpecialPress(){
+		combat.selectTargetLocation ();
 		// WHen you hit the Special Button
 		//print ("Special");
 		combat.PlayerSpecial ();

@@ -33,14 +33,17 @@ public class Team : MonoBehaviour {
 		spawnLevelMean = 10;
 		spawnLevelRange = 3;
 		spawnEnemies();
+		updateLevelIndicator ();
 	}
 	public void spawnEnemies(){
 		int tempLevel = level;
 		int spawnLevel;
 		int timer = 0;
 		while (tempLevel >= 0) {
+			// Generate a random level to be assigned to the new enemy
 			spawnLevel = Random.Range (spawnLevelMean - spawnLevelRange, spawnLevelMean + spawnLevelRange);
 			spawnEnemy (spawnLevel);
+			// Keep track of how many levels of enemies have been created
 			tempLevel -= spawnLevel;
 			//print ("Spawned "+teamName+" lvl "+spawnLevel.ToString ()+" "+tempLevel+" to go");
 			timer++;
@@ -82,6 +85,18 @@ public class Team : MonoBehaviour {
 	}
 	// Update is called once per frame
 	void Update () {
-		
+		// Every so often add to a bases power level
+		if (Time.frameCount % 300 == 20) {
+			print ("Add to level");
+			level += 1;
+			updateLevelIndicator ();
+		}
+	}
+	// Update level indicator
+	public void updateLevelIndicator(){
+		// As of now Army Text HAS to be the first child element in the base game object.
+		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
+		print ("Update team level strings");
+		levelText.GetComponent<TextMesh>().text = level.ToString ();
 	}
 }

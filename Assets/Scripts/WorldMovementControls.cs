@@ -6,9 +6,10 @@ public class WorldMovementControls : MonoBehaviour {
 	public float moveSpeed; // max Force that can be applied to object
 	public Rigidbody RB; // needed to apply forces to object.
 	public Transform TR; // Needed to rotate object
-	public int RotationSpeed;
-	private Vector3 input = new Vector3(0,0,1);
-	private Vector3 currentPos;
+	public int RotationSpeed; // How fast player can turn towards target
+	private Vector3 input = new Vector3(0,0,1); // Vector for the user input for direction.  Default set to ensure Player has a default facing direction.
+	private Vector3 currentPos; // temp position to calculate where to go each frame.
+
 	// Use this for initialization
 	void Start () {
 		RB = GetComponent<Rigidbody> ();
@@ -19,24 +20,33 @@ public class WorldMovementControls : MonoBehaviour {
 		RotationSpeed = 5;
 		moveSpeed = 20;
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
 		// Read input from user and turn it into a vector
 		input = new Vector3 (Input.GetAxis ("Horizontal"), 0.0f, Input.GetAxis ("Vertical"));
-
-		// apply force to Player
+		// Apply force to Player
 		RB.AddForce(input*moveSpeed); 
-		// Get angle to look at
+
+		// Get angle to have the character look towards
 		Vector3 angle = Vector3.RotateTowards(transform.forward, input, RotationSpeed, 0.0F);
 		// Apply angle
 		TR.rotation = Quaternion.LookRotation(angle);
+
 		// Keep player within World map
 		var map = GameObject.Find ("Map");
 		currentPos = TR.position;
+		// Take any vector outside the map and set it to the nearest in-bounds position, also use the Keep at Y2 so we don't go flying off
 		TR.position = map.GetComponent<Map> ().ForceInsideBoundaries (keepAtY2(currentPos));
+
+		/*// Check which tile you are on
+		MapGridUnit currentTile = map.GetComponent<Map> ().getTileFromPos(currentPos).GetComponent<MapGridUnit>();
+		currentTile.resources [0] = 1;
+		currentTile.resources [1] = 1;
+		currentTile.reColour ();*/
+
 	}
 	Vector3 keepAtY2(Vector3 todo){
+		// Force the vector to stay on the Y = 2 plane
 		todo.y = 2;
 		return todo;
 	}
