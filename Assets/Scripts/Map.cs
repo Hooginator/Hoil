@@ -29,6 +29,15 @@ public class Map : MonoBehaviour {
 	// Game Manager Object
 	private gameManager gameMan;
 
+
+	// Update is called once per frame
+	void Update () {
+	}
+
+	/********************************************************************************************/
+	/************************************* Initialization ***************************************/
+	/********************************************************************************************/
+
 	// Use this for initialization
 	void Awake () {
 		// Set Boundaries of the map
@@ -40,7 +49,6 @@ public class Map : MonoBehaviour {
 		// Initialize arrays
 		resources = new float[uniqueResources];
 		tiles = new GameObject[NcellX,NcellZ];
-
 
 		gameMan = GameObject.Find ("GameManager").GetComponent<gameManager>();
 
@@ -64,11 +72,6 @@ public class Map : MonoBehaviour {
 
 			}
 		}
-		// Move some resources around so that there isn't such a sharp contrast
-		/*for (int i = 0; i < 1; i++) {
-			//redistributeResources ();
-			redistributeResources ();
-		}*/
 		// Apply Colour to each tile
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
@@ -78,53 +81,59 @@ public class Map : MonoBehaviour {
 			}
 		}
 	}
+
+
+	/********************************************************************************************/
+	/******************************** Tile Position Management **********************************/
+	/********************************************************************************************/
+
 	public GameObject getTileFromPos(Vector3 pos){
-		int posX = (int) Mathf.Floor((pos [0] - Xmin) / gridSize);
-		int posZ = (int) Mathf.Floor((pos [2] - Zmin) / gridSize);
-		print (posX.ToString () + "  " + posZ.ToString ());
-		return tiles [posX, posZ];
+		// returns the GameObject of the Tile which is under position given
+		//print("Get Tile From Pos");
+		int[] posInt = getTileCoordsFromPos(pos);
+		print (posInt[0].ToString () + "  " + posInt[1].ToString ());
+		return tiles [posInt[0], posInt[1]];
 	}
-	float[] getResources(float x, float z){
-		// X and Z are the amount through the map (0 to 1)
-		//print (x.ToString() + "  " + z.ToString ());
-		// Function to generate the number of each resource that will be in a tile once it spawns. 
-		float[] generatedResources = new float[uniqueResources];
-		// RNG WAY I'M LEAVING OUT FOR NOW
-		/*for (int i = 0; i < uniqueResources; i++) {
+	public int[] getTileCoordsFromPos(Vector3 pos){
+		// Gives the coordinates od the tile under a position
+		int[] posInt = new int [2];
+		posInt [0] = (int)Mathf.Floor ((pos [0] - Xmin) / gridSize);
+		posInt [1] = (int) Mathf.Floor((pos [2] - Zmin) / gridSize);
+		return posInt;
+	}
+	public Vector3 centreInTile(Vector3 pos){
+		// Centres the Vector in its current tile.
+		Vector3 temppos = getTileFromPos(pos).transform.position;
+		// Keep Height
+		temppos.y = pos.y;
+		return temppos;
 
-			int randomNumber = random.Next(0, maxResources);
-			generatedResources [i] = randomNumber;
-		}*/
-		if(gameMan.inBattle){
-			generatedResources = gameMan.groundTileResources;
-		}else{
-
-			// Gives gradient that is strong at the extreme but dies off rather quickly so we have uncontested space between teams
-			generatedResources [0] = (int) maxResources * Mathf.Pow((x + z)/2f,5);
-			generatedResources [1] = (int) maxResources * Mathf.Pow(1f-(x + z)/2f,5);
-		}
-		return generatedResources;
+	}
+	public int getIntDistance(Vector3 pos1, Vector3 pos2){
+		// Returns the integer distence between two locations.
+		int[] posInt1 = getTileCoordsFromPos (pos1);
+		int[] posInt2 = getTileCoordsFromPos (pos2);
+		return (Mathf.Abs (posInt1 [0] - posInt1 [1]) + Mathf.Abs (posInt2 [0] - posInt2 [1]));
+	}
+	public Vector3 getPosFromCoords(int x, int z){
+		// Returns the central position of a tile based on int inputs
+		return tiles [x,z].transform.position;
 	}
 
-	void redistributeResources(){
-		// If we are not on the border, do trade with nearest neighbour
-		for (int z = 0; z < NcellZ; z++) {
-			for (int x = 0; x < NcellX; x++) {
-				if (x != 0) {
-					tradeResources (x, x - 1, z, z);
-				}
-				if (z != 0) {
-					tradeResources (x, x, z-1, z);
-				}
-				if (x != NcellX-1) {
-					tradeResources (x, x + 1, z, z);
-				}
-				if (z != NcellZ-1) {
-					tradeResources (x, x, z, z+1);
-				}
-			}
-		}
+
+	/********************************************************************************************/
+	/******************************** Boundary Management ***************************************/
+	/********************************************************************************************/
+
+	public bool isPosInBoundaries(Vector3 pos){
+		// Checks if the position is out of bounds
+		return !(pos [0] < Xmin || pos [0] > Xmax || pos [2] < Zmin || pos [2] > Zmax);
 	}
+	public bool isIntInBoundaries(int x, int z){
+		// Checks if the Int combo is beyond the map tiles
+		return !(x < 0 || x > NcellX-1 || z < 0 || z > NcellZ-1);
+	}
+
 	public Vector3 ForceInsideBoundaries(Vector3 pos){
 		// takes a vector and places it barely within the borders if it is outside.
 		print("Force "+pos.ToString()+ " inside " + Xmax.ToString()+" "+Xmin.ToString());
@@ -155,8 +164,56 @@ public class Map : MonoBehaviour {
 		return pos;
 	}
 
+	/********************************************************************************************/
+	/******************************** Resource Management ***************************************/
+	/********************************************************************************************/
+
+	float[] getResources(float x, float z){
+		// Takes two floats in between 0 and 1, numerically showing how far across the map this is.
+		// Called once the MAP is loaded to generate default resources for a certain spot.
+		float[] generatedResources = new float[uniqueResources];
+
+		// RNG WAY I'M LEAVING OUT FOR NOW
+		/*for (int i = 0; i < uniqueResources; i++) {
+
+			int randomNumber = random.Next(0, maxResources);
+			generatedResources [i] = randomNumber;
+		}*/
+
+		if(gameMan.inBattle){
+			// When in battle we will take the tile colour where from where we started the battle.
+			generatedResources = gameMan.groundTileResources;
+		}else{
+
+			// Gives gradient that is strong at the extreme but dies off rather quickly so we have uncontested space between teams
+			generatedResources [0] = (int) maxResources * Mathf.Pow((x + z)/2f,5);
+			generatedResources [1] = (int) maxResources * Mathf.Pow(1f-(x + z)/2f,5);
+		}
+		return generatedResources;
+	}
+
+	void redistributeResources(){
+		// If we are not on the border, do trade with nearest neighbour
+		for (int z = 0; z < NcellZ; z++) {
+			for (int x = 0; x < NcellX; x++) {
+				if (x != 0) {
+					tradeResources (x, x - 1, z, z);
+				}
+				if (z != 0) {
+					tradeResources (x, x, z-1, z);
+				}
+				if (x != NcellX-1) {
+					tradeResources (x, x + 1, z, z);
+				}
+				if (z != NcellZ-1) {
+					tradeResources (x, x, z, z+1);
+				}
+			}
+		}
+	}
 
 	void tradeResources(int x1, int x2, int y1, int y2){
+		// Does an averaging out of the resources in spots 1 and 2
 		// Difference between the two grid units' resources
 		int rDiff;
 		// Square root of that difference for changing values
@@ -177,7 +234,5 @@ public class Map : MonoBehaviour {
 		}
 	}
 
-	// Update is called once per frame
-	void Update () {
-	}
+
 }
