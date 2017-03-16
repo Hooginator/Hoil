@@ -11,25 +11,14 @@ public class WorldCameraFollow : MonoBehaviour {
 	public Transform TR; // Needed to move object
 	private Vector3 input; // the Force that will be applied to the camera to get it to follow the player
 	private bool inBattle;
-	// Use this for initialization
-	void Start () {
-		RB = GetComponent<Rigidbody>();
-		var gameManager = GameObject.Find ("GameManager");
-		var player = gameManager.GetComponent<gameManager>().worldPlayer;
-			inBattle = gameManager.GetComponent<gameManager> ().inBattle;
-		if (inBattle) {
-			moveSpeed = 20;
-		}else{
-			moveSpeed = player.GetComponent<WorldMovementControls>().moveSpeed*4.2f; // takes max "move speed" which is really a force from the Player so we can match it.
-		}
-		TR = GetComponent<Transform> ();
-		// Position that the camera will always aim for
-		Idealpos = new Vector3(0,50,0);
-		// Distance away we will start going towards idealpos
-		bufferx = 28;
-		bufferz = 8;
-		TR.position = gameManager.GetComponent<gameManager>().playerMapPosition.position + Idealpos; // read camera default position
-	}
+
+
+
+
+	/********************************************************************************************/ 
+	/*************************************** Upkeep *********************************************/ 
+	/********************************************************************************************/
+
 
 	// Update is called once per frame
 	void Update () {
@@ -58,5 +47,30 @@ public class WorldCameraFollow : MonoBehaviour {
 		//print (Playpos [0].ToString ()+ "   " + Campos [0].ToString() + "    " + bufferx.ToString());
 		RB.AddForce(input*moveSpeed);// actually apply the input force to the camera
 
+	}
+
+	/********************************************************************************************/ 
+	/************************************* Initialization ***************************************/ 
+	/********************************************************************************************/
+
+
+	// Use this for initialization
+	void Start () {
+		RB = GetComponent<Rigidbody>();
+		var gameManager = GameObject.Find ("GameManager");
+		var player = gameManager.GetComponent<gameManager>().worldPlayer;
+			inBattle = gameManager.GetComponent<gameManager> ().inBattle;
+		if (inBattle) {
+			moveSpeed = 20;
+		}else{
+			moveSpeed = player.GetComponent<WorldMovementControls>().moveSpeed*4.2f; // takes max "move speed" which is really a force from the Player so we can match it.
+		}
+		TR = GetComponent<Transform> ();
+		// Position that the camera will always aim for
+		Idealpos = new Vector3(0,50,0);
+		// Distance away we will start going towards idealpos
+		bufferx = 28;
+		bufferz = 8;
+		TR.position = gameManager.GetComponent<gameManager>().playerMapPosition.position + Idealpos; // read camera default position
 	}
 }

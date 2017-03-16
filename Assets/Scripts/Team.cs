@@ -18,24 +18,33 @@ public class Team : MonoBehaviour {
 
 	public List<GameObject> armies;
 
+
+	/********************************************************************************************/ 
+	/************************************* Initialization ***************************************/ 
+	/********************************************************************************************/
+
+
 	// Use this for initialization
 	void Start () {
 		armies = new List<GameObject>();
 		mainBase = gameObject;
-	}
+	} 
 	public void Initialize(){
 		// Initialize Armies
-		//name = NAM;
 		mainBase = gameObject;
-		//MeshRenderer rend = enemyPrefab.GetComponent<MeshRenderer> ();
-		//rend.sharedMaterial.SetColor ("_Color", colour);
 		armies.Clear();
 		spawnLevelMean = 10;
 		spawnLevelRange = 3;
 		spawnEnemies();
 		updateLevelIndicator ();
 	}
+
+	/********************************************************************************************/ 
+	/************************************* Create Units *****************************************/ 
+	/********************************************************************************************/
+
 	public void spawnEnemies(){
+		// Spawn a bunch of Armies based on team levels.
 		int tempLevel = level;
 		int spawnLevel;
 		int timer = 0;
@@ -50,18 +59,12 @@ public class Team : MonoBehaviour {
 			if (timer > 20) {
 				tempLevel = -10;
 			}
-
 		}
-		/* Old way to spawn enemies
-		for (int i = 0; i < 10; i++) {
-			spawnEnemy (level);
-		}*/
-
-
 	}
+
 	void spawnEnemy(int lvl){
-		
-		print ("Spawning enenmy");
+		// Creates a new Army at the given level somewhere around the base.
+		//print ("Spawning enenmy");
 		Vector3 basepos = mainBase.GetComponent<Transform> ().position;
 		minRange = 30f;
 		maxRange = 60f;
@@ -83,6 +86,12 @@ public class Team : MonoBehaviour {
 		tempBehave.team = teamName;
 		armies.Add (tempArmy);
 	}
+
+
+	/********************************************************************************************/ 
+	/************************************* Upkeep ***********************************************/ 
+	/********************************************************************************************/
+
 	// Update is called once per frame
 	void Update () {
 		// Every so often add to a bases power level
@@ -92,6 +101,7 @@ public class Team : MonoBehaviour {
 			updateLevelIndicator ();
 		}
 	}
+
 	// Update level indicator
 	public void updateLevelIndicator(){
 		// As of now Army Text HAS to be the first child element in the base game object.

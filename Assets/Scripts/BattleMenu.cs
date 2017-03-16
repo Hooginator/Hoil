@@ -11,6 +11,12 @@ public class BattleMenu : MonoBehaviour {
 	public Button Run;
 
 	public CombatTracker combat;
+
+
+	/********************************************************************************************/ 
+	/**************************************** Initialization ************************************/ 
+	/********************************************************************************************/
+
 	// Use this for initialization
 	void Start () {
 		// Initialize the Buttons
@@ -21,6 +27,12 @@ public class BattleMenu : MonoBehaviour {
 		// Get the instance of Combat Tracker to switch turns and stuff
 		combat = combat.GetComponent<CombatTracker> ();
 	}
+
+	/********************************************************************************************/ 
+	/******************************************* Buttons ****************************************/ 
+	/********************************************************************************************/
+
+
 	public void AttackPress(){
 		// When you hit that attack button
 		//print ("ATTACKKKKK");

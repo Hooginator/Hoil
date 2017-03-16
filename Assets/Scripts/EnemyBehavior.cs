@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyBehavior : MonoBehaviour {
+	// Added to enemy units on the world map to control their behaviour
 	public float moveSpeed; // max Force that can be applied to object
 	public Rigidbody RB; // needed to apply forces to object.
 	public Transform TR; // Needed to rotate object
@@ -29,26 +30,9 @@ public class EnemyBehavior : MonoBehaviour {
 	public GameObject prefab;
 
 
-	void Start () {
-		//level = Random.Range(3,25);
-		// Update display of level on the model
-		updateLevelIndicator ();
-		RB = GetComponent<Rigidbody> ();
-		TR = GetComponent<Transform> ();
-		current = TR.position;
-		// Select location to walk towards
-		NewTarget ();
-		RotationSpeed = 0.1f;
-		isMoving = true;
-		//moveSpeed = 0.2f;
-	}
-	// Update level indicator
-	public void updateLevelIndicator(){
-		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
-		print ("Update level strings");
-		levelText.GetComponent<TextMesh>().text = level.ToString ();
-	}
-
+	/********************************************************************************************/ 
+	/**************************************** Upkeep ********************************************/ 
+	/********************************************************************************************/
 
 	// Update is called once per frame
 	void Update () {
@@ -69,6 +53,67 @@ public class EnemyBehavior : MonoBehaviour {
 		}
 
 	}
+	// Update level indicator
+	public void updateLevelIndicator(){
+		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
+		print ("Update level strings");
+		levelText.GetComponent<TextMesh>().text = level.ToString ();
+	}
+
+	void NewTarget(){
+		// Determines a new location, within maxTargetDistance of the enemy for the enemy to move towards.
+		float randomNumber1 = Random.Range(-maxTargetDistance, maxTargetDistance);
+		float randomNumber2 = Random.Range(-maxTargetDistance, maxTargetDistance);
+		target = new Vector3(current[0]+randomNumber1,2,current[2]+randomNumber2);
+
+		// Mirrors any target that would be outside the boundary back in, this makes the guy not just slide across the edge
+		var map = GameObject.Find ("Map");
+		target = map.GetComponent<Map> ().MirrorInsideBoundaries (target);
+	}
+
+	/********************************************************************************************/ 
+	/************************************** Initialization **************************************/ 
+	/********************************************************************************************/
+
+
+	void Start () {
+		//level = Random.Range(3,25);
+		// Update display of level on the model
+		updateLevelIndicator ();
+		RB = GetComponent<Rigidbody> ();
+		TR = GetComponent<Transform> ();
+		current = TR.position;
+		// Select location to walk towards
+		NewTarget ();
+		RotationSpeed = 0.1f;
+		isMoving = true;
+		//moveSpeed = 0.2f;
+	}
+
+	/********************************************************************************************/ 
+	/************************************** Hit Detection ***************************************/ 
+	/********************************************************************************************/
+
+
+
+	void OnCollisionEnter(Collision col){
+		// Only if what we collided with was an enemy, and we are still moving around
+		if (isMoving && col.gameObject.GetComponent<EnemyBehavior>() != null) {
+			// check if its an enemy
+			if(col.gameObject.GetComponent<EnemyBehavior>().team != team){
+				// Find game manager as that has the loading and unloading functions
+				var gameManager = GameObject.Find ("GameManager");
+				// If we're not already in battle, load it up. 
+				if (gameManager.GetComponent<gameManager> ().inBattle != true) {
+					print ("Enemies hit each other!@#$!");
+					isMoving = false;
+					doBattle (col.gameObject);
+					//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
+				}
+			}
+		}
+	}
+
 	void doBattle(GameObject enemy){
 		// Battle with another computer enemy.  For now it just checks which is bigger and kills the other one, later they will stall for a while and maybe let you join the battle
 		int enemylevel = enemy.GetComponent<EnemyBehavior> ().level;
@@ -89,32 +134,4 @@ public class EnemyBehavior : MonoBehaviour {
 		}
 	}
 
-	void NewTarget(){
-		// Determines a new location, within maxTargetDistance of the enemy for the enemy to move towards.
-		float randomNumber1 = Random.Range(-maxTargetDistance, maxTargetDistance);
-		float randomNumber2 = Random.Range(-maxTargetDistance, maxTargetDistance);
-		target = new Vector3(current[0]+randomNumber1,2,current[2]+randomNumber2);
-
-		// Mirrors any target that would be outside the boundary back in, this makes the guy not just slide across the edge
-		var map = GameObject.Find ("Map");
-		target = map.GetComponent<Map> ().MirrorInsideBoundaries (target);
-	}
-
-	void OnCollisionEnter(Collision col){
-		// Only if what we collided with was an enemy, and we are still moving around
-		if (isMoving && col.gameObject.GetComponent<EnemyBehavior>() != null) {
-			// check if its an enemy
-			if(col.gameObject.GetComponent<EnemyBehavior>().team != team){
-				// Find game manager as that has the loading and unloading functions
-				var gameManager = GameObject.Find ("GameManager");
-				// If we're not already in battle, load it up. 
-				if (gameManager.GetComponent<gameManager> ().inBattle != true) {
-					print ("Enemies hit each other!@#$!");
-					isMoving = false;
-					doBattle (col.gameObject);
-					//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
-				}
-			}
-		}
-	}
 }

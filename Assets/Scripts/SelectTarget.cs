@@ -12,6 +12,17 @@ public class SelectTarget : MonoBehaviour {
 	public GameObject prefabbutton;
 
 	public BattleMenu battlemenu;
+
+	// Update is called once per frame
+	void Update () {
+
+	}
+
+
+	/********************************************************************************************/
+	/************************************* Initialization ***************************************/
+	/********************************************************************************************/
+
 	// Use this for initialization
 	void Start () {
 		// Get the instance of Combat Tracker to switch turns and stuff
@@ -50,6 +61,12 @@ public class SelectTarget : MonoBehaviour {
 			}
 		}
 	}
+
+	/********************************************************************************************/
+	/************************************* Act On Target ****************************************/
+	/********************************************************************************************/
+
+
 	public void DestroyOptions(){
 		for (int i = 0; i < option.Count; i++) {
 			Destroy (option [i].gameObject);
@@ -60,9 +77,5 @@ public class SelectTarget : MonoBehaviour {
 		//print ("Clicked for enemy" + num.ToString ());
 		battlemenu.AttackTarget (num);
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
 }

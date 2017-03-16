@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Map : MonoBehaviour {
+	// Used to create a 2D grid of square tiles making up a map.  This class is used for both the world and combat map
+
 	//Size of the Map's grid
 	public int NcellX;
 	public int NcellZ;
