@@ -10,7 +10,7 @@ public class MapGridUnit : MonoBehaviour {
 	private int maxResources;
 	public Renderer rend;
 	public int reduceSaturation; // max saturation for a grid unit
-
+	public bool inRangeColoured;
 
 	// Update is called once per frame 
 	void Update () {
@@ -38,6 +38,7 @@ public class MapGridUnit : MonoBehaviour {
 		uniqueResources = uniqueResourcesIn;
 		// Needed for colour
 		rend = GetComponent<Renderer>();
+		inRangeColoured = false;
 		// Set resources to what was input
 		resources = new float[uniqueResourcesIn];
 		resources = resourcesIn;
@@ -56,16 +57,32 @@ public class MapGridUnit : MonoBehaviour {
 	public void reColour(){
 		// Reapply the colour based on resources
 		rend = GetComponent<Renderer>();
-		if(uniqueResources >= 3){
-			rend.material.color = new Color(resources[0]/maxResources,resources[1]/maxResources,resources[2]/maxResources,255);
-		}
-		if (uniqueResources == 2) {
-			rend.material.color = new Color((resources[0]/(maxResources-reduceSaturation)),0,resources[1]/(maxResources-reduceSaturation),255);
+		if (inRangeColoured) {
+			// Colour the tiles that are in range for your action Orange
+			rend.material.color = new Color (0.9f,0.4f,0f, 255);
+		} else {
+			if (uniqueResources >= 3) {
+				rend.material.color = new Color (resources [0] / maxResources, resources [1] / maxResources, resources [2] / maxResources, 255);
+			}
+			if (uniqueResources == 2) {
+				rend.material.color = new Color ((resources [0] / (maxResources - reduceSaturation)), 0, resources [1] / (maxResources - reduceSaturation), 255);
+			}
 		}
 	}
 
 	public void Select(){
 		// Colour the square green to show it is selected
-		rend.material.color = new Color(0,255,0,255);
+		rend.material.color = new Color(0,1,0,255);
+	}
+
+	public void setInRange(){
+		// Will set the tile to colour itself something to indicate it is in range
+		inRangeColoured = true;
+		reColour ();
+	}
+	public void setOutOfRange(){
+		// Will set the tile to colour itself sback to normal
+		inRangeColoured = false;
+		reColour ();
 	}
 }
