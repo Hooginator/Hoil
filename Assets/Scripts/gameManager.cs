@@ -30,6 +30,11 @@ public class gameManager : MonoBehaviour {
 
 	//public Vector3 startPosition = new Vector3(60,2,-10);
 
+	/********************************************************************************************/ 
+	/************************************ Initialization ****************************************/ 
+	/********************************************************************************************/
+
+
 	public void LoadScene(string sceneName){
 		// Used to load different gamef files, IE loading from the battle scene to the world map and back.
 		SceneManager.LoadScene (sceneName);
@@ -100,10 +105,11 @@ public class gameManager : MonoBehaviour {
 		//teams [0].spawnEnemies ();
 		//teams [1].spawnEnemies ();
 	}
-	public void printPlayer0Stats(){
-		// Small test print fundtion
-		print ("Player 0 has Strength " + this.playerCharacters[0].Strength.ToString()); 
-	}
+
+	/********************************************************************************************/ 
+	/******************************* Battle Management ******************************************/ 
+	/********************************************************************************************/
+
 	public void StartBattle(GameObject enemyGameObject){
 		// Once collided with enemy, starta  fight. 
 		// I will need enemy information coming through here
@@ -153,4 +159,14 @@ public class gameManager : MonoBehaviour {
 		inBattle = false;
 		//GameObject.Find ("Player").GetComponent<WorldMovementControls> ().Initialize ();
 	}
+
+	/********************************************************************************************/ 
+	/********************************** Diagnostic Tools ****************************************/ 
+	/********************************************************************************************/
+
+	public void printPlayer0Stats(){
+		// Small test print fundtion
+		print ("Player 0 has Strength " + this.playerCharacters[0].Strength.ToString()); 
+	}
+
 }

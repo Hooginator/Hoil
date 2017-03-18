@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class WorldMovementControls : MonoBehaviour {
+	// Lets you take control of the character on the World Map.  
+
 	public float moveSpeed; // max Force that can be applied to object
 	public Rigidbody RB; // needed to apply forces to object.
 	public Transform TR; // Needed to rotate object
@@ -10,16 +12,9 @@ public class WorldMovementControls : MonoBehaviour {
 	private Vector3 input = new Vector3(0,0,1); // Vector for the user input for direction.  Default set to ensure Player has a default facing direction.
 	private Vector3 currentPos; // temp position to calculate where to go each frame.
 
-	// Use this for initialization
-	void Start () {
-		RB = GetComponent<Rigidbody> ();
-		TR = GetComponent<Transform> ();
-		var gameManager = GameObject.Find ("GameManager");
-		TR.position = gameManager.GetComponent<gameManager> ().playerMapPosition.position;
-		RB.angularVelocity = Vector3.zero;
-		RotationSpeed = 5;
-		moveSpeed = 20;
-	}
+	/********************************************************************************************/ 
+	/**************************************** Upkeep ********************************************/ 
+	/********************************************************************************************/
 
 	void Update () {
 		// Read input from user and turn it into a vector
@@ -45,11 +40,31 @@ public class WorldMovementControls : MonoBehaviour {
 		currentTile.reColour ();*/
 
 	}
+
 	Vector3 keepAtY2(Vector3 todo){
 		// Force the vector to stay on the Y = 2 plane
 		todo.y = 2;
 		return todo;
 	}
+
+	/********************************************************************************************/ 
+	/************************************* Initialization ***************************************/ 
+	/********************************************************************************************/
+
+	// Use this for initialization
+	void Start () {
+		RB = GetComponent<Rigidbody> ();
+		TR = GetComponent<Transform> ();
+		var gameManager = GameObject.Find ("GameManager");
+		TR.position = gameManager.GetComponent<gameManager> ().playerMapPosition.position;
+		RB.angularVelocity = Vector3.zero;
+		RotationSpeed = 5;
+		moveSpeed = 20;
+	}
+
+	/********************************************************************************************/ 
+	/************************************* Hit Detection ****************************************/ 
+	/********************************************************************************************/
 
 	void OnCollisionEnter(Collision col){
 		print ("Collision at:  " + col.collider.transform.position.ToString ());

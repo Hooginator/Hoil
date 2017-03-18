@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CombatTracker : MonoBehaviour {
+	// Management Functions for the combat flow.
 	// Good Guys
 	public List<CharacterClass> playerCharacters  = new  List<CharacterClass>();
 	int maxPlayerCharacters;
@@ -28,6 +29,59 @@ public class CombatTracker : MonoBehaviour {
 	public Vector3 temppos;
 	// Number of turns that have gone by, so I can kill the infinite loops witha  failsafe
 	private int nTurns = 0;
+
+	/********************************************************************************************/ 
+	/**************************************** Upkeep ********************************************/ 
+	/********************************************************************************************/
+
+	// Update is called once per frame
+	void Update () {
+		temppos = new Vector3 (0, 0, 0);
+		// Check if we are currenntly picking a cell to attack
+		if (selectingTargetLocation) {
+			if (Input.GetButtonDown ("Left")) {
+				temppos -= new Vector3(map.gridSize,0,0);
+			}else if (Input.GetButtonDown ("Right")) {
+				temppos += new Vector3(map.gridSize,0,0);
+			}	
+			if (Input.GetButtonDown ("Down")) {
+				temppos -= new Vector3(0,0,map.gridSize);
+			}else if (Input.GetButtonDown ("Up")) {
+				temppos += new Vector3(0,0,map.gridSize);
+			}
+			if(temppos != new Vector3(0,0,0)){
+				map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().reColour ();
+				targetLocation += temppos;
+				targetLocation = map.ForceInsideBoundaries (targetLocation);
+				print ("Target: " +targetLocation.ToString ());
+				map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
+			}
+			map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
+		} else {
+
+		}
+	}
+
+
+	/********************************************************************************************/ 
+	/**************************************** Initialization ************************************/ 
+	/********************************************************************************************/
+
+	// Use this for initialization
+	void Start () {
+		var sceneMan = gameManager.instance;
+		// Number of Ally Participants
+		int currentPlayerCharacters = sceneMan.currentPlayerCharacters;
+		// Get List of Players
+		playerCharacters = new List<CharacterClass>();
+		playerCharacters = sceneMan.playerCharacters;
+		if (playerCharacters[0] == null) {
+			print ("Did not load any characters, ADD END BATTLE HERE");
+		}
+		// Start the Fighting
+		StartBattle (currentPlayerCharacters, playerCharacters);
+	}
+
 	public void StartBattle(int numPlayers, List<CharacterClass> players){
 		//print ("Battle Starting");
 		map = GameObject.Find ("Map").GetComponent<Map> ();
@@ -80,10 +134,17 @@ public class CombatTracker : MonoBehaviour {
 
 	}
 
+
+	/********************************************************************************************/ 
+	/**************************************** Turn Management ***********************************/ 
+	/********************************************************************************************/
+
+
 	void EndPlayerTurn (){
 		// Placeholder
 		EnemyTurn (0);
 	}
+
 	void EndBattle(float EXP){
 		// End Battle, Load up main map
 		var sceneMan = gameManager.instance;
@@ -131,39 +192,7 @@ public class CombatTracker : MonoBehaviour {
 
 		}
 	}
-	void PrintAllBattleStats(){
-		// Prints each chraacter's name, level, HP and AP
-		string temp;
-		for (int i = 0; i < maxPlayerCharacters; i++) {
-			temp = playerCharacters [i].printBattleStats ();
-			print (temp);
-		}
-		for (int i = 0; i < maxEnemyCharacters; i++) {
-			temp = enemyCharacters [i].printBattleStats ();
-			print (temp);
-		}
-	}
-	public void PlayerAttack(int player, int badguy){
-		// Given integer value for Player attacking and enemy being attacked, perform attack calculation
-		string battleMessage = playerCharacters [player].Attack (enemyCharacters [badguy]);
-		// Check if you killed the enemy
-		if (enemyCharacters [badguy].checkDead ()) {
-			experienceEarned += enemyCharacters [badguy].baseExperienceGiven;
-			Destroy(enemySprites [badguy].gameObject);
-		}
-		print (battleMessage);
-		EnemyTurn (0);
-	}
-	public void PlayerItem(){
-		// Place Holderf for now
-	}
-	public void PlayerSpecial(){
-		// Placeholder for now
-	}
-	public void PlayerRun(){
-	//print("Gonna load the Main Map back up... wish me luck");
-		EndBattle (0);
-	}
+
 	// Checks to see if you have won the game
 	bool CheckWin(){
 		bool win = true;
@@ -185,48 +214,37 @@ public class CombatTracker : MonoBehaviour {
 		return loss;
 	}
 
-	// Use this for initialization
-	void Start () {
-		var sceneMan = gameManager.instance;
-		// Number of Ally Participants
-		int currentPlayerCharacters = sceneMan.currentPlayerCharacters;
-		// Get List of Players
-		playerCharacters = new List<CharacterClass>();
-		playerCharacters = sceneMan.playerCharacters;
-		if (playerCharacters[0] == null) {
-			print ("Did not load any characters, ADD END BATTLE HERE");
-		}
-		// Start the Fighting
-		StartBattle (currentPlayerCharacters, playerCharacters);
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		temppos = new Vector3 (0, 0, 0);
-		// Check if we are currenntly picking a cell to attack
-		if (selectingTargetLocation) {
-			if (Input.GetButtonDown ("Left")) {
-				temppos -= new Vector3(map.gridSize,0,0);
-			}else if (Input.GetButtonDown ("Right")) {
-				temppos += new Vector3(map.gridSize,0,0);
-			}	
-			if (Input.GetButtonDown ("Down")) {
-				temppos -= new Vector3(0,0,map.gridSize);
-			}else if (Input.GetButtonDown ("Up")) {
-				temppos += new Vector3(0,0,map.gridSize);
-			}
-			if(temppos != new Vector3(0,0,0)){
-				map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().reColour ();
-				targetLocation += temppos;
-				targetLocation = map.ForceInsideBoundaries (targetLocation);
-				print ("Target: " +targetLocation.ToString ());
-				map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
-			}
-			map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
-		} else {
+	/********************************************************************************************/ 
+	/**************************************** Character Actions *********************************/ 
+	/********************************************************************************************/
 
+	public void PlayerAttack(int player, int badguy){
+		// Given integer value for Player attacking and enemy being attacked, perform attack calculation
+		string battleMessage = playerCharacters [player].Attack (enemyCharacters [badguy]);
+		// Check if you killed the enemy
+		if (enemyCharacters [badguy].checkDead ()) {
+			experienceEarned += enemyCharacters [badguy].baseExperienceGiven;
+			Destroy(enemySprites [badguy].gameObject);
 		}
+		print (battleMessage);
+		EnemyTurn (0);
 	}
+	public void PlayerItem(){
+		// Place Holderf for now
+	}
+	public void PlayerSpecial(){
+		// Placeholder for now
+	}
+	public void PlayerRun(){
+	//print("Gonna load the Main Map back up... wish me luck");
+		EndBattle (0);
+	}
+
+		
+	/********************************************************************************************/ 
+	/**************************************** Menus Management **********************************/ 
+	/********************************************************************************************/
+
 	public void HideBattleMenu(){
 		// Make the Options for battle (Attack, Item...) Invisible
 		var BattleMenu = GameObject.Find ("Battle Menu");
@@ -273,4 +291,28 @@ public class CombatTracker : MonoBehaviour {
 		// Default select first option
 		SelectMenu.GetComponent<SelectTarget> ().option[0].Select ();
 	}
+
+	/********************************************************************************************/ 
+	/**************************************** Diagnostic Tools **********************************/ 
+	/********************************************************************************************/
+
+
+
+	void PrintAllBattleStats(){
+		// Prints each chraacter's name, level, HP and AP
+		string temp;
+		for (int i = 0; i < maxPlayerCharacters; i++) {
+			temp = playerCharacters [i].printBattleStats ();
+			print (temp);
+		}
+		for (int i = 0; i < maxEnemyCharacters; i++) {
+			temp = enemyCharacters [i].printBattleStats ();
+			print (temp);
+		}
+	}
+
+
+
+
 }
+

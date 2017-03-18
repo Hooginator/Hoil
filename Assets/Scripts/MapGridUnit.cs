@@ -3,12 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MapGridUnit : MonoBehaviour {
+	// Class added to individual tiles of the map and housing their individual parameters.
 	public float[] resources;// array of resource value of grid
 	public Material shad;// to let me change tile colour
 	private int uniqueResources;
 	private int maxResources;
 	public Renderer rend;
 	public int reduceSaturation; // max saturation for a grid unit
+
+
+	// Update is called once per frame 
+	void Update () {
+		// WANT: reevaluate over/under use and alter resource value 
+		// Is it close to player? If not maybe destroy it until you're close again.
+	}
+
+	/********************************************************************************************/
+	/************************************* Initialization ***************************************/
+	/********************************************************************************************/
 
 	// Use this for initialization
 	void Start () {
@@ -36,6 +48,11 @@ public class MapGridUnit : MonoBehaviour {
 		}
 	}
 
+	/********************************************************************************************/
+	/********************************** Colour Management ***************************************/
+	/********************************************************************************************/
+
+
 	public void reColour(){
 		// Reapply the colour based on resources
 		rend = GetComponent<Renderer>();
@@ -46,11 +63,7 @@ public class MapGridUnit : MonoBehaviour {
 			rend.material.color = new Color((resources[0]/(maxResources-reduceSaturation)),0,resources[1]/(maxResources-reduceSaturation),255);
 		}
 	}
-	// Update is called once per frame
-	void Update () {
-		// WANT: reevaluate over/under use and alter resource value 
-		// Is it close to player? If not maybe destroy it until you're close again.
-	}
+
 	public void Select(){
 		// Colour the square green to show it is selected
 		rend.material.color = new Color(0,255,0,255);
