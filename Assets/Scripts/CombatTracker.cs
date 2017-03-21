@@ -121,8 +121,26 @@ public class CombatTracker : MonoBehaviour {
 			string printstats = enemyCharacters [i].printStats ();
 			//print("Enemy Spawned: " + printstats);
 		}
+		// Set initial character positions
+		setInitialPositions();
 		// Start the Combat with Player Turn
 		PlayerTurn ();
+	}
+
+	public void setInitialPositions(){
+		// Set initial character positions
+		Vector3 tempPos = new Vector3(0,0,0);
+		for (int i = 0; i < maxPlayerCharacters; i++) {
+			tempPos = map.getPosFromCoords (0, i);
+			tempPos [1] = 2f;
+			playerSprites [i].transform.position = tempPos;
+		}
+
+		for (int i = 0; i < maxEnemyCharacters; i++) {
+			tempPos = map.getPosFromCoords (2, i);
+			tempPos [1] = 2f;
+			enemySprites [i].transform.position = tempPos;
+		}
 	}
 
 	public void selectTargetLocation(){

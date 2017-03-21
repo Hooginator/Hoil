@@ -77,8 +77,8 @@ public class Map : MonoBehaviour {
 		// Apply Colour to each tile
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
-				print (x.ToString () + "  " + NcellX.ToString ());
-				print (z.ToString () + "  " + NcellZ.ToString ());
+				//print (x.ToString () + "  " + NcellX.ToString ());
+				//print (z.ToString () + "  " + NcellZ.ToString ());
 				tiles [x, z].GetComponent<MapGridUnit> ().reColour ();
 			}
 		}
