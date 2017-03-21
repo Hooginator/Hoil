@@ -61,8 +61,8 @@ public class gameManager : MonoBehaviour {
 			CharacterClass temp = new CharacterClass();
 			// Initialize stats to level 5 so we can beat level 1 generated badguy easily
 			temp.Initialize ("GoodGuy",1000,0);
-			string printstats = temp.printStats ();
-			print (printstats);
+			//string printstats = temp.printStats ();
+			//print (printstats);
 			// Add temp to the list
 			playerCharacters.Add(temp);
 			//playerCharacters.Add(new CharacterClass());
@@ -119,7 +119,7 @@ public class gameManager : MonoBehaviour {
 		// Get the colour of the tile the enemy was on for the battle
 		groundTileResources = GameObject.Find ("Map").GetComponent<Map> ().getTileFromPos (enemyGameObject.transform.position).GetComponent<MapGridUnit>().resources;
 		playerMapPosition = worldPlayer.GetComponent<Transform>();
-		print (playerMapPosition.position.ToString ());
+		//print (playerMapPosition.position.ToString ());
 		//GameObject.Destroy (worldPlayer);
 		// Disable the World version of player
 		worldPlayer.SetActive(false);
@@ -136,12 +136,12 @@ public class gameManager : MonoBehaviour {
 		if (teamName == "Blue") {
 			teams [0].GetComponent<Team> ().level -= levelAmount;
 			teams [0].GetComponent<Team> ().updateLevelIndicator ();
-			print ("Blue level now: "+teams [0].GetComponent<Team> ().level.ToString ());
+			//print ("Blue level now: "+teams [0].GetComponent<Team> ().level.ToString ());
 		}
 		if (teamName == "Red") {
 			teams [1].GetComponent<Team> ().level -= levelAmount;
 			teams [1].GetComponent<Team> ().updateLevelIndicator ();
-			print ("Red level now: "+teams [1].GetComponent<Team> ().level.ToString ());
+			//print ("Red level now: "+teams [1].GetComponent<Team> ().level.ToString ());
 		}
 	}
 

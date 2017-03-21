@@ -96,7 +96,7 @@ public class Map : MonoBehaviour {
 			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
 				if (isIntInBoundaries (i+x, j+z)) {
 					tiles [i+x, j+z].GetComponent<MapGridUnit> ().setInRange ();
-					print ("HERE I AM <<<<<<<<");
+					//print ("HERE I AM <<<<<<<<");
 				}
 			}
 		}
@@ -123,7 +123,7 @@ public class Map : MonoBehaviour {
 		// returns the GameObject of the Tile which is under position given
 		//print("Get Tile From Pos");
 		int[] posInt = getTileCoordsFromPos(pos);
-		print (posInt[0].ToString () + "  " + posInt[1].ToString ());
+		//print (posInt[0].ToString () + "  " + posInt[1].ToString ());
 		return tiles [posInt[0], posInt[1]];
 	}
 	public int[] getTileCoordsFromPos(Vector3 pos){
@@ -169,7 +169,7 @@ public class Map : MonoBehaviour {
 
 	public Vector3 ForceInsideBoundaries(Vector3 pos){
 		// takes a vector and places it barely within the borders if it is outside.
-		print("Force "+pos.ToString()+ " inside " + Xmax.ToString()+" "+Xmin.ToString());
+		//print("Force "+pos.ToString()+ " inside " + Xmax.ToString()+" "+Xmin.ToString());
 		if (pos [0] < Xmin) {
 			pos [0] = Xmin;
 		} else if (pos [0] > Xmax) {

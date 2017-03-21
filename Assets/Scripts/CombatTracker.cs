@@ -240,7 +240,7 @@ public class CombatTracker : MonoBehaviour {
 	void PlayerTurn (){
 		//print ("Start of Player Turn");
 		nTurns++;
-		PrintAllBattleStats ();
+		//PrintAllBattleStats ();
 		// Show the Battle Menu
 		ShowBattleMenu();
 		for (int i = 0; i < maxPlayerCharacters; i++) {
@@ -282,7 +282,7 @@ public class CombatTracker : MonoBehaviour {
 			experienceEarned += enemyCharacters [badguy].baseExperienceGiven;
 			Destroy(enemySprites [badguy].gameObject);
 		}
-		print (battleMessage);
+		//print (battleMessage);
 		EnemyTurn (0);
 	}
 	public void PlayerItem(){
