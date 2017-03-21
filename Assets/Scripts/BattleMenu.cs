@@ -40,6 +40,15 @@ public class BattleMenu : MonoBehaviour {
 		//combat.CreateSelectOptions ();
 		combat.ShowSelectMenu (combat.maxEnemyCharacters,combat.enemyCharacters);
 		//combat.PlayerAttack(0,0);
+	}	
+	public void MovePress(){
+		// When you hit that attack button
+		print ("MOOOVE");
+		combat.HideBattleMenu ();
+		combat.actionToDo = "Move";
+		int[] pos = combat.actionFrom.battleLocation;
+		int MP = combat.actionFrom.MP;
+		combat.selectTargetLocation (pos[0],pos[1],MP);
 	}
 	public void AttackTarget(int target){
 		//print ("Attacking Target: " + target.ToString ());

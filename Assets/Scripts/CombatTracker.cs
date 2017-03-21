@@ -37,6 +37,16 @@ public class CombatTracker : MonoBehaviour {
 	public int selectingFromZ;
 	public int selectingRange;
 
+	// Name of the action to be performed.  For when selecting a target, after we have chosen Attack, Item, Move etc..
+	public string actionToDo;
+	// Character doing the action
+	public CharacterClass actionFrom;
+	// Character taking the action, thgis could probably be a temp variable
+	public CharacterClass actionTo;
+
+	// Coordinates selected
+	int[] coords = new int[2];
+
 
 	/********************************************************************************************/ 
 	/**************************************** Upkeep ********************************************/ 
@@ -72,11 +82,13 @@ public class CombatTracker : MonoBehaviour {
 			}
 			if (Input.GetButtonDown ("Submit") && wasUp) {
 				// when you hit space, get the tile selected to do what we wanted
-				int[] coords = map.getTileCoordsFromPos(targetLocation);
+				coords = map.getTileCoordsFromPos(targetLocation);
 				print ("You have selected tile " + coords[0].ToString() + "  " + coords[1].ToString());
 				selectingTargetLocation = false;
-				// For now we'll just bring the battle menu back, later this will move and progress the turn
-				ShowBattleMenu();
+
+				// Do the thing that this selection was for
+				doAction ();
+
 				// Remove max range indicators
 				stopSelectingTargetLocation ();
 			}
@@ -119,6 +131,7 @@ public class CombatTracker : MonoBehaviour {
 			playerCharacters [i].FullHeal ();
 			// Create Player Visuals
 			playerSprites[i] = Instantiate(CharacterPrefabs[playerCharacters[i].BattleSprite], new Vector3 (0, 5, 5*i), Quaternion.identity);
+			playerCharacters [i].battleAvatar = playerSprites [i];
 
 		}
 		selectingTargetLocation = false;
@@ -138,6 +151,7 @@ public class CombatTracker : MonoBehaviour {
 
 
 			enemySprites[i] = Instantiate(gameManager.enemyToFight, new Vector3 (5, 5, 5*i), Quaternion.identity);
+			enemyCharacters [i].battleAvatar = enemySprites [i];
 			GameObject levelText = enemySprites[i].transform.GetChild(0).gameObject;
 			levelText.GetComponent<TextMesh>().text = gameManager.enemyLevel.ToString ();
 			// Print Details of Enemy
@@ -157,12 +171,15 @@ public class CombatTracker : MonoBehaviour {
 			tempPos = map.getPosFromCoords (0, i);
 			tempPos [1] = 2f;
 			playerSprites [i].transform.position = tempPos;
+			// Set where the character thinks he is on the grid for range calculations and stuff
+			playerCharacters[i].battleLocation = new int[2]{0,i};
 		}
 
 		for (int i = 0; i < maxEnemyCharacters; i++) {
 			tempPos = map.getPosFromCoords (2, i);
 			tempPos [1] = 2f;
 			enemySprites [i].transform.position = tempPos;
+			enemyCharacters[i].battleLocation = new int[2]{2,i};
 		}
 	}
 
@@ -215,6 +232,8 @@ public class CombatTracker : MonoBehaviour {
 		for (int i = 0; i < maxEnemyCharacters; i++) {
 			// Only living enemies get a turn
 			if (!enemyCharacters [i].isDead) {
+				// Update who is doing the next action
+				actionFrom = enemyCharacters [i];
 				enemyCharacters [i].startTurn ();
 				// Enemies only attack player targeted
 				string battleMessage = enemyCharacters [i].Attack (playerCharacters [target]);
@@ -245,7 +264,8 @@ public class CombatTracker : MonoBehaviour {
 		ShowBattleMenu();
 		for (int i = 0; i < maxPlayerCharacters; i++) {
 			playerCharacters [i].startTurn();
-
+			// Update who will be performing actions
+			actionFrom = playerCharacters [i];
 		}
 	}
 
@@ -268,6 +288,40 @@ public class CombatTracker : MonoBehaviour {
 			}
 		}
 		return loss;
+	}
+
+	// This will likely move to one bit ugly filewith every ability
+	void doAction(){
+		print ("Not Move, but " + actionToDo);
+		if (actionToDo == "Move") {
+			int[] tempOldCoords = actionFrom.battleLocation;
+			actionFrom.battleLocation = coords;
+			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
+			// If destination is in range
+			if (tempIntDistance <= actionFrom.MP) {
+				print ("Moving Time");
+				actionFrom.battleLocation = coords;
+				actionFrom.battleAvatar.transform.position = map.getAbovePosFromCoords (coords [0], coords [1]);
+				actionFrom.MP -= map.getIntDistanceFromCoords (tempOldCoords, coords);
+				print ("Used " + tempIntDistance.ToString () + " MP, " + actionFrom.MP.ToString () + " remaining");
+			} else {
+				print ("Insufficient MP, " + actionFrom.MP.ToString() + " of " + tempIntDistance.ToString());
+			}
+			// Turn is not over, return to battle menu
+			ShowBattleMenu();
+		}
+		if (actionToDo == "Attack") {
+			print ("Attacking Time");
+			string battleMessage = actionFrom.Attack (actionTo);
+			// Check if you killed the target
+			if (actionTo.checkDead ()) {
+				experienceEarned += actionTo.baseExperienceGiven;
+				Destroy(actionTo.battleAvatar);
+			}
+
+			// Turn is  over, you attacked
+			EnemyTurn (0);
+		}
 	}
 
 	/********************************************************************************************/ 

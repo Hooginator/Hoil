@@ -145,11 +145,21 @@ public class Map : MonoBehaviour {
 		// Returns the integer distence between two locations.
 		int[] posInt1 = getTileCoordsFromPos (pos1);
 		int[] posInt2 = getTileCoordsFromPos (pos2);
-		return (Mathf.Abs (posInt1 [0] - posInt1 [1]) + Mathf.Abs (posInt2 [0] - posInt2 [1]));
+		return (Mathf.Abs (posInt1 [0] - posInt2 [0]) + Mathf.Abs (posInt1 [1] - posInt2 [1]));
+	}
+	public int getIntDistanceFromCoords(int[] pos1, int[] pos2){
+		// Returns the integer distence between two locations.
+		return (Mathf.Abs (pos1 [0] - pos2 [0]) + Mathf.Abs (pos1 [1] - pos2 [1]));
 	}
 	public Vector3 getPosFromCoords(int x, int z){
 		// Returns the central position of a tile based on int inputs
 		return tiles [x,z].transform.position;
+	}
+	public Vector3 getAbovePosFromCoords(int x, int z){
+		// Returns the central position of a tile based on int inputs
+		Vector3 temp =  tiles [x,z].transform.position;
+		temp [1] = 5;
+		return temp;
 	}
 
 
