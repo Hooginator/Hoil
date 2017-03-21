@@ -85,6 +85,36 @@ public class Map : MonoBehaviour {
 	}
 
 
+
+	/********************************************************************************************/
+	/******************************** Tile Management *******************************************/
+	/********************************************************************************************/
+
+	public void setInRange(int x, int z, int range){
+		// Will recolour the tiles within range of the position (x,z) to the "In range" colour
+		for (int i = -range; i < range+1; i++){
+			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
+				if (isIntInBoundaries (i+x, j+z)) {
+					tiles [i+x, j+z].GetComponent<MapGridUnit> ().setInRange ();
+					print ("HERE I AM <<<<<<<<");
+				}
+			}
+		}
+	}
+	public void setOutOfRange(int x, int z, int range){
+		// Will recolour the tiles within range of the position (x,z) back to the normal colour
+		for (int i = -range; i < range+1; i++){
+			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
+				if (isIntInBoundaries (i+x, j+z)) {
+					tiles [i+x, j+z].GetComponent<MapGridUnit> ().setOutOfRange ();
+				}
+			}
+		}
+	}
+
+
+
+
 	/********************************************************************************************/
 	/******************************** Tile Position Management **********************************/
 	/********************************************************************************************/
@@ -121,6 +151,7 @@ public class Map : MonoBehaviour {
 		// Returns the central position of a tile based on int inputs
 		return tiles [x,z].transform.position;
 	}
+
 
 
 	/********************************************************************************************/

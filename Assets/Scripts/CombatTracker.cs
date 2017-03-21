@@ -30,6 +30,14 @@ public class CombatTracker : MonoBehaviour {
 	// Number of turns that have gone by, so I can kill the infinite loops witha  failsafe
 	private int nTurns = 0;
 
+	// Temp boolean to stop from pressing enter, ie "Submit" once and blasting through all the menus and target selection. 
+	public bool wasUp;
+	// Map coords for where a selection of a map tios originates from
+	public int selectingFromX;
+	public int selectingFromZ;
+	public int selectingRange;
+
+
 	/********************************************************************************************/ 
 	/**************************************** Upkeep ********************************************/ 
 	/********************************************************************************************/
@@ -57,8 +65,23 @@ public class CombatTracker : MonoBehaviour {
 				map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
 			}
 			map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
+			if (Input.GetButtonUp ("Submit")) {
+				// when you hit space, get the tile selected to do what we wanted
+				wasUp = true;
+				//selectingTargetLocation = false;
+			}
+			if (Input.GetButtonDown ("Submit") && wasUp) {
+				// when you hit space, get the tile selected to do what we wanted
+				int[] coords = map.getTileCoordsFromPos(targetLocation);
+				print ("You have selected tile " + coords[0].ToString() + "  " + coords[1].ToString());
+				selectingTargetLocation = false;
+				// For now we'll just bring the battle menu back, later this will move and progress the turn
+				ShowBattleMenu();
+				// Remove max range indicators
+				stopSelectingTargetLocation ();
+			}
 		} else {
-
+			// Do nothing for now
 		}
 	}
 
@@ -143,11 +166,26 @@ public class CombatTracker : MonoBehaviour {
 		}
 	}
 
-	public void selectTargetLocation(){
+
+	public void selectTargetLocation(int x, int z, int range){
 		selectingTargetLocation = true;
+		wasUp = false;
 		map = GameObject.Find ("Map").GetComponent<Map> ();
 		// Default select where Player 0 is
 		targetLocation = playerSprites [0].transform.position;
+		map.setInRange (x, z, range);
+		HideBattleMenu();
+		selectingFromX = x;
+		selectingFromZ = z;
+		selectingRange = range;
+
+	}
+	public void stopSelectingTargetLocation(){
+		selectingTargetLocation = false;
+		map = GameObject.Find ("Map").GetComponent<Map> ();
+		// Default select where Player 0 is
+		targetLocation = playerSprites [0].transform.position;
+		map.setOutOfRange (selectingFromX, selectingFromZ, selectingRange);
 
 
 	}
