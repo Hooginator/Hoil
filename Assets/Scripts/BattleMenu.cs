@@ -60,6 +60,11 @@ public class BattleMenu : MonoBehaviour {
 		//print ("Item");
 		combat.PlayerItem ();
 	}
+	public void EndTurnPress(){
+		// When you hit the Item Button
+		//print ("Item");
+		combat.PlayerEndTurn ();
+	}
 	public void SpecialPress(){
 		combat.selectTargetLocation (1,1,3);
 		// WHen you hit the Special Button

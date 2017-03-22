@@ -199,8 +199,9 @@ public class CombatTracker : MonoBehaviour {
 	}
 	public void stopSelectingTargetLocation(){
 		selectingTargetLocation = false;
-		map = GameObject.Find ("Map").GetComponent<Map> ();
+		//map = GameObject.Find ("Map").GetComponent<Map> ();
 		// Default select where Player 0 is
+		map.getTileFromPos (targetLocation).GetComponent<MapGridUnit> ().reColour ();
 		targetLocation = playerSprites [0].transform.position;
 		map.setOutOfRange (selectingFromX, selectingFromZ, selectingRange);
 
@@ -302,7 +303,6 @@ public class CombatTracker : MonoBehaviour {
 		//print ("Not Move, but " + actionToDo);
 		if (actionToDo == "Move") {
 			int[] tempOldCoords = actionFrom.battleLocation;
-			actionFrom.battleLocation = coords;
 			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
 			// If destination is in range
 			if (tempIntDistance <= actionFrom.MP) {
@@ -313,7 +313,9 @@ public class CombatTracker : MonoBehaviour {
 				print ("Used " + tempIntDistance.ToString () + " MP, " + actionFrom.MP.ToString () + " remaining");
 			} else {
 				print ("Insufficient MP, " + actionFrom.MP.ToString() + " of " + tempIntDistance.ToString());
+
 			}
+			actionToDo = null;
 			// Turn is not over, return to battle menu
 			ShowBattleMenu();
 		}
@@ -360,6 +362,9 @@ public class CombatTracker : MonoBehaviour {
 	public void PlayerRun(){
 	//print("Gonna load the Main Map back up... wish me luck");
 		EndBattle (0);
+	}
+	public void PlayerEndTurn(){
+		EnemyTurn (0);
 	}
 
 	List<CharacterClass> getCharactersInRange(int x, int z, int range){
