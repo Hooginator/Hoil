@@ -240,6 +240,9 @@ public class CombatTracker : MonoBehaviour {
 				// Destroy visual gameobject if enemy dies
 				if (playerCharacters [target].checkDead ()) {
 					Destroy(enemySprites [target].gameObject);
+					print (target.ToString () + " of " + playerCharacters.Count.ToString ());
+					playerCharacters.RemoveAt (target);
+					maxPlayerCharacters -= 1;
 				}
 				print (battleMessage);
 			}
@@ -290,9 +293,13 @@ public class CombatTracker : MonoBehaviour {
 		return loss;
 	}
 
+	/********************************************************************************************/ 
+	/**************************************** Character Actions *********************************/ 
+	/********************************************************************************************/
+
 	// This will likely move to one bit ugly filewith every ability
 	void doAction(){
-		print ("Not Move, but " + actionToDo);
+		//print ("Not Move, but " + actionToDo);
 		if (actionToDo == "Move") {
 			int[] tempOldCoords = actionFrom.battleLocation;
 			actionFrom.battleLocation = coords;
@@ -317,6 +324,9 @@ public class CombatTracker : MonoBehaviour {
 			if (actionTo.checkDead ()) {
 				experienceEarned += actionTo.baseExperienceGiven;
 				Destroy(actionTo.battleAvatar);
+				// Remove enemy from list
+				enemyCharacters.Remove (actionTo);
+				maxEnemyCharacters -= 1;
 			}
 
 			// Turn is  over, you attacked
@@ -324,9 +334,6 @@ public class CombatTracker : MonoBehaviour {
 		}
 	}
 
-	/********************************************************************************************/ 
-	/**************************************** Character Actions *********************************/ 
-	/********************************************************************************************/
 
 	public void PlayerAttack(int player, int badguy){
 		// Given integer value for Player attacking and enemy being attacked, perform attack calculation
@@ -334,13 +341,18 @@ public class CombatTracker : MonoBehaviour {
 		// Check if you killed the enemy
 		if (enemyCharacters [badguy].checkDead ()) {
 			experienceEarned += enemyCharacters [badguy].baseExperienceGiven;
+			// Remove enemy from list
+			enemyCharacters.RemoveAt (badguy);
 			Destroy(enemySprites [badguy].gameObject);
+			maxEnemyCharacters -= 1;
 		}
 		//print (battleMessage);
 		EnemyTurn (0);
 	}
 	public void PlayerItem(){
 		// Place Holderf for now
+		List<CharacterClass> charsInRange= getCharactersInRange(1,1,1);
+		print (charsInRange.Count.ToString ());
 	}
 	public void PlayerSpecial(){
 		// Placeholder for now
@@ -350,7 +362,25 @@ public class CombatTracker : MonoBehaviour {
 		EndBattle (0);
 	}
 
-		
+	List<CharacterClass> getCharactersInRange(int x, int z, int range){
+		// Creates a list of every character (enemy and player) insize of the range specified.
+		List<CharacterClass> charactersInRange = new List<CharacterClass> ();
+		int[] battleLoc = new int[2];
+		for (int i = 0; i < maxEnemyCharacters; i++) {
+			battleLoc = enemyCharacters [i].battleLocation;
+			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range)){
+				charactersInRange.Add(enemyCharacters[i]);
+			}
+		}
+		for (int i = 0; i < maxPlayerCharacters; i++) {
+			battleLoc = playerCharacters [i].battleLocation;
+			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range)){
+				charactersInRange.Add(playerCharacters[i]);
+			}
+		}
+		return charactersInRange;
+	}
+
 	/********************************************************************************************/ 
 	/**************************************** Menus Management **********************************/ 
 	/********************************************************************************************/

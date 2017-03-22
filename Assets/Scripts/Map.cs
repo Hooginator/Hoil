@@ -112,7 +112,10 @@ public class Map : MonoBehaviour {
 		}
 	}
 
-
+	public bool isInRange(int x1, int z1, int x2, int z2, int range ){
+		// Checks if [x1,z1] is within range of [x2,z2]
+		return (Mathf.Abs(x1-x2) + Mathf.Abs(z1-z2)) <= range;
+	}
 
 
 	/********************************************************************************************/
