@@ -32,10 +32,11 @@ public class CombatTracker : MonoBehaviour {
 
 	// Temp boolean to stop from pressing enter, ie "Submit" once and blasting through all the menus and target selection. 
 	public bool wasUp;
-	// Map coords for where a selection of a map tios originates from
+	// Map coords for where a selection of a map tile originates from
 	public int selectingFromX;
 	public int selectingFromZ;
 	public int selectingRange;
+	public int areaRange;
 
 	// Name of the action to be performed.  For when selecting a target, after we have chosen Attack, Item, Move etc..
 	public string actionToDo;
@@ -138,13 +139,13 @@ public class CombatTracker : MonoBehaviour {
 
 		var gameManager = GameObject.Find ("GameManager").GetComponent<gameManager>();
 
-		// Set Enemies, for now just 1 random
+		// Set Enemies, for now just 2
 		maxEnemyCharacters = 2;
 		enemySprites = new GameObject[maxEnemyCharacters];
 		//Create Enemies Randomly and initialize their stats / HP
 		for (int i = 0; i < maxEnemyCharacters; i++) {
 			enemyCharacters.Add(new CharacterClass ());
-			enemyCharacters [i].Initialize ("Enemy "+ i.ToString(),gameManager.enemyLevel,1);
+			enemyCharacters [i].Initialize ("Enemy "+ i.ToString(),gameManager.enemyLevel,1,gameManager.enemyTeam);
 			enemyCharacters [i].SetupStats ();
 			enemyCharacters [i].FullHeal ();
 			// Create Enemy Visuals
@@ -353,7 +354,7 @@ public class CombatTracker : MonoBehaviour {
 	}
 	public void PlayerItem(){
 		// Place Holderf for now
-		List<CharacterClass> charsInRange= getCharactersInRange(1,1,1);
+		List<CharacterClass> charsInRange= getAlliesInRange(1,1,3,"Player");
 		print (charsInRange.Count.ToString ());
 	}
 	public void PlayerSpecial(){
@@ -380,6 +381,44 @@ public class CombatTracker : MonoBehaviour {
 		for (int i = 0; i < maxPlayerCharacters; i++) {
 			battleLoc = playerCharacters [i].battleLocation;
 			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range)){
+				charactersInRange.Add(playerCharacters[i]);
+			}
+		}
+		return charactersInRange;
+	}
+
+	List<CharacterClass> getEnemiesInRange(int x, int z, int range, string team){
+		// Creates a list of every enemy character or TEAM insize of the range specified.
+		List<CharacterClass> charactersInRange = new List<CharacterClass> ();
+		int[] battleLoc = new int[2];
+		for (int i = 0; i < maxEnemyCharacters; i++) {
+			battleLoc = enemyCharacters [i].battleLocation;
+			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range) && enemyCharacters[i].team != team){
+				charactersInRange.Add(enemyCharacters[i]);
+			}
+		}
+		for (int i = 0; i < maxPlayerCharacters; i++) {
+			battleLoc = playerCharacters [i].battleLocation;
+			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range) && playerCharacters[i].team != team){
+				charactersInRange.Add(playerCharacters[i]);
+			}
+		}
+		return charactersInRange;
+	}
+
+	List<CharacterClass> getAlliesInRange(int x, int z, int range, string team){
+		// Creates a list of every allied character with TEAM insize of the range specified.
+		List<CharacterClass> charactersInRange = new List<CharacterClass> ();
+		int[] battleLoc = new int[2];
+		for (int i = 0; i < maxEnemyCharacters; i++) {
+			battleLoc = enemyCharacters [i].battleLocation;
+			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range) && enemyCharacters[i].team == team){
+				charactersInRange.Add(enemyCharacters[i]);
+			}
+		}
+		for (int i = 0; i < maxPlayerCharacters; i++) {
+			battleLoc = playerCharacters [i].battleLocation;
+			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range) && playerCharacters[i].team == team){
 				charactersInRange.Add(playerCharacters[i]);
 			}
 		}
