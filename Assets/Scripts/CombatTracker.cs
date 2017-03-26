@@ -169,19 +169,32 @@ public class CombatTracker : MonoBehaviour {
 		// Set initial character positions
 		Vector3 tempPos = new Vector3(0,0,0);
 		for (int i = 0; i < maxPlayerCharacters; i++) {
+			setToPosition (playerCharacters [i], 0, i);
+			/*
 			tempPos = map.getPosFromCoords (0, i);
 			tempPos [1] = 2f;
 			playerSprites [i].transform.position = tempPos;
 			// Set where the character thinks he is on the grid for range calculations and stuff
 			playerCharacters[i].battleLocation = new int[2]{0,i};
+			*/
 		}
 
 		for (int i = 0; i < maxEnemyCharacters; i++) {
+			setToPosition (enemyCharacters [i], 1, i + 2);
+			/*
 			tempPos = map.getPosFromCoords (2, i);
 			tempPos [1] = 2f;
 			enemySprites [i].transform.position = tempPos;
 			enemyCharacters[i].battleLocation = new int[2]{2,i};
+			*/
 		}
+	}
+
+	public void setToPosition(CharacterClass charToMove, int x, int z){
+		// Moves character to the center of tile at [x,z].  Also sets that tile as occupied.
+		map.tiles[x,z].GetComponent<MapGridUnit>().isOccupied = true;
+		charToMove.battleLocation = new int[2]{ x, z };
+		charToMove.battleAvatar.transform.position = map.getAbovePosFromCoords (x, z);
 	}
 
 
@@ -307,11 +320,16 @@ public class CombatTracker : MonoBehaviour {
 			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
 			// If destination is in range
 			if (tempIntDistance <= actionFrom.MP) {
+
+				setToPosition (actionFrom, coords [0], coords [1]);
+				actionFrom.MP -= map.getIntDistanceFromCoords (tempOldCoords, coords);
+				/*
 				print ("Moving Time");
 				actionFrom.battleLocation = coords;
 				actionFrom.battleAvatar.transform.position = map.getAbovePosFromCoords (coords [0], coords [1]);
 				actionFrom.MP -= map.getIntDistanceFromCoords (tempOldCoords, coords);
 				print ("Used " + tempIntDistance.ToString () + " MP, " + actionFrom.MP.ToString () + " remaining");
+				*/
 			} else {
 				print ("Insufficient MP, " + actionFrom.MP.ToString() + " of " + tempIntDistance.ToString());
 

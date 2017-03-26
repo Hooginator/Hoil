@@ -11,6 +11,7 @@ public class MapGridUnit : MonoBehaviour {
 	public Renderer rend;
 	public int reduceSaturation; // max saturation for a grid unit
 	public bool inRangeColoured;
+	public bool isOccupied;
 
 	// Update is called once per frame 
 	void Update () {
@@ -47,6 +48,8 @@ public class MapGridUnit : MonoBehaviour {
 		if(uniqueResources >= 3){
 			rend.material.color = new Color((int) (resources[0]/(maxResources-reduceSaturation)),(int) (resources[1]/maxResources),0,255);
 		}
+		// We will assume at first that noone is in the grid unit.
+		isOccupied = false;
 	}
 
 	/********************************************************************************************/
