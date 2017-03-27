@@ -199,6 +199,23 @@ public class CombatTracker : MonoBehaviour {
 
 
 	public void selectTargetLocation(int x, int z, int range){
+		// Set up the map to start looking for a map location to use whatever ability on
+		selectingTargetLocation = true;
+		wasUp = false;
+		map = GameObject.Find ("Map").GetComponent<Map> ();
+		// Default select where Player 0 is
+		targetLocation = playerSprites [0].transform.position;
+		map.setInRange (x, z, range);
+		HideBattleMenu();
+		selectingFromX = x;
+		selectingFromZ = z;
+		selectingRange = range;
+
+	}
+	public void selectTargetLocation(int range){
+		// Assume we are selecting from where the curent actor is
+		int x = actionFrom.battleLocation [0];
+		int z = actionFrom.battleLocation [1];
 		selectingTargetLocation = true;
 		wasUp = false;
 		map = GameObject.Find ("Map").GetComponent<Map> ();
@@ -281,9 +298,8 @@ public class CombatTracker : MonoBehaviour {
 		// Show the Battle Menu
 		ShowBattleMenu();
 		for (int i = 0; i < maxPlayerCharacters; i++) {
-			playerCharacters [i].startTurn();
-			// Update who will be performing actions
 			actionFrom = playerCharacters [i];
+			playerCharacters [i].startTurn();
 		}
 	}
 
@@ -313,7 +329,7 @@ public class CombatTracker : MonoBehaviour {
 	/********************************************************************************************/
 
 	// This will likely move to one bit ugly filewith every ability
-	void doAction(){
+	public void doAction(){
 		//print ("Not Move, but " + actionToDo);
 		if (actionToDo == "Move") {
 			int[] tempOldCoords = actionFrom.battleLocation;
@@ -350,6 +366,21 @@ public class CombatTracker : MonoBehaviour {
 				maxEnemyCharacters -= 1;
 			}
 
+			// Turn is  over, you attacked
+			EnemyTurn (0);
+		}
+		if (actionToDo == "Fireball") {
+			print("Here we would do fireball deeps");
+			// Turn is  over, you attacked
+			EnemyTurn (0);
+		}
+		if (actionToDo == "Sniper Attack") {
+			print("Here we would do deeps to someone");
+			// Turn is  over, you attacked
+			EnemyTurn (0);
+		}
+		if (actionToDo == "Heal Self") {
+			print("Here we would do self healing");
 			// Turn is  over, you attacked
 			EnemyTurn (0);
 		}
@@ -490,6 +521,21 @@ public class CombatTracker : MonoBehaviour {
 			// Do Team Select
 			// Do Area Select.... (After motion?)
 		}
+		// Default select first option
+		SelectMenu.GetComponent<SelectTarget> ().option[0].Select ();
+	}
+
+	public void ShowAbilitiesMenu(){
+		// Make the Options for battle (Attack, Item...) Visible
+		var SelectMenu = GameObject.Find ("SelectTarget").GetComponent<CanvasGroup>();
+		SelectMenu.alpha = 1f;
+		//print ("Show Select Menu");
+		SelectMenu.GetComponent<CanvasGroup>().blocksRaycasts = true;
+		SelectMenu.GetComponent<CanvasGroup>().interactable = true;
+		// Currently all I'm using this for.
+
+		SelectMenu.GetComponent<SelectTarget> ().CreateAbilityOptions (actionFrom);
+
 		// Default select first option
 		SelectMenu.GetComponent<SelectTarget> ().option[0].Select ();
 	}

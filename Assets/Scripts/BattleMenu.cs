@@ -66,7 +66,9 @@ public class BattleMenu : MonoBehaviour {
 		combat.PlayerEndTurn ();
 	}
 	public void SpecialPress(){
-		combat.selectTargetLocation (1,1,3);
+		combat.HideBattleMenu ();
+		combat.ShowAbilitiesMenu ();
+		//combat.selectTargetLocation (1,1,3);
 		// WHen you hit the Special Button
 		//print ("Special");
 		combat.PlayerSpecial ();
