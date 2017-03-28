@@ -111,6 +111,7 @@ public class SelectTarget : MonoBehaviour {
 		int rangeBase = 0;
 		if (ability == "Fireball") {
 			rangeBase = 4;
+			combat.areaRange = 3;
 			combat.selectTargetLocation (rangeBase);
 		}else if(ability == "Sniper Attack"){
 			// Change to individual target

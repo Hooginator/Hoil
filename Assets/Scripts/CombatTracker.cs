@@ -44,7 +44,7 @@ public class CombatTracker : MonoBehaviour {
 	public CharacterClass actionFrom;
 	// Character taking the action, thgis could probably be a temp variable
 	public CharacterClass actionTo;
-
+	public List<CharacterClass> targetsToDo;
 	// Coordinates selected
 	int[] coords = new int[2];
 
@@ -114,6 +114,8 @@ public class CombatTracker : MonoBehaviour {
 		if (playerCharacters[0] == null) {
 			print ("Did not load any characters, ADD END BATTLE HERE");
 		}
+
+		List<CharacterClass> targetsToDo = new List<CharacterClass>();
 		// Start the Fighting
 		StartBattle (currentPlayerCharacters, playerCharacters);
 	}
@@ -330,6 +332,7 @@ public class CombatTracker : MonoBehaviour {
 
 	// This will likely move to one bit ugly filewith every ability
 	public void doAction(){
+		List<CharacterClass> targetsToDo = null;
 		//print ("Not Move, but " + actionToDo);
 		if (actionToDo == "Move") {
 			int[] tempOldCoords = actionFrom.battleLocation;
@@ -359,11 +362,7 @@ public class CombatTracker : MonoBehaviour {
 			string battleMessage = actionFrom.Attack (actionTo);
 			// Check if you killed the target
 			if (actionTo.checkDead ()) {
-				experienceEarned += actionTo.baseExperienceGiven;
-				Destroy(actionTo.battleAvatar);
-				// Remove enemy from list
-				enemyCharacters.Remove (actionTo);
-				maxEnemyCharacters -= 1;
+				killCharacter (actionTo);
 			}
 
 			// Turn is  over, you attacked
@@ -371,6 +370,15 @@ public class CombatTracker : MonoBehaviour {
 		}
 		if (actionToDo == "Fireball") {
 			print("Here we would do fireball deeps");
+			targetsToDo =  getEnemiesInRange (coords[0],coords[1],areaRange,actionFrom.team);
+			for (int i = 0; i < targetsToDo.Count; i++) {
+				// Here will be more generalized in the future, I will make a dealElementalDamage() function in characterClass that will be like Attack(target) only with magic stuffs.
+				targetsToDo [i].HP -= actionFrom.Intelligence * 2;
+				print ("Applying Fireball to " + targetsToDo [i].name);
+				if (targetsToDo [i].checkDead ()) {
+					killCharacter (targetsToDo [i]);
+				}
+			}
 			// Turn is  over, you attacked
 			EnemyTurn (0);
 		}
@@ -385,7 +393,23 @@ public class CombatTracker : MonoBehaviour {
 			EnemyTurn (0);
 		}
 	}
-
+	public void killCharacter(CharacterClass toKill){
+		// Kills the given character,
+		if (enemyCharacters.Contains (toKill)) {
+			experienceEarned += toKill.baseExperienceGiven;
+			Destroy (toKill.battleAvatar);
+			// Remove enemy from list
+			enemyCharacters.Remove (toKill);
+			maxEnemyCharacters -= 1;
+		} else if (playerCharacters.Contains (toKill)) {
+			Destroy (toKill.battleAvatar);
+			// Remove player from list
+			playerCharacters.Remove (toKill);
+			maxPlayerCharacters -= 1;
+		} else {
+			print ("Couldn't find character to kill");
+		}
+	}
 
 	public void PlayerAttack(int player, int badguy){
 		// Given integer value for Player attacking and enemy being attacked, perform attack calculation
