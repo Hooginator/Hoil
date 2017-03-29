@@ -67,14 +67,14 @@ public class WorldMovementControls : MonoBehaviour {
 	/********************************************************************************************/
 
 	void OnCollisionEnter(Collision col){
-		print ("Collision at:  " + col.collider.transform.position.ToString ());
+		//print ("Collision at:  " + col.collider.transform.position.ToString ());
 		// Only if what we collided with was an enemy
 		if (col.gameObject.GetComponent<EnemyBehavior>() != null) {
 			// Find game manager as that has the loading and unloading functions
 			var gameManager = GameObject.Find ("GameManager");
 			// If we're not already in battle, load it up. 
 			if (gameManager.GetComponent<gameManager> ().inBattle != true) {
-				print ("Gonna Load Up Battle");
+				//print ("Gonna Load Up Battle");
 				gameManager.GetComponent<gameManager> ().StartBattle(col.gameObject);
 				//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
 			}

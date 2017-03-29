@@ -56,7 +56,7 @@ public class EnemyBehavior : MonoBehaviour {
 	// Update level indicator
 	public void updateLevelIndicator(){
 		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
-		print ("Update level strings");
+		//print ("Update level strings");
 		levelText.GetComponent<TextMesh>().text = level.ToString ();
 	}
 
@@ -105,7 +105,7 @@ public class EnemyBehavior : MonoBehaviour {
 				var gameManager = GameObject.Find ("GameManager");
 				// If we're not already in battle, load it up. 
 				if (gameManager.GetComponent<gameManager> ().inBattle != true) {
-					print ("Enemies hit each other!@#$!");
+					//print ("Enemies hit each other!@#$!");
 					isMoving = false;
 					doBattle (col.gameObject);
 					//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
@@ -119,18 +119,18 @@ public class EnemyBehavior : MonoBehaviour {
 		int enemylevel = enemy.GetComponent<EnemyBehavior> ().level;
 		var gameMan = GameObject.Find ("GameManager").GetComponent<gameManager> ();
 		if (enemylevel > level) {
-			print (team + " army loses D:");
+			//print (team + " army loses D:");
 			// Reduce level of team
 			gameMan.ReduceTeamLevel(level, team);
 			GameObject.Destroy (gameObject);
 		} else if (enemylevel > level) {
-			print (team + " army wins :D");
+			//print (team + " army wins :D");
 			// reduce level of enemy team
 			gameMan.ReduceTeamLevel(enemylevel, enemy.GetComponent<EnemyBehavior> ().team);
 			GameObject.Destroy (enemy);
 		} else {
 			// Still locks enemy movement, I will add to this later
-			print ("tie game");
+			//print ("tie game");
 		}
 	}
 

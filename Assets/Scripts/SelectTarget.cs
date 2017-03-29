@@ -62,6 +62,32 @@ public class SelectTarget : MonoBehaviour {
 		}
 	}
 
+	public void CreateAbilityOptions(CharacterClass caster){
+		// Creates a list of casting abilities to use
+		List<string> abilities = caster.abilities;
+		for(int i = 0; i < abilities.Count; i++){
+			// Create Button Object
+			GameObject temp = (GameObject)Instantiate (prefabbutton);
+			temp.transform.SetParent (TR, false);
+			/// Reneme Button
+			Text buttonText = temp.GetComponentInChildren<Text>();
+			buttonText.text = abilities [i];
+
+			// Reposition Buttons
+			Vector3 pos = temp.transform.position;
+			pos [1] -= i * 30;
+			print (pos [1].ToString ());
+			temp.transform.position = pos;
+
+
+			option.Insert (i, temp.GetComponent<Button>());
+			print (i.ToString () + "  " + combat.actionFrom.abilities [i]);
+			string tempAbility = abilities [i];
+			option [i].GetComponent<Button> ().onClick.AddListener (delegate {
+				DoAbility (tempAbility);
+			});
+		};
+	}
 	/********************************************************************************************/
 	/************************************* Act On Target ****************************************/
 	/********************************************************************************************/
@@ -76,6 +102,29 @@ public class SelectTarget : MonoBehaviour {
 	void AttackTarget(int num){
 		//print ("Clicked for enemy" + num.ToString ());
 		battlemenu.AttackTarget (num);
+	}
+	void DoAbility(string ability){
+
+		combat.HideSelectMenu ();
+		print ("Doing ability " + ability);
+		combat.actionToDo = ability;
+		int rangeBase = 0;
+		if (ability == "Fireball") {
+			rangeBase = 4;
+			combat.areaRange = 3;
+			combat.selectTargetLocation (rangeBase);
+		}else if(ability == "Sniper Attack"){
+			// Change to individual target
+			rangeBase = 8;
+			combat.areaRange = 1;
+			combat.selectTargetLocation (rangeBase);
+		}else if(ability == "Heal Self"){
+			// Change select method to individual ally, or just fuck it
+			rangeBase = 0;
+			combat.selectTargetLocation (rangeBase);
+		}
+		combat.selectingRange = rangeBase;
+		//combat.selectTargetLocation (rangeBase);
 	}
 
 }

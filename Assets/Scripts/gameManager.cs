@@ -47,43 +47,54 @@ public class gameManager : MonoBehaviour {
 		// Makes sure that the GameManager this is attached to is always the same one, so we can use it to keep values through scenes.
 		if (instance == null) {
 			instance = this;
-			worldPlayer = GameObject.Instantiate (playerWorldSprite, new Vector3(90,2,0),Quaternion.identity);
-			worldPlayer.transform.SetParent (gameObject.transform);
-			playerMapPosition = worldPlayer.transform;
-			//playerMapPosition = new Vector3(0,3,0);
-			//playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
-			/****************************************** Start of the game here ***********************************************************/
-			// This will be called once at the very start of the game and then never again, good place to set up one time events at the start.
-			// Create Main character, probably will be more involved than this later :P
-			playerCharacters = new  List<CharacterClass>();
-			teams = new  List<GameObject>();
-			// Make temp something that should definitely not be Null...
-			CharacterClass temp = new CharacterClass();
-			// Initialize stats to level 5 so we can beat level 1 generated badguy easily
-			temp.Initialize ("GoodGuy",1000,0);
-			string printstats = temp.printStats ();
-			print (printstats);
-			// Add temp to the list
-			playerCharacters.Add(temp);
-			//playerCharacters.Add(new CharacterClass());
-			currentPlayerCharacters += 1;
 
-			// Create the two teams and set their parent transforms to this gameobject (to not be destroyed)
-			GameObject tempTeam1 = GameObject.Instantiate(Resources.Load("Blue Base"),new Vector3(0,1,0),Quaternion.identity) as GameObject;
-			tempTeam1.GetComponent<Transform> ().parent = gameObject.transform;
-			teams.Add(tempTeam1);
-			GameObject tempTeam2 = GameObject.Instantiate(Resources.Load("Red Base"),new Vector3(90,1,90),Quaternion.identity) as GameObject;
-			tempTeam2.GetComponent<Transform> ().parent = gameObject.transform;
-			teams.Add(tempTeam2);
+			Scene currentScene = SceneManager.GetActiveScene ();
+			string sceneName = currentScene.name;
+				worldPlayer = GameObject.Instantiate (playerWorldSprite, new Vector3 (90, 2, 0), Quaternion.identity);
+				worldPlayer.transform.SetParent (gameObject.transform);
+				playerMapPosition = worldPlayer.transform;
+				//playerMapPosition = new Vector3(0,3,0);
+				//playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
+				/****************************************** Start of the game here ***********************************************************/
+				// This will be called once at the very start of the game and then never again, good place to set up one time events at the start.
+				// Create Main character, probably will be more involved than this later :P
+				playerCharacters = new  List<CharacterClass> ();
+				teams = new  List<GameObject> ();
+				// Make temp something that should definitely not be Null...
+				CharacterClass temp = new CharacterClass ();
+				// Initialize stats to level 5 so we can beat level 1 generated badguy easily
+				temp.Initialize ("GoodGuy", 1000, 0, "Player");
+				//string printstats = temp.printStats ();
+				//print (printstats);
+				// Add temp to the list
+				playerCharacters.Add (temp);
+				//playerCharacters.Add(new CharacterClass());
+				currentPlayerCharacters += 1;
 
-			//teams[0].GetComponent<Team>().Initialize();
-			//teams[1].GetComponent<Team>().Initialize();
-			// Initialize everything that would also be initialized post battle
-			InitializeWorld ();
-			// Apply the movement controls for the world map to the player
-			WorldMovementControls WMC = worldPlayer.AddComponent<WorldMovementControls> ();
-			WMC.moveSpeed = 20;
-			WMC.RotationSpeed = 1;
+				// Create the two teams and set their parent transforms to this gameobject (to not be destroyed)
+				GameObject tempTeam1 = GameObject.Instantiate (Resources.Load ("Blue Base"), new Vector3 (0, 1, 0), Quaternion.identity) as GameObject;
+				tempTeam1.GetComponent<Transform> ().parent = gameObject.transform;
+				teams.Add (tempTeam1);
+				GameObject tempTeam2 = GameObject.Instantiate (Resources.Load ("Red Base"), new Vector3 (90, 1, 90), Quaternion.identity) as GameObject;
+				tempTeam2.GetComponent<Transform> ().parent = gameObject.transform;
+				teams.Add (tempTeam2);
+
+				//teams[0].GetComponent<Team>().Initialize();
+				//teams[1].GetComponent<Team>().Initialize();
+				// Initialize everything that would also be initialized post battle
+				InitializeWorld ();
+				// Apply the movement controls for the world map to the player
+				WorldMovementControls WMC = worldPlayer.AddComponent<WorldMovementControls> ();
+				WMC.moveSpeed = 20;
+				WMC.RotationSpeed = 1;
+
+			if (sceneName == "Hoil") {
+
+			} else if (sceneName == "Battle") {
+				print ("Started in Battle");
+				StartBattle ();
+			}
+
 
 		} else if (instance != this){
 			Destroy (gameObject);
@@ -109,7 +120,22 @@ public class gameManager : MonoBehaviour {
 	/********************************************************************************************/ 
 	/******************************* Battle Management ******************************************/ 
 	/********************************************************************************************/
+	public void StartBattle(){
+		// Load Battle if it is the first scene loaded.  mostly for testing
+		// Get the colour of the tile the enemy was on for the battle
+		groundTileResources = new float[3]{0.5f,0.5f,0.5f};
+		playerMapPosition = worldPlayer.GetComponent<Transform>();
+		//print (playerMapPosition.position.ToString ());
+		//GameObject.Destroy (worldPlayer);
+		// Disable the World version of player
+		worldPlayer.SetActive(false);
+		// disable the bases for each team on the world map
+		for (int i = 0; i < teams.Count; i++) {
+			teams [i].SetActive (false);
+		}
 
+		inBattle = true;
+	}
 	public void StartBattle(GameObject enemyGameObject){
 		// Once collided with enemy, starta  fight. 
 		// I will need enemy information coming through here
@@ -119,7 +145,7 @@ public class gameManager : MonoBehaviour {
 		// Get the colour of the tile the enemy was on for the battle
 		groundTileResources = GameObject.Find ("Map").GetComponent<Map> ().getTileFromPos (enemyGameObject.transform.position).GetComponent<MapGridUnit>().resources;
 		playerMapPosition = worldPlayer.GetComponent<Transform>();
-		print (playerMapPosition.position.ToString ());
+		//print (playerMapPosition.position.ToString ());
 		//GameObject.Destroy (worldPlayer);
 		// Disable the World version of player
 		worldPlayer.SetActive(false);
@@ -136,12 +162,12 @@ public class gameManager : MonoBehaviour {
 		if (teamName == "Blue") {
 			teams [0].GetComponent<Team> ().level -= levelAmount;
 			teams [0].GetComponent<Team> ().updateLevelIndicator ();
-			print ("Blue level now: "+teams [0].GetComponent<Team> ().level.ToString ());
+			//print ("Blue level now: "+teams [0].GetComponent<Team> ().level.ToString ());
 		}
 		if (teamName == "Red") {
 			teams [1].GetComponent<Team> ().level -= levelAmount;
 			teams [1].GetComponent<Team> ().updateLevelIndicator ();
-			print ("Red level now: "+teams [1].GetComponent<Team> ().level.ToString ());
+			//print ("Red level now: "+teams [1].GetComponent<Team> ().level.ToString ());
 		}
 	}
 

@@ -40,6 +40,15 @@ public class BattleMenu : MonoBehaviour {
 		//combat.CreateSelectOptions ();
 		combat.ShowSelectMenu (combat.maxEnemyCharacters,combat.enemyCharacters);
 		//combat.PlayerAttack(0,0);
+	}	
+	public void MovePress(){
+		// When you hit that attack button
+		print ("MOOOVE");
+		combat.HideBattleMenu ();
+		combat.actionToDo = "Move";
+		int[] pos = combat.actionFrom.battleLocation;
+		int MP = combat.actionFrom.MP;
+		combat.selectTargetLocation (pos[0],pos[1],MP);
 	}
 	public void AttackTarget(int target){
 		//print ("Attacking Target: " + target.ToString ());
@@ -51,8 +60,15 @@ public class BattleMenu : MonoBehaviour {
 		//print ("Item");
 		combat.PlayerItem ();
 	}
+	public void EndTurnPress(){
+		// When you hit the Item Button
+		//print ("Item");
+		combat.PlayerEndTurn ();
+	}
 	public void SpecialPress(){
-		combat.selectTargetLocation (1,1,3);
+		combat.HideBattleMenu ();
+		combat.ShowAbilitiesMenu ();
+		//combat.selectTargetLocation (1,1,3);
 		// WHen you hit the Special Button
 		//print ("Special");
 		combat.PlayerSpecial ();

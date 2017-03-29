@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\BasicEnemyAnimations.cs" />
      <Compile Include="Assets\Scripts\BattleMenu.cs" />
      <Compile Include="Assets\Scripts\CharacterClass.cs" />
      <Compile Include="Assets\Scripts\CombatTracker.cs" />

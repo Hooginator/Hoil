@@ -96,7 +96,7 @@ public class Team : MonoBehaviour {
 	void Update () {
 		// Every so often add to a bases power level
 		if (Time.frameCount % 300 == 20) {
-			print ("Add to level");
+			//print ("Add to level");
 			level += 1;
 			updateLevelIndicator ();
 		}
@@ -106,7 +106,7 @@ public class Team : MonoBehaviour {
 	public void updateLevelIndicator(){
 		// As of now Army Text HAS to be the first child element in the base game object.
 		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
-		print ("Update team level strings");
+		//print ("Update team level strings");
 		levelText.GetComponent<TextMesh>().text = level.ToString ();
 	}
 }
