@@ -69,15 +69,13 @@ public class CombatTracker : MonoBehaviour {
 				temppos += new Vector3(0,0,map.gridSize);
 			}
 			if(temppos != new Vector3(0,0,0)){
-				map.deSelectRange (targetLocation, areaRange);
 				map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().reColour ();
 				targetLocation += temppos;
 				targetLocation = map.ForceInsideBoundaries (targetLocation);
 				print ("Target: " +targetLocation.ToString ());
-				map.selectRange (targetLocation, areaRange);
-				//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
+				map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
 			}
-			//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
+			map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
 			if (Input.GetButtonUp ("Submit")) {
 				// when you hit space, get the tile selected to do what we wanted
 				wasUp = true;
@@ -89,13 +87,11 @@ public class CombatTracker : MonoBehaviour {
 				print ("You have selected tile " + coords[0].ToString() + "  " + coords[1].ToString());
 				selectingTargetLocation = false;
 
-
-				// Remove max range indicators
-				stopSelectingTargetLocation ();
-
 				// Do the thing that this selection was for
 				doAction ();
 
+				// Remove max range indicators
+				stopSelectingTargetLocation ();
 			}
 		} else {
 			// Do nothing for now
@@ -122,7 +118,6 @@ public class CombatTracker : MonoBehaviour {
 		List<CharacterClass> targetsToDo = new List<CharacterClass>();
 		// Start the Fighting
 		StartBattle (currentPlayerCharacters, playerCharacters);
-		areaRange = 1;
 	}
 
 	public void StartBattle(int numPlayers, List<CharacterClass> players){
@@ -238,8 +233,6 @@ public class CombatTracker : MonoBehaviour {
 	public void stopSelectingTargetLocation(){
 		selectingTargetLocation = false;
 		//map = GameObject.Find ("Map").GetComponent<Map> ();
-
-		map.deSelectRange (targetLocation, areaRange);
 		// Default select where Player 0 is
 		map.getTileFromPos (targetLocation).GetComponent<MapGridUnit> ().reColour ();
 		targetLocation = playerSprites [0].transform.position;
@@ -267,7 +260,6 @@ public class CombatTracker : MonoBehaviour {
 
 
 	void EnemyTurn(int target){
-		areaRange = 1;
 		//print ("Start of Enemy Turn");
 		// No need to show player options when he has none
 		HideBattleMenu();
@@ -304,7 +296,6 @@ public class CombatTracker : MonoBehaviour {
 	void PlayerTurn (){
 		//print ("Start of Player Turn");
 		nTurns++;
-		areaRange = 1;
 		//PrintAllBattleStats ();
 		// Show the Battle Menu
 		ShowBattleMenu();
