@@ -26,6 +26,7 @@ public class CombatTracker : MonoBehaviour {
 	GameObject BattleMenu;
 	// Shows which menu we're in.  likely to be used for going back a manu
 	public string windowStatus;
+	public string previousWindowStatus;
 
 	public Map map;
 	public Vector3 temppos;
@@ -116,6 +117,7 @@ public class CombatTracker : MonoBehaviour {
 		}
 	}
 	public void goBackMenu (){
+		print ("Windows: " + windowStatus + "  " + previousWindowStatus);
 		// For now every time you go back it goes right back to the start.  I will need to record the difference between selecting a target for abilities / items / move etc...
 		switch (windowStatus) {
 
@@ -127,7 +129,15 @@ public class CombatTracker : MonoBehaviour {
 			break;
 		case "Selecting Location":
 			stopSelectingTargetLocation ();
-			ShowBattleMenu ();
+			switch (previousWindowStatus) {
+			case "Abilities Menu":
+				ShowAbilitiesMenu ();
+				break;
+			case "Battle Manu":
+			default:
+				ShowBattleMenu ();
+				break;
+			}
 			break;
 		case "Battle Menu":
 		case "None":
@@ -179,6 +189,7 @@ public class CombatTracker : MonoBehaviour {
 		}
 		selectingTargetLocation = false;
 		windowStatus = "None";
+		previousWindowStatus = "None";
 		var gameManager = GameObject.Find ("GameManager").GetComponent<gameManager>();
 
 		// Set Enemies, for now just 2
@@ -577,7 +588,10 @@ public class CombatTracker : MonoBehaviour {
 		SelectMenu.GetComponent<CanvasGroup>().interactable = false;
 		// Destroy old buttons
 		SelectMenu.GetComponent<SelectTarget> ().DestroyOptions ();
+
+		previousWindowStatus = windowStatus;
 		windowStatus = "None";
+
 	}
 	public void ShowSelectMenu(int maxSelectCharacters, List<CharacterClass> selectCharacters){
 		// Make the Options for battle (Attack, Item...) Visible
@@ -598,6 +612,7 @@ public class CombatTracker : MonoBehaviour {
 		// Default select first option
 		SelectMenu.GetComponent<SelectTarget> ().option[0].Select ();
 		windowStatus = "Select Character Menu";
+
 	}
 
 	public void ShowAbilitiesMenu(){
@@ -613,6 +628,8 @@ public class CombatTracker : MonoBehaviour {
 
 		// Default select first option
 		SelectMenu.GetComponent<SelectTarget> ().option[0].Select ();
+
+		previousWindowStatus = windowStatus;
 		windowStatus = "Abilities Menu";
 	}
 
