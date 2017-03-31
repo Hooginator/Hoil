@@ -117,6 +117,7 @@ public class SelectTarget : MonoBehaviour {
 			// Change to individual target
 			rangeBase = 8;
 			combat.selectTargetLocation (rangeBase);
+			combat.areaRange = 1;
 		}else if(ability == "Heal Self"){
 			// Change select method to individual ally, or just fuck it
 			rangeBase = 0;

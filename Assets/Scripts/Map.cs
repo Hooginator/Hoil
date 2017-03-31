@@ -117,7 +117,33 @@ public class Map : MonoBehaviour {
 		return (Mathf.Abs(x1-x2) + Mathf.Abs(z1-z2)) <= range;
 	}
 
-
+	public void selectRange(Vector3 pos, int range){
+		int[] posInt = getTileCoordsFromPos (pos);
+		int x = posInt [0];
+		int z = posInt [1];
+		for (int i = -range; i < range+1; i++){
+			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
+				if (isIntInBoundaries (i+x, j+z)) {
+					tiles [i+x, j+z].GetComponent<MapGridUnit> ().Select ();
+					//print ("HERE I AM <<<<<<<<");
+				}
+			}
+		}
+		tiles [x, z].GetComponent<MapGridUnit> ().centralSelect ();
+	}
+	public void deSelectRange(Vector3 pos, int range){
+		int[] posInt = getTileCoordsFromPos (pos);
+		int x = posInt [0];
+		int z = posInt [1];
+		for (int i = -range; i < range+1; i++){
+			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
+				if (isIntInBoundaries (i+x, j+z)) {
+					tiles [i+x, j+z].GetComponent<MapGridUnit> ().reColour ();
+					//print ("HERE I AM <<<<<<<<");
+				}
+			}
+		}
+	}
 	/********************************************************************************************/
 	/******************************** Tile Position Management **********************************/
 	/********************************************************************************************/
