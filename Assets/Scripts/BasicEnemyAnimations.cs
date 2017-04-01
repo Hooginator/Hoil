@@ -13,6 +13,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	public Vector3 axisUp;
 	public float rotationSpeed;
 	// Use this for initialization
+	Quaternion rotation;
 	void Start () {
 		cubes = new GameObject[3];
 		sphere = gameObject.transform.GetChild(1).gameObject;
@@ -22,10 +23,13 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		targetDistance = 3;
 		axisUp = new Vector3 (0, 1, 0);
 		rotationSpeed = 50f;
+		rotation = Quaternion.identity;
+		rotation.eulerAngles = new Vector3(70, 0, 0);
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update () { 
+		gameObject.transform.GetChild (0).rotation = rotation;
 		spherePos = sphere.transform.position;
 		for (int i = 0; i < 3; i++) {
 			// get relative position of 
