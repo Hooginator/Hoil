@@ -13,6 +13,8 @@ public class SelectTarget : MonoBehaviour {
 
 	public BattleMenu battlemenu;
 
+	public Ability AbilityToCast;
+
 	// Update is called once per frame
 	void Update () {
 
@@ -49,9 +51,10 @@ public class SelectTarget : MonoBehaviour {
 				option.Insert (targetNumber, temp.GetComponent<Button>());
 				// Need a tempi variable here for the int here to make sure each button has a different int (weird isue, I dunno kny really)
 				int tempi = i;
+				CharacterClass tempTarget = targets [i];
 				// Add a function to the button for when it's pressed
 				option [targetNumber].GetComponent<Button> ().onClick.AddListener (delegate {
-					AttackTarget (tempi);
+					AttackTarget (tempTarget);
 				});
 				// This way always has each button store the last value of i in it...
 				// option[i].GetComponent<Button>().onClick.AddListener (delegate{testtemp (i);});
@@ -64,14 +67,14 @@ public class SelectTarget : MonoBehaviour {
 
 	public void CreateAbilityOptions(CharacterClass caster){
 		// Creates a list of casting abilities to use
-		List<string> abilities = caster.abilities;
+		List<Ability> abilities = caster.abilities;
 		for(int i = 0; i < abilities.Count; i++){
 			// Create Button Object
 			GameObject temp = (GameObject)Instantiate (prefabbutton);
 			temp.transform.SetParent (TR, false);
 			/// Reneme Button
 			Text buttonText = temp.GetComponentInChildren<Text>();
-			buttonText.text = abilities [i];
+			buttonText.text = abilities [i].name;
 
 			// Reposition Buttons
 			Vector3 pos = temp.transform.position;
@@ -82,7 +85,7 @@ public class SelectTarget : MonoBehaviour {
 
 			option.Insert (i, temp.GetComponent<Button>());
 			print (i.ToString () + "  " + combat.actionFrom.abilities [i]);
-			string tempAbility = abilities [i];
+			Ability tempAbility = abilities [i];
 			option [i].GetComponent<Button> ().onClick.AddListener (delegate {
 				DoAbility (tempAbility);
 			});
@@ -99,26 +102,31 @@ public class SelectTarget : MonoBehaviour {
 		}
 		option.Clear ();
 	}
-	void AttackTarget(int num){
-		//print ("Clicked for enemy" + num.ToString ());
-		battlemenu.AttackTarget (num);
-	}
-	void DoAbility(string ability){
+	void AttackTarget(CharacterClass target){
 
+		combat.HideSelectMenu ();
+		//print ("Clicked for enemy" + num.ToString ());
+		//print("HEEERERERERERE "+ target.name);
+		combat.actionTo = target;
+		combat.doAction();
+	}
+	void DoAbility(Ability ability){
+		AbilityToCast = ability;
 		combat.HideSelectMenu ();
 		print ("Doing ability " + ability);
 		combat.actionToDo = ability;
 		int rangeBase = 0;
-		if (ability == "Fireball") {
+		if (ability.name == "Fireball") {
 			rangeBase = 4;
 			combat.areaRange = 3;
 			combat.selectTargetLocation (rangeBase);
-		}else if(ability == "Sniper Attack"){
+		}else if(ability.name == "Sniper Attack"){
 			// Change to individual target
 			rangeBase = 8;
-			combat.selectTargetLocation (rangeBase);
+
+			combat.ShowSelectMenu (combat.maxEnemyCharacters,combat.enemyCharacters);
 			combat.areaRange = 1;
-		}else if(ability == "Heal Self"){
+		}else if(ability.name == "Heal Self"){
 			// Change select method to individual ally, or just fuck it
 			rangeBase = 0;
 			combat.selectTargetLocation (rangeBase);

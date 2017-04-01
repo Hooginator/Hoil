@@ -40,6 +40,8 @@ public class BattleMenu : MonoBehaviour {
 		//print ("ATTACKKKKK");
 		combat.HideBattleMenu ();
 		//combat.CreateSelectOptions ();
+
+		combat.actionToDo = new Ability("Basic Attack",combat.actionFrom);
 		combat.ShowSelectMenu (combat.maxEnemyCharacters,combat.enemyCharacters);
 		//combat.PlayerAttack(0,0);
 	}	
@@ -47,7 +49,7 @@ public class BattleMenu : MonoBehaviour {
 		// When you hit that attack button
 		print ("MOOOVE");
 		combat.HideBattleMenu ();
-		combat.actionToDo = "Move";
+		combat.actionToDo = new Ability("Move",combat.actionFrom);
 		int[] pos = combat.actionFrom.battleLocation;
 		int MP = combat.actionFrom.MP;
 		combat.selectTargetLocation (pos[0],pos[1],MP);

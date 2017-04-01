@@ -43,7 +43,7 @@ public class CombatTracker : MonoBehaviour {
 	public int areaRange;
 
 	// Name of the action to be performed.  For when selecting a target, after we have chosen Attack, Item, Move etc..
-	public string actionToDo;
+	public Ability actionToDo;
 	// Character doing the action
 	public CharacterClass actionFrom;
 	// Character taking the action, thgis could probably be a temp variable
@@ -172,7 +172,7 @@ public class CombatTracker : MonoBehaviour {
 	public void StartBattle(int numPlayers, List<CharacterClass> players){
 		//print ("Battle Starting");
 		map = GameObject.Find ("Map").GetComponent<Map> ();
-		areaRange = 1;
+		areaRange = 0;
 		experienceEarned = 0;
 		playerSprites = new GameObject[numPlayers];
 		// Set Player characters based on inputs.
@@ -314,10 +314,11 @@ public class CombatTracker : MonoBehaviour {
 
 
 	void EnemyTurn(int target){
+		checkDead ();
 		//print ("Start of Enemy Turn");
 		// No need to show player options when he has none
 		HideBattleMenu();
-		areaRange = 1;
+		areaRange = 0;
 		for (int i = 0; i < maxEnemyCharacters; i++) {
 			// Only living enemies get a turn
 			if (!enemyCharacters [i].isDead) {
@@ -349,9 +350,10 @@ public class CombatTracker : MonoBehaviour {
 		PlayerTurn ();
 	}
 	void PlayerTurn (){
+		checkDead ();
 		//print ("Start of Player Turn");
 		nTurns++;
-		areaRange = 1;
+		areaRange = 0;
 		//PrintAllBattleStats ();
 		// Show the Battle Menu
 		ShowBattleMenu();
@@ -359,6 +361,7 @@ public class CombatTracker : MonoBehaviour {
 			actionFrom = playerCharacters [i];
 			playerCharacters [i].startTurn();
 		}
+		//EnemyTurn (0);
 	}
 
 	// Checks to see if you have won the game
@@ -381,6 +384,19 @@ public class CombatTracker : MonoBehaviour {
 		}
 		return loss;
 	}
+	void checkDead(){
+		// Checks all characters and kills them if dead
+		for (int i = 0; i < maxEnemyCharacters; i++) {
+			if (enemyCharacters [i].checkDead ()) {
+				killCharacter (enemyCharacters [i]);
+			}
+		}
+		for (int i = 0; i < maxPlayerCharacters; i++) {
+			if (playerCharacters [i].checkDead ()) {
+				killCharacter (playerCharacters [i]);
+			}
+		}
+	}
 
 	/********************************************************************************************/ 
 	/**************************************** Character Actions *********************************/ 
@@ -390,7 +406,7 @@ public class CombatTracker : MonoBehaviour {
 	public void doAction(){
 		List<CharacterClass> targetsToDo = null;
 		//print ("Not Move, but " + actionToDo);
-		if (actionToDo == "Move") {
+		if (actionToDo.name == "Move") {
 			int[] tempOldCoords = actionFrom.battleLocation;
 			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
 			// If destination is in range
@@ -406,14 +422,13 @@ public class CombatTracker : MonoBehaviour {
 				print ("Used " + tempIntDistance.ToString () + " MP, " + actionFrom.MP.ToString () + " remaining");
 				*/
 			} else {
-				print ("Insufficient MP, " + actionFrom.MP.ToString() + " of " + tempIntDistance.ToString());
+				print ("Insufficient MP, " + actionFrom.MP.ToString () + " of " + tempIntDistance.ToString ());
 
 			}
 			actionToDo = null;
 			// Turn is not over, return to battle menu
-			ShowBattleMenu();
-		}
-		if (actionToDo == "Attack") {
+			ShowBattleMenu ();
+		} else if (actionToDo.name == "Basic Attack") {
 			print ("Attacking Time");
 			string battleMessage = actionFrom.Attack (actionTo);
 			// Check if you killed the target
@@ -423,8 +438,28 @@ public class CombatTracker : MonoBehaviour {
 
 			// Turn is  over, you attacked
 			EnemyTurn (0);
+		} else if (actionToDo != null){
+			if (actionToDo.targetingType == "Single") {
+				actionToDo.cast (actionTo);
+
+			} else if (actionToDo.targetingType == "Area") {
+				// If we've selected an area to cast on, cycle through the appropriate targets and apply the ability
+				if (actionToDo.targets == "Enemy") {
+					targetsToDo =  getEnemiesInRange (coords[0],coords[1],areaRange,actionFrom.team);
+				} else if (actionToDo.targets == "Ally") {
+					targetsToDo =  getAlliesInRange (coords[0],coords[1],areaRange,actionFrom.team);
+				} else if (actionToDo.targets == "All") {
+					targetsToDo =  getCharactersInRange (coords[0],coords[1],areaRange);
+				}
+				targetsToDo =  getEnemiesInRange (coords[0],coords[1],areaRange,actionFrom.team);
+				for (int i = 0; i < targetsToDo.Count; i++) {
+					actionToDo.cast (targetsToDo [i]);
+				}
+			}
+			EnemyTurn (0);
 		}
-		if (actionToDo == "Fireball") {
+		/*
+		if (actionToDo.name == "Fireball") {
 			print("Here we would do fireball deeps");
 			targetsToDo =  getEnemiesInRange (coords[0],coords[1],areaRange,actionFrom.team);
 			for (int i = 0; i < targetsToDo.Count; i++) {
@@ -448,6 +483,7 @@ public class CombatTracker : MonoBehaviour {
 			// Turn is  over, you attacked
 			EnemyTurn (0);
 		}
+		*/
 	}
 	public void killCharacter(CharacterClass toKill){
 		// Kills the given character,
