@@ -23,6 +23,11 @@ ExportedObj/
 *.svd
 *.pdb
 
+# Hoog added
+*.dll
+*.mdb
+*assetDatabase*
+
 # Unity3D generated meta files
 *.pidb.meta
 

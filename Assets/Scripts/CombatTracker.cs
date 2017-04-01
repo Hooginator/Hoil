@@ -24,6 +24,9 @@ public class CombatTracker : MonoBehaviour {
 	bool selectingTargetLocation;
 
 	GameObject BattleMenu;
+	// Shows which menu we're in.  likely to be used for going back a manu
+	public string windowStatus;
+	public string previousWindowStatus;
 
 	public Map map;
 	public Vector3 temppos;
@@ -32,6 +35,7 @@ public class CombatTracker : MonoBehaviour {
 
 	// Temp boolean to stop from pressing enter, ie "Submit" once and blasting through all the menus and target selection. 
 	public bool wasUp;
+	public bool cancelWasUp;
 	// Map coords for where a selection of a map tile originates from
 	public int selectingFromX;
 	public int selectingFromZ;
@@ -74,8 +78,8 @@ public class CombatTracker : MonoBehaviour {
 				targetLocation += temppos;
 				targetLocation = map.ForceInsideBoundaries (targetLocation);
 				print ("Target: " +targetLocation.ToString ());
-				map.selectRange (targetLocation, areaRange);
 				//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
+				map.selectRange (targetLocation, areaRange);
 			}
 			//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
 			if (Input.GetButtonUp ("Submit")) {
@@ -87,21 +91,61 @@ public class CombatTracker : MonoBehaviour {
 				// when you hit space, get the tile selected to do what we wanted
 				coords = map.getTileCoordsFromPos(targetLocation);
 				print ("You have selected tile " + coords[0].ToString() + "  " + coords[1].ToString());
-				selectingTargetLocation = false;
 
 
-				// Remove max range indicators
-				stopSelectingTargetLocation ();
-
-				// Do the thing that this selection was for
-				doAction ();
-
+				// Check if we're actually in range
+				if(map.isInRange(coords[0],coords[1],selectingFromX,selectingFromZ,selectingRange)){
+					selectingTargetLocation = false;
+					// Remove max range indicators
+					stopSelectingTargetLocation ();
+					// Do the thing that this selection was for
+					doAction ();
+				}else{
+					print("Not in range");
+				}
 			}
 		} else {
 			// Do nothing for now
 		}
+		// Going back menus
+		if (Input.GetButtonDown ("Cancel")) {
+			print ("Go Back!!");
+			goBackMenu ();
+			cancelWasUp = false;
+		}else if (Input.GetButtonUp ("Cancel")) {
+			cancelWasUp = true;
+		}
 	}
+	public void goBackMenu (){
+		print ("Windows: " + windowStatus + "  " + previousWindowStatus);
+		// For now every time you go back it goes right back to the start.  I will need to record the difference between selecting a target for abilities / items / move etc...
+		switch (windowStatus) {
 
+		case "Abilities Menu":
+		case "Item Menu":
+		case "Select Character Menu":
+			HideSelectMenu ();
+			ShowBattleMenu ();
+			break;
+		case "Selecting Location":
+			stopSelectingTargetLocation ();
+			switch (previousWindowStatus) {
+			case "Abilities Menu":
+				ShowAbilitiesMenu ();
+				break;
+			case "Battle Manu":
+			default:
+				ShowBattleMenu ();
+				break;
+			}
+			break;
+		case "Battle Menu":
+		case "None":
+		default:
+			print ("Can't go back");
+			break;
+		}
+	}
 
 	/********************************************************************************************/ 
 	/**************************************** Initialization ************************************/ 
@@ -109,6 +153,7 @@ public class CombatTracker : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		cancelWasUp = true;
 		var sceneMan = gameManager.instance;
 		// Number of Ally Participants
 		int currentPlayerCharacters = sceneMan.currentPlayerCharacters;
@@ -122,12 +167,12 @@ public class CombatTracker : MonoBehaviour {
 		List<CharacterClass> targetsToDo = new List<CharacterClass>();
 		// Start the Fighting
 		StartBattle (currentPlayerCharacters, playerCharacters);
-		areaRange = 1;
 	}
 
 	public void StartBattle(int numPlayers, List<CharacterClass> players){
 		//print ("Battle Starting");
 		map = GameObject.Find ("Map").GetComponent<Map> ();
+		areaRange = 1;
 		experienceEarned = 0;
 		playerSprites = new GameObject[numPlayers];
 		// Set Player characters based on inputs.
@@ -143,7 +188,8 @@ public class CombatTracker : MonoBehaviour {
 
 		}
 		selectingTargetLocation = false;
-
+		windowStatus = "None";
+		previousWindowStatus = "None";
 		var gameManager = GameObject.Find ("GameManager").GetComponent<gameManager>();
 
 		// Set Enemies, for now just 2
@@ -217,7 +263,7 @@ public class CombatTracker : MonoBehaviour {
 		selectingFromX = x;
 		selectingFromZ = z;
 		selectingRange = range;
-
+		windowStatus = "Selecting Location";
 	}
 	public void selectTargetLocation(int range){
 		// Assume we are selecting from where the curent actor is
@@ -233,17 +279,18 @@ public class CombatTracker : MonoBehaviour {
 		selectingFromX = x;
 		selectingFromZ = z;
 		selectingRange = range;
+		windowStatus = "Selecting Location";
 
 	}
 	public void stopSelectingTargetLocation(){
 		selectingTargetLocation = false;
 		//map = GameObject.Find ("Map").GetComponent<Map> ();
-
-		map.deSelectRange (targetLocation, areaRange);
 		// Default select where Player 0 is
+		map.deSelectRange (targetLocation, areaRange);
 		map.getTileFromPos (targetLocation).GetComponent<MapGridUnit> ().reColour ();
 		targetLocation = playerSprites [0].transform.position;
 		map.setOutOfRange (selectingFromX, selectingFromZ, selectingRange);
+		windowStatus = "None";
 
 
 	}
@@ -267,10 +314,10 @@ public class CombatTracker : MonoBehaviour {
 
 
 	void EnemyTurn(int target){
-		areaRange = 1;
 		//print ("Start of Enemy Turn");
 		// No need to show player options when he has none
 		HideBattleMenu();
+		areaRange = 1;
 		for (int i = 0; i < maxEnemyCharacters; i++) {
 			// Only living enemies get a turn
 			if (!enemyCharacters [i].isDead) {
@@ -511,12 +558,15 @@ public class CombatTracker : MonoBehaviour {
 	/**************************************** Menus Management **********************************/ 
 	/********************************************************************************************/
 
+	// NOTE: Hide menus first! They reset which state you're in to "None"
+
 	public void HideBattleMenu(){
 		// Make the Options for battle (Attack, Item...) Invisible
 		var BattleMenu = GameObject.Find ("Battle Menu");
 		BattleMenu.GetComponent<CanvasGroup>().alpha = 0f;
 		BattleMenu.GetComponent<CanvasGroup>().blocksRaycasts = false;
 		BattleMenu.GetComponent<CanvasGroup>().interactable = false;
+		windowStatus = "None";
 	}
 	public void ShowBattleMenu(){
 		// Make the Options for battle (Attack, Item...) Visible
@@ -527,6 +577,7 @@ public class CombatTracker : MonoBehaviour {
 		BattleMenu.GetComponent<CanvasGroup>().interactable = true;
 		// Select Attack as default.
 		BattleMenu.GetComponent<BattleMenu> ().Attack.Select ();
+		windowStatus = "Battle Menu";
 
 	}
 	public void HideSelectMenu(){
@@ -537,6 +588,10 @@ public class CombatTracker : MonoBehaviour {
 		SelectMenu.GetComponent<CanvasGroup>().interactable = false;
 		// Destroy old buttons
 		SelectMenu.GetComponent<SelectTarget> ().DestroyOptions ();
+
+		previousWindowStatus = windowStatus;
+		windowStatus = "None";
+
 	}
 	public void ShowSelectMenu(int maxSelectCharacters, List<CharacterClass> selectCharacters){
 		// Make the Options for battle (Attack, Item...) Visible
@@ -556,6 +611,8 @@ public class CombatTracker : MonoBehaviour {
 		}
 		// Default select first option
 		SelectMenu.GetComponent<SelectTarget> ().option[0].Select ();
+		windowStatus = "Select Character Menu";
+
 	}
 
 	public void ShowAbilitiesMenu(){
@@ -571,6 +628,9 @@ public class CombatTracker : MonoBehaviour {
 
 		// Default select first option
 		SelectMenu.GetComponent<SelectTarget> ().option[0].Select ();
+
+		previousWindowStatus = windowStatus;
+		windowStatus = "Abilities Menu";
 	}
 
 	/********************************************************************************************/ 

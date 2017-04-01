@@ -59,7 +59,7 @@ public class WorldMovementControls : MonoBehaviour {
 		TR.position = gameManager.GetComponent<gameManager> ().playerMapPosition.position;
 		RB.angularVelocity = Vector3.zero;
 		RotationSpeed = 5;
-		moveSpeed = 20;
+		moveSpeed = 50;
 	}
 
 	/********************************************************************************************/ 

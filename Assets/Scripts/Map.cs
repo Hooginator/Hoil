@@ -116,6 +116,7 @@ public class Map : MonoBehaviour {
 		// Checks if [x1,z1] is within range of [x2,z2]
 		return (Mathf.Abs(x1-x2) + Mathf.Abs(z1-z2)) <= range;
 	}
+
 	public void selectRange(Vector3 pos, int range){
 		int[] posInt = getTileCoordsFromPos (pos);
 		int x = posInt [0];
