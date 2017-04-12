@@ -52,6 +52,13 @@ public class CombatTracker : MonoBehaviour {
 	// Coordinates selected
 	int[] coords = new int[2];
 
+	public BattleCameraControls battleCam;
+
+	public Vector3 moveTarget;
+	public Vector3 currentPos;
+	public bool isMoving;
+	public float moveSpeed;
+
 
 	/********************************************************************************************/ 
 	/**************************************** Upkeep ********************************************/ 
@@ -59,6 +66,19 @@ public class CombatTracker : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		// Check if our character is moving
+		if (isMoving) {
+			currentPos = Vector3.MoveTowards (currentPos, moveTarget, moveSpeed);
+			actionFrom.battleAvatar.gameObject.transform.position = currentPos;
+			if (currentPos == moveTarget) {
+				isMoving = false;
+				print ("Done Moving");
+				// Turn is not over, return to battle menu
+				setToPosition (actionFrom, coords [0], coords [1]);
+				ShowBattleMenu ();
+			}
+		}
+
 		temppos = new Vector3 (0, 0, 0);
 		// Check if we are currenntly picking a cell to attack
 		if (selectingTargetLocation) {
@@ -77,6 +97,7 @@ public class CombatTracker : MonoBehaviour {
 				map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().reColour ();
 				targetLocation += temppos;
 				targetLocation = map.ForceInsideBoundaries (targetLocation);
+				updateCameraTarget (targetLocation);
 				print ("Target: " +targetLocation.ToString ());
 				//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
 				map.selectRange (targetLocation, areaRange);
@@ -146,7 +167,21 @@ public class CombatTracker : MonoBehaviour {
 			break;
 		}
 	}
+	void updateCameraTarget(Vector3 newTarget){
+		// Update where the battle camera will look to
+		battleCam.updateTarget (newTarget);
+	}
 
+	void updateCameraTarget(int x, int z){
+		// Updates where camera looks based on coords
+		Vector3 newTarget = map.getPosFromCoords (x, z);
+		battleCam.updateTarget (newTarget);
+	}
+	void updateCameraTarget(int[] pos){
+		// Updates where the camera looks based on INT array coordinates
+		Vector3 newTarget = map.getPosFromCoords (pos[0], pos[1]);
+		battleCam.updateTarget (newTarget);
+	}
 	/********************************************************************************************/ 
 	/**************************************** Initialization ************************************/ 
 	/********************************************************************************************/
@@ -154,6 +189,7 @@ public class CombatTracker : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		cancelWasUp = true;
+		moveSpeed = 0.4f;
 		var sceneMan = gameManager.instance;
 		// Number of Ally Participants
 		int currentPlayerCharacters = sceneMan.currentPlayerCharacters;
@@ -172,6 +208,7 @@ public class CombatTracker : MonoBehaviour {
 	public void StartBattle(int numPlayers, List<CharacterClass> players){
 		//print ("Battle Starting");
 		map = GameObject.Find ("Map").GetComponent<Map> ();
+		battleCam = GameObject.Find ("Camera").GetComponent<BattleCameraControls> ();
 		areaRange = 0;
 		experienceEarned = 0;
 		playerSprites = new GameObject[numPlayers];
@@ -324,6 +361,7 @@ public class CombatTracker : MonoBehaviour {
 			if (!enemyCharacters [i].isDead) {
 				// Update who is doing the next action
 				actionFrom = enemyCharacters [i];
+				updateCameraTarget (actionFrom.battleLocation);
 				enemyCharacters [i].startTurn ();
 				// Enemies only attack player targeted
 				string battleMessage = enemyCharacters [i].Attack (playerCharacters [target]);
@@ -359,6 +397,7 @@ public class CombatTracker : MonoBehaviour {
 		ShowBattleMenu();
 		for (int i = 0; i < maxPlayerCharacters; i++) {
 			actionFrom = playerCharacters [i];
+			updateCameraTarget (actionFrom.battleLocation);
 			playerCharacters [i].startTurn();
 		}
 		//EnemyTurn (0);
@@ -412,7 +451,11 @@ public class CombatTracker : MonoBehaviour {
 			// If destination is in range
 			if (tempIntDistance <= actionFrom.MP) {
 
-				setToPosition (actionFrom, coords [0], coords [1]);
+				// Immediately set position to where you chose to move to
+				//setToPosition (actionFrom, coords [0], coords [1]);
+				currentPos = actionFrom.battleAvatar.transform.position;
+				moveTarget = map.getAbovePosFromCoords(coords[0],coords[1]);
+				isMoving = true;
 				actionFrom.MP -= map.getIntDistanceFromCoords (tempOldCoords, coords);
 				/*
 				print ("Moving Time");
@@ -426,8 +469,6 @@ public class CombatTracker : MonoBehaviour {
 
 			}
 			actionToDo = null;
-			// Turn is not over, return to battle menu
-			ShowBattleMenu ();
 		} else if (actionToDo.name == "Basic Attack") {
 			print ("Attacking Time");
 			string battleMessage = actionFrom.Attack (actionTo);
