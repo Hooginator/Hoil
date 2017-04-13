@@ -24,7 +24,6 @@ public class CombatTracker : MonoBehaviour {
 	//public GameObject[] enemySprites;
 
 	public float experienceEarned;
-	public string currentTurn;
 
 	public Vector3 targetLocation;
 	bool selectingTargetLocation;
@@ -208,7 +207,8 @@ public class CombatTracker : MonoBehaviour {
 		// Get List of Players
 		characters = new List<CharacterClass>();
 		for (int i = 0; i < sceneMan.combatants.Count; i++) {
-			characters [i] = sceneMan.combatants [i];
+			print (sceneMan.combatants.Count.ToString ());
+			characters.Add(sceneMan.combatants [i]);
 		}
 		if (characters[0] == null) {
 			print ("Did not load any characters, ADD END BATTLE HERE");
@@ -275,7 +275,7 @@ public class CombatTracker : MonoBehaviour {
 	}
 	public void continueTurn(){
 		// Used after movement, for player it will bring back the menu after the movement is done
-		if (currentTurn == "Player") {
+		if (currentTeam == "Player") {
 			ShowBattleMenu ();
 		} else {
 			print ("Continue enemy turn");
@@ -291,7 +291,7 @@ public class CombatTracker : MonoBehaviour {
 				setToPosition (characters [i], 0, i);
 			} else {
 				print (i.ToString());
-				print (characters [i].team.ToString()+" Placement");
+				print (characters [i].name.ToString()+" Placement");
 				setToPosition (characters [i], 1, i + 2);
 			}
 		}
@@ -367,6 +367,7 @@ public class CombatTracker : MonoBehaviour {
 	}
 
 	void endTurn(){
+		checkDead ();
 		int teamInt = teams.IndexOf (currentTeam);
 		teamInt = (teamInt + 1);
 		if (teamInt == teams.Count) {
@@ -379,7 +380,7 @@ public class CombatTracker : MonoBehaviour {
 		// Remove finished player from list
 		// Check for list empty to either to go next team's turn or next character's
 		// reset current character to null
-		//startTurn();
+		startTurn();
 	}
 
 	void startCharacterTurn(){
@@ -648,25 +649,29 @@ public class CombatTracker : MonoBehaviour {
 
 	}
 	public void ShowSelectMenu(List<CharacterClass> selectCharacters){
-		// Make the Options for battle (Attack, Item...) Visible
-		var SelectMenu = GameObject.Find ("SelectTarget").GetComponent<CanvasGroup>();
-		SelectMenu.alpha = 1f;
-		//print ("Show Select Menu");
-		SelectMenu.GetComponent<CanvasGroup>().blocksRaycasts = true;
-		SelectMenu.GetComponent<CanvasGroup>().interactable = true;
-		// Currently all I'm using this for.
-		bool attacking = true;
-		int maxSelectCharacters = selectCharacters.Count;
-		if (attacking) {
-			SelectMenu.GetComponent<SelectTarget> ().CreateAttackOptions (maxSelectCharacters, selectCharacters);
+		if(selectCharacters.Count > 0){
+			// Make the Options for battle (Attack, Item...) Visible
+			var SelectMenu = GameObject.Find ("SelectTarget").GetComponent<CanvasGroup>();
+			SelectMenu.alpha = 1f;
+			//print ("Show Select Menu");
+			SelectMenu.GetComponent<CanvasGroup>().blocksRaycasts = true;
+			SelectMenu.GetComponent<CanvasGroup>().interactable = true;
+			// Currently all I'm using this for.
+			bool attacking = true;
+			int maxSelectCharacters = selectCharacters.Count;
+			if (attacking) {
+				SelectMenu.GetComponent<SelectTarget> ().CreateAttackOptions (maxSelectCharacters, selectCharacters);
+			} else {
+				// Do dead character selection (ie for Revive item / spell)
+				// Do Team Select
+				// Do Area Select.... (After motion?)
+			}
+			// Default select first option
+				SelectMenu.GetComponent<SelectTarget> ().option [0].Select ();
+				windowStatus = "Select Character Menu";
 		} else {
-			// Do dead character selection (ie for Revive item / spell)
-			// Do Team Select
-			// Do Area Select.... (After motion?)
+			continueTurn ();
 		}
-		// Default select first option
-		SelectMenu.GetComponent<SelectTarget> ().option[0].Select ();
-		windowStatus = "Select Character Menu";
 
 	}
 

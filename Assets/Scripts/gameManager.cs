@@ -141,13 +141,13 @@ public class gameManager : MonoBehaviour {
 		for (int i = 0; i < playerCharacters.Count; i++) {
 			//tempCharacterClass = new CharacterClass ();
 			//tempCharacterClass = playerCharacters [i];
-			combatants.Add (new CharacterClass ());
-			combatants [i] = playerCharacters [i];
+			combatants.Add (playerCharacters [i]);
+			//combatants [i] = playerCharacters [i];
 		}
 		// Add two lvl 15 enemies...
 		for (int i = 0; i < 2; i++) {
 			combatants.Add (new CharacterClass ());
-			combatants [i].Initialize ("Enemy " + i.ToString (), 15, 1, "Red");
+			combatants [i+playerCharacters.Count].Initialize ("Enemy " + i.ToString (), 15, 1, "Red");
 		}
 
 		inBattle = true;
