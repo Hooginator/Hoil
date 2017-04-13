@@ -42,7 +42,13 @@ public class BattleMenu : MonoBehaviour {
 		//combat.CreateSelectOptions ();
 
 		combat.actionToDo = new Ability("Basic Attack",combat.actionFrom);
-		combat.ShowSelectMenu (combat.maxEnemyCharacters,combat.enemyCharacters);
+		List<CharacterClass> temp = combat.getEnemiesInRange (1, "Player");
+		if (temp != null) {
+			combat.HideBattleMenu ();
+			combat.ShowSelectMenu (combat.getEnemiesInRange (1, "Player"));
+		} else {
+			print ("NOONE IN MELEE RANGE");
+		}
 		//combat.PlayerAttack(0,0);
 	}	
 	public void MovePress(){

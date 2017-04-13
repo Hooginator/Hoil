@@ -28,6 +28,9 @@ public class gameManager : MonoBehaviour {
 	// Ground tile to be used to generate battle map
 	public float[] groundTileResources;
 
+	public List<CharacterClass> combatants;
+
+
 	//public Vector3 startPosition = new Vector3(60,2,-10);
 
 	/********************************************************************************************/ 
@@ -82,14 +85,13 @@ public class gameManager : MonoBehaviour {
 				//teams[0].GetComponent<Team>().Initialize();
 				//teams[1].GetComponent<Team>().Initialize();
 				// Initialize everything that would also be initialized post battle
-				InitializeWorld ();
 				// Apply the movement controls for the world map to the player
 				WorldMovementControls WMC = worldPlayer.AddComponent<WorldMovementControls> ();
 				WMC.moveSpeed = 20;
 				WMC.RotationSpeed = 1;
 
 			if (sceneName == "Hoil") {
-
+				InitializeWorld ();
 			} else if (sceneName == "Battle") {
 				print ("Started in Battle");
 				StartBattle ();
@@ -134,6 +136,20 @@ public class gameManager : MonoBehaviour {
 			teams [i].SetActive (false);
 		}
 
+		combatants = new List<CharacterClass> ();
+		CharacterClass tempCharacterClass;
+		for (int i = 0; i < playerCharacters.Count; i++) {
+			//tempCharacterClass = new CharacterClass ();
+			//tempCharacterClass = playerCharacters [i];
+			combatants.Add (new CharacterClass ());
+			combatants [i] = playerCharacters [i];
+		}
+		// Add two lvl 15 enemies...
+		for (int i = 0; i < 2; i++) {
+			combatants.Add (new CharacterClass ());
+			combatants [i].Initialize ("Enemy " + i.ToString (), 15, 1, "Red");
+		}
+
 		inBattle = true;
 	}
 	public void StartBattle(GameObject enemyGameObject){
@@ -153,6 +169,19 @@ public class gameManager : MonoBehaviour {
 		for (int i = 0; i < teams.Count; i++) {
 			teams [i].SetActive (false);
 		}
+
+		combatants = new List<CharacterClass> ();
+		CharacterClass tempCharacterClass;
+		for (int i = 0; i < playerCharacters.Count; i++) {
+			tempCharacterClass = playerCharacters [i];
+			combatants.Add (tempCharacterClass);
+		}
+		// for now 2 enemies of collided type
+		for (int i = 0; i < 2; i++) {
+			combatants.Add (new CharacterClass ());
+			combatants [i].Initialize ("Enemy " + i.ToString (), enemyLevel, 1, enemyTeam);
+		}
+
 
 		LoadScene ("Battle");
 		inBattle = true;

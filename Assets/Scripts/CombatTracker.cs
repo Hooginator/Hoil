@@ -5,20 +5,26 @@ using UnityEngine;
 public class CombatTracker : MonoBehaviour {
 	// Management Functions for the combat flow.
 	// Good Guys
-	public List<CharacterClass> playerCharacters  = new  List<CharacterClass>();
-	int maxPlayerCharacters;
+	//public List<CharacterClass> playerCharacters  = new  List<CharacterClass>();
+	//int maxPlayerCharacters;
 	// Bad Guys
-	public List<CharacterClass> enemyCharacters  = new  List<CharacterClass>();
-	public int maxEnemyCharacters;
+	//public List<CharacterClass> enemyCharacters  = new  List<CharacterClass>();
+	//public int maxEnemyCharacters;
+
+	// General Turns
+	public int numCharacters;
+	public List<CharacterClass> characters  = new  List<CharacterClass>();
+	public GameObject[] sprites;
 
 	// Prefabs of the visuals used for characters in battle
 	public GameObject[] CharacterPrefabs;// = new GameObject[3];
 
 	// List of Players and Enemies visuals in the current battle.
-	public GameObject[] playerSprites;
-	public GameObject[] enemySprites;
+	//public GameObject[] playerSprites;
+	//public GameObject[] enemySprites;
 
 	public float experienceEarned;
+	public string currentTurn;
 
 	public Vector3 targetLocation;
 	bool selectingTargetLocation;
@@ -60,6 +66,13 @@ public class CombatTracker : MonoBehaviour {
 	public float moveSpeed;
 
 
+	public List<CharacterClass> currentTurnCharacters;
+	public string currentTeam;
+	public List<string> teams;
+	// boolean for whether we are locked into the selection for who is going (say after they have done an action)
+	public bool actionFromLocked;
+
+
 	/********************************************************************************************/ 
 	/**************************************** Upkeep ********************************************/ 
 	/********************************************************************************************/
@@ -75,7 +88,7 @@ public class CombatTracker : MonoBehaviour {
 				print ("Done Moving");
 				// Turn is not over, return to battle menu
 				setToPosition (actionFrom, coords [0], coords [1]);
-				ShowBattleMenu ();
+				continueTurn ();
 			}
 		}
 
@@ -188,95 +201,99 @@ public class CombatTracker : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		isMoving = false;
 		cancelWasUp = true;
 		moveSpeed = 0.4f;
 		var sceneMan = gameManager.instance;
-		// Number of Ally Participants
-		int currentPlayerCharacters = sceneMan.currentPlayerCharacters;
 		// Get List of Players
-		playerCharacters = new List<CharacterClass>();
-		playerCharacters = sceneMan.playerCharacters;
-		if (playerCharacters[0] == null) {
+		characters = new List<CharacterClass>();
+		for (int i = 0; i < sceneMan.combatants.Count; i++) {
+			characters [i] = sceneMan.combatants [i];
+		}
+		if (characters[0] == null) {
 			print ("Did not load any characters, ADD END BATTLE HERE");
 		}
 
 		List<CharacterClass> targetsToDo = new List<CharacterClass>();
 		// Start the Fighting
-		StartBattle (currentPlayerCharacters, playerCharacters);
+		StartBattle ();
 	}
 
-	public void StartBattle(int numPlayers, List<CharacterClass> players){
+	public void StartBattle(){
 		//print ("Battle Starting");
 		map = GameObject.Find ("Map").GetComponent<Map> ();
 		battleCam = GameObject.Find ("Camera").GetComponent<BattleCameraControls> ();
 		areaRange = 0;
 		experienceEarned = 0;
-		playerSprites = new GameObject[numPlayers];
-		// Set Player characters based on inputs.
-		maxPlayerCharacters = numPlayers;
-		//playerCharacters = new  List<CharacterClass>();
-		playerCharacters = players;
-		for (int i = 0; i < maxPlayerCharacters; i++) {
-			playerCharacters [i].SetupStats ();
-			playerCharacters [i].FullHeal ();
-			// Create Player Visuals
-			playerSprites[i] = Instantiate(CharacterPrefabs[playerCharacters[i].BattleSprite], new Vector3 (0, 5, 5*i), Quaternion.identity);
-			playerCharacters [i].battleAvatar = playerSprites [i];
-
-		}
 		selectingTargetLocation = false;
 		windowStatus = "None";
 		previousWindowStatus = "None";
 		var gameManager = GameObject.Find ("GameManager").GetComponent<gameManager>();
+		numCharacters = characters.Count;
 
-		// Set Enemies, for now just 2
-		maxEnemyCharacters = 2;
-		enemySprites = new GameObject[maxEnemyCharacters];
-		//Create Enemies Randomly and initialize their stats / HP
-		for (int i = 0; i < maxEnemyCharacters; i++) {
-			enemyCharacters.Add(new CharacterClass ());
-			enemyCharacters [i].Initialize ("Enemy "+ i.ToString(),gameManager.enemyLevel,1,gameManager.enemyTeam);
-			enemyCharacters [i].SetupStats ();
-			enemyCharacters [i].FullHeal ();
-			// Create Enemy Visuals
+		sprites = new GameObject[numCharacters];
 
+		for (int i = 0; i < numCharacters; i++) {
+			characters [i].SetupStats ();
+			characters [i].FullHeal ();
+			// Create Player Visuals
+			sprites[i] = Instantiate(CharacterPrefabs[characters[i].BattleSprite], new Vector3 (0, 5, 5*i), Quaternion.identity);
+			characters [i].battleAvatar = sprites [i];
+			if (characters [i].team == "Player") {
+				print ("Player Detected");
+			} else {
+				// Update level indicator above enemy head
+				//GameObject levelText = sprites[i].transform.GetChild(0).gameObject;
+				//levelText.GetComponent<TextMesh>().text = gameManager.enemyLevel.ToString ();
+			}
 
-			enemySprites[i] = Instantiate(gameManager.enemyToFight, new Vector3 (5, 5, 5*i), Quaternion.identity);
-			enemyCharacters [i].battleAvatar = enemySprites [i];
-			GameObject levelText = enemySprites[i].transform.GetChild(0).gameObject;
-			levelText.GetComponent<TextMesh>().text = gameManager.enemyLevel.ToString ();
-			// Print Details of Enemy
-			string printstats = enemyCharacters [i].printStats ();
-			//print("Enemy Spawned: " + printstats);
 		}
+			
 		// Set initial character positions
 		setInitialPositions();
+
+		getTeamNames ();
+
+
+		// set general turn stuff up
+		// Start with player turn
+		currentTeam = "Player";
+		currentTurnCharacters = getCurrentTurnCharacters ();
+
 		// Start the Combat with Player Turn
-		PlayerTurn ();
+		startTurn ();
+	}
+	public void getTeamNames(){
+		teams = new List<string>();
+		string tempTeam;
+		for (int i = 0; i < numCharacters; i++) {
+			tempTeam = characters [i].team;
+			if (teams.IndexOf (tempTeam) < 0) {
+				teams.Add (tempTeam);
+			}
+		}
+	}
+	public void continueTurn(){
+		// Used after movement, for player it will bring back the menu after the movement is done
+		if (currentTurn == "Player") {
+			ShowBattleMenu ();
+		} else {
+			print ("Continue enemy turn");
+		}
 	}
 
 	public void setInitialPositions(){
 		// Set initial character positions
 		Vector3 tempPos = new Vector3(0,0,0);
-		for (int i = 0; i < maxPlayerCharacters; i++) {
-			setToPosition (playerCharacters [i], 0, i);
-			/*
-			tempPos = map.getPosFromCoords (0, i);
-			tempPos [1] = 2f;
-			playerSprites [i].transform.position = tempPos;
-			// Set where the character thinks he is on the grid for range calculations and stuff
-			playerCharacters[i].battleLocation = new int[2]{0,i};
-			*/
-		}
-
-		for (int i = 0; i < maxEnemyCharacters; i++) {
-			setToPosition (enemyCharacters [i], 1, i + 2);
-			/*
-			tempPos = map.getPosFromCoords (2, i);
-			tempPos [1] = 2f;
-			enemySprites [i].transform.position = tempPos;
-			enemyCharacters[i].battleLocation = new int[2]{2,i};
-			*/
+		for (int i = 0; i < numCharacters; i++) {
+			if (characters [i].team == "Player") {
+				print ("Player Placement");
+				setToPosition (characters [i], 0, i);
+			} else {
+				print (i.ToString());
+				print (characters [i].team.ToString()+" Placement");
+				setToPosition (characters [i], 1, i + 2);
+			}
 		}
 	}
 
@@ -294,7 +311,7 @@ public class CombatTracker : MonoBehaviour {
 		wasUp = false;
 		map = GameObject.Find ("Map").GetComponent<Map> ();
 		// Default select where Player 0 is
-		targetLocation = playerSprites [0].transform.position;
+		targetLocation = sprites [0].transform.position;
 		map.setInRange (x, z, range);
 		HideBattleMenu();
 		selectingFromX = x;
@@ -310,7 +327,7 @@ public class CombatTracker : MonoBehaviour {
 		wasUp = false;
 		map = GameObject.Find ("Map").GetComponent<Map> ();
 		// Default select where Player 0 is
-		targetLocation = playerSprites [0].transform.position;
+		targetLocation = sprites [0].transform.position;
 		map.setInRange (x, z, range);
 		HideBattleMenu();
 		selectingFromX = x;
@@ -325,7 +342,7 @@ public class CombatTracker : MonoBehaviour {
 		// Default select where Player 0 is
 		map.deSelectRange (targetLocation, areaRange);
 		map.getTileFromPos (targetLocation).GetComponent<MapGridUnit> ().reColour ();
-		targetLocation = playerSprites [0].transform.position;
+		targetLocation = sprites [0].transform.position;
 		map.setOutOfRange (selectingFromX, selectingFromZ, selectingRange);
 		windowStatus = "None";
 
@@ -338,101 +355,84 @@ public class CombatTracker : MonoBehaviour {
 	/********************************************************************************************/
 
 
-	void EndPlayerTurn (){
-		// Placeholder
-		EnemyTurn (0);
+	void endCharacterTurn(){
+		currentTurnCharacters.Remove (actionFrom);
+		actionFrom = null;
+		actionFromLocked = false;
+		if (currentTurnCharacters.Count == 0) {
+			endTurn ();
+		} else {
+			startCharacterTurn ();
+		}
 	}
+
+	void endTurn(){
+		int teamInt = teams.IndexOf (currentTeam);
+		teamInt = (teamInt + 1);
+		if (teamInt == teams.Count) {
+			teamInt = 0;
+			print ("TEAMS COUNT " + teams.Count.ToString ());
+		}
+		currentTeam = teams [teamInt];
+
+		currentTurnCharacters = getCurrentTurnCharacters ();
+		// Remove finished player from list
+		// Check for list empty to either to go next team's turn or next character's
+		// reset current character to null
+		//startTurn();
+	}
+
+	void startCharacterTurn(){
+		actionFrom = currentTurnCharacters [0];
+		if (currentTeam == "Player") {
+			ShowBattleMenu ();
+		}
+	}
+
+	void startTurn(){
+		actionFrom = currentTurnCharacters [0];
+		for (int i = 0; i < currentTurnCharacters.Count; i++) {
+			// Initialize for turns
+			currentTurnCharacters [i].startTurn ();
+		}
+		if (currentTeam == "Player") {
+			ShowBattleMenu ();
+		} else {
+			actionFrom = characters [0];
+			doTurn ();
+		}
+
+	}
+
+	List<CharacterClass> getCurrentTurnCharacters (){
+		List<CharacterClass> tempList = new List<CharacterClass>();
+		for(int i = 0;i<characters.Count;i++){
+			if(characters[i].team == currentTeam){
+				tempList.Add(characters[i]);
+			}
+		}
+		return tempList;
+		
+	}
+	void doTurn(){
+		// Do computer controlled turn
+		print ("General Computer Turn");
+		endTurn ();
+
+	}
+	/// END OF GENERALIZED TURN TEST
 
 	void EndBattle(float EXP){
 		// End Battle, Load up main map
 		var sceneMan = gameManager.instance;
 		sceneMan.EndBattle (EXP);
 	}
-
-
-	void EnemyTurn(int target){
-		checkDead ();
-		//print ("Start of Enemy Turn");
-		// No need to show player options when he has none
-		HideBattleMenu();
-		areaRange = 0;
-		for (int i = 0; i < maxEnemyCharacters; i++) {
-			// Only living enemies get a turn
-			if (!enemyCharacters [i].isDead) {
-				// Update who is doing the next action
-				actionFrom = enemyCharacters [i];
-				updateCameraTarget (actionFrom.battleLocation);
-				enemyCharacters [i].startTurn ();
-				// Enemies only attack player targeted
-				string battleMessage = enemyCharacters [i].Attack (playerCharacters [target]);
-				// Destroy visual gameobject if enemy dies
-				if (playerCharacters [target].checkDead ()) {
-					Destroy(enemySprites [target].gameObject);
-					print (target.ToString () + " of " + playerCharacters.Count.ToString ());
-					playerCharacters.RemoveAt (target);
-					maxPlayerCharacters -= 1;
-				}
-				print (battleMessage);
-			}
-		}
-		// Check Vistory
-		if (CheckWin ()) {
-			print ("You win");
-
-			EndBattle (experienceEarned);
-			// Check Defeat
-		} else if (CheckLoss ()) {
-			print ("You Lose");
-			EndBattle (experienceEarned);
-		}
-		PlayerTurn ();
-	}
-	void PlayerTurn (){
-		checkDead ();
-		//print ("Start of Player Turn");
-		nTurns++;
-		areaRange = 0;
-		//PrintAllBattleStats ();
-		// Show the Battle Menu
-		ShowBattleMenu();
-		for (int i = 0; i < maxPlayerCharacters; i++) {
-			actionFrom = playerCharacters [i];
-			updateCameraTarget (actionFrom.battleLocation);
-			playerCharacters [i].startTurn();
-		}
-		//EnemyTurn (0);
-	}
-
-	// Checks to see if you have won the game
-	bool CheckWin(){
-		bool win = true;
-		for (int i = 0; i < maxEnemyCharacters; i++) {
-			if (!enemyCharacters [i].isDead) {
-				win = false;
-			}
-		}
-		return win;
-	}
-	// Checks to see if you have lost the game
-	bool CheckLoss(){
-		bool loss = true;
-		for (int i = 0; i < maxPlayerCharacters; i++) {
-			if (!playerCharacters [i].isDead) {
-				loss = false;
-			}
-		}
-		return loss;
-	}
+		
 	void checkDead(){
 		// Checks all characters and kills them if dead
-		for (int i = 0; i < maxEnemyCharacters; i++) {
-			if (enemyCharacters [i].checkDead ()) {
-				killCharacter (enemyCharacters [i]);
-			}
-		}
-		for (int i = 0; i < maxPlayerCharacters; i++) {
-			if (playerCharacters [i].checkDead ()) {
-				killCharacter (playerCharacters [i]);
+		for (int i = 0; i < numCharacters; i++) {
+			if (characters [i].checkDead ()) {
+				killCharacter (characters [i]);
 			}
 		}
 	}
@@ -477,8 +477,7 @@ public class CombatTracker : MonoBehaviour {
 				killCharacter (actionTo);
 			}
 
-			// Turn is  over, you attacked
-			EnemyTurn (0);
+			endTurn ();
 		} else if (actionToDo != null){
 			if (actionToDo.targetingType == "Single") {
 				actionToDo.cast (actionTo);
@@ -497,7 +496,7 @@ public class CombatTracker : MonoBehaviour {
 					actionToDo.cast (targetsToDo [i]);
 				}
 			}
-			EnemyTurn (0);
+			endTurn ();
 		}
 		/*
 		if (actionToDo.name == "Fireball") {
@@ -528,17 +527,14 @@ public class CombatTracker : MonoBehaviour {
 	}
 	public void killCharacter(CharacterClass toKill){
 		// Kills the given character,
-		if (enemyCharacters.Contains (toKill)) {
-			experienceEarned += toKill.baseExperienceGiven;
+		if (characters.Contains (toKill)) {
+			if (toKill.team != "Player") {
+				experienceEarned += toKill.baseExperienceGiven;
+			}
 			Destroy (toKill.battleAvatar);
 			// Remove enemy from list
-			enemyCharacters.Remove (toKill);
-			maxEnemyCharacters -= 1;
-		} else if (playerCharacters.Contains (toKill)) {
-			Destroy (toKill.battleAvatar);
-			// Remove player from list
-			playerCharacters.Remove (toKill);
-			maxPlayerCharacters -= 1;
+			characters.Remove (toKill);
+			numCharacters -= 1;
 		} else {
 			print ("Couldn't find character to kill");
 		}
@@ -546,17 +542,10 @@ public class CombatTracker : MonoBehaviour {
 
 	public void PlayerAttack(int player, int badguy){
 		// Given integer value for Player attacking and enemy being attacked, perform attack calculation
-		string battleMessage = playerCharacters [player].Attack (enemyCharacters [badguy]);
+		string battleMessage = characters [player].Attack (characters [badguy]);
 		// Check if you killed the enemy
-		if (enemyCharacters [badguy].checkDead ()) {
-			experienceEarned += enemyCharacters [badguy].baseExperienceGiven;
-			// Remove enemy from list
-			enemyCharacters.RemoveAt (badguy);
-			Destroy(enemySprites [badguy].gameObject);
-			maxEnemyCharacters -= 1;
-		}
 		//print (battleMessage);
-		EnemyTurn (0);
+		endTurn ();
 	}
 	public void PlayerItem(){
 		// Place Holderf for now
@@ -571,61 +560,49 @@ public class CombatTracker : MonoBehaviour {
 		EndBattle (0);
 	}
 	public void PlayerEndTurn(){
-		EnemyTurn (0);
+		endTurn ();
 	}
 
 	List<CharacterClass> getCharactersInRange(int x, int z, int range){
 		// Creates a list of every character (enemy and player) insize of the range specified.
 		List<CharacterClass> charactersInRange = new List<CharacterClass> ();
 		int[] battleLoc = new int[2];
-		for (int i = 0; i < maxEnemyCharacters; i++) {
-			battleLoc = enemyCharacters [i].battleLocation;
+		for (int i = 0; i < numCharacters; i++) {
+			battleLoc = characters [i].battleLocation;
 			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range)){
-				charactersInRange.Add(enemyCharacters[i]);
-			}
-		}
-		for (int i = 0; i < maxPlayerCharacters; i++) {
-			battleLoc = playerCharacters [i].battleLocation;
-			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range)){
-				charactersInRange.Add(playerCharacters[i]);
+				charactersInRange.Add(characters[i]);
 			}
 		}
 		return charactersInRange;
 	}
 
-	List<CharacterClass> getEnemiesInRange(int x, int z, int range, string team){
+	public List<CharacterClass> getEnemiesInRange(int x, int z, int range, string team){
 		// Creates a list of every enemy character or TEAM insize of the range specified.
 		List<CharacterClass> charactersInRange = new List<CharacterClass> ();
 		int[] battleLoc = new int[2];
-		for (int i = 0; i < maxEnemyCharacters; i++) {
-			battleLoc = enemyCharacters [i].battleLocation;
-			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range) && enemyCharacters[i].team != team){
-				charactersInRange.Add(enemyCharacters[i]);
-			}
-		}
-		for (int i = 0; i < maxPlayerCharacters; i++) {
-			battleLoc = playerCharacters [i].battleLocation;
-			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range) && playerCharacters[i].team != team){
-				charactersInRange.Add(playerCharacters[i]);
+		for (int i = 0; i < numCharacters; i++) {
+			battleLoc = characters [i].battleLocation;
+			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range) && characters[i].team != team){
+				charactersInRange.Add(characters[i]);
 			}
 		}
 		return charactersInRange;
 	}
 
-	List<CharacterClass> getAlliesInRange(int x, int z, int range, string team){
+	public List<CharacterClass> getEnemiesInRange(int range, string team){
+		// Assume range is measure from acting character
+		return getEnemiesInRange (actionFrom.battleLocation[0],actionFrom.battleLocation[1],range, team);
+
+	}
+
+	public List<CharacterClass> getAlliesInRange(int x, int z, int range, string team){
 		// Creates a list of every allied character with TEAM insize of the range specified.
 		List<CharacterClass> charactersInRange = new List<CharacterClass> ();
 		int[] battleLoc = new int[2];
-		for (int i = 0; i < maxEnemyCharacters; i++) {
-			battleLoc = enemyCharacters [i].battleLocation;
-			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range) && enemyCharacters[i].team == team){
-				charactersInRange.Add(enemyCharacters[i]);
-			}
-		}
-		for (int i = 0; i < maxPlayerCharacters; i++) {
-			battleLoc = playerCharacters [i].battleLocation;
-			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range) && playerCharacters[i].team == team){
-				charactersInRange.Add(playerCharacters[i]);
+		for (int i = 0; i < numCharacters; i++) {
+			battleLoc = characters [i].battleLocation;
+			if(map.isInRange(battleLoc[0],battleLoc[1],x,z,range) && characters[i].team == team){
+				charactersInRange.Add(characters[i]);
 			}
 		}
 		return charactersInRange;
@@ -670,7 +647,7 @@ public class CombatTracker : MonoBehaviour {
 		windowStatus = "None";
 
 	}
-	public void ShowSelectMenu(int maxSelectCharacters, List<CharacterClass> selectCharacters){
+	public void ShowSelectMenu(List<CharacterClass> selectCharacters){
 		// Make the Options for battle (Attack, Item...) Visible
 		var SelectMenu = GameObject.Find ("SelectTarget").GetComponent<CanvasGroup>();
 		SelectMenu.alpha = 1f;
@@ -679,6 +656,7 @@ public class CombatTracker : MonoBehaviour {
 		SelectMenu.GetComponent<CanvasGroup>().interactable = true;
 		// Currently all I'm using this for.
 		bool attacking = true;
+		int maxSelectCharacters = selectCharacters.Count;
 		if (attacking) {
 			SelectMenu.GetComponent<SelectTarget> ().CreateAttackOptions (maxSelectCharacters, selectCharacters);
 		} else {
@@ -719,12 +697,12 @@ public class CombatTracker : MonoBehaviour {
 	void PrintAllBattleStats(){
 		// Prints each chraacter's name, level, HP and AP
 		string temp;
-		for (int i = 0; i < maxPlayerCharacters; i++) {
-			temp = playerCharacters [i].printBattleStats ();
+		for (int i = 0; i < numCharacters; i++) {
+			temp = characters [i].printBattleStats ();
 			print (temp);
 		}
-		for (int i = 0; i < maxEnemyCharacters; i++) {
-			temp = enemyCharacters [i].printBattleStats ();
+		for (int i = 0; i < numCharacters; i++) {
+			temp = characters [i].printBattleStats ();
 			print (temp);
 		}
 	}

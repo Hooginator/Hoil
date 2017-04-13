@@ -124,7 +124,7 @@ public class SelectTarget : MonoBehaviour {
 			// Change to individual target
 			rangeBase = 8;
 
-			combat.ShowSelectMenu (combat.maxEnemyCharacters,combat.enemyCharacters);
+			combat.ShowSelectMenu (combat.getEnemiesInRange (rangeBase, "Player"));
 			combat.areaRange = 1;
 		}else if(ability.name == "Heal Self"){
 			// Change select method to individual ally, or just fuck it
