@@ -178,8 +178,9 @@ public class gameManager : MonoBehaviour {
 		}
 		// for now 2 enemies of collided type
 		for (int i = 0; i < 2; i++) {
-			combatants.Add (new CharacterClass ());
-			combatants [i].Initialize ("Enemy " + i.ToString (), enemyLevel, 1, enemyTeam);
+			tempCharacterClass = new CharacterClass ();
+			tempCharacterClass.Initialize ("Enemy " + i.ToString (), enemyLevel, 1, enemyTeam);
+			combatants.Add (tempCharacterClass);
 		}
 
 

@@ -286,6 +286,7 @@ public class CombatTracker : MonoBehaviour {
 		// Set initial character positions
 		Vector3 tempPos = new Vector3(0,0,0);
 		for (int i = 0; i < numCharacters; i++) {
+			print ("Placing Character " + i.ToString () + "  " + characters [i].team);
 			if (characters [i].team == "Player") {
 				print ("Player Placement");
 				setToPosition (characters [i], 0, i);
@@ -431,6 +432,7 @@ public class CombatTracker : MonoBehaviour {
 
 	void EndBattle(float EXP){
 		// End Battle, Load up main map
+		characters = null;
 		var sceneMan = gameManager.instance;
 		sceneMan.EndBattle (EXP);
 	}
