@@ -366,27 +366,33 @@ public class CombatTracker : MonoBehaviour {
 		}
 	}
 
-	void endTurn(){
-		checkDead ();
-		int teamInt = teams.IndexOf (currentTeam);
-		teamInt = (teamInt + 1);
-		if (teamInt == teams.Count) {
-			teamInt = 0;
-			print ("TEAMS COUNT " + teams.Count.ToString ());
-		}
-		currentTeam = teams [teamInt];
-
-		currentTurnCharacters = getCurrentTurnCharacters ();
-		// Remove finished player from list
-		// Check for list empty to either to go next team's turn or next character's
-		// reset current character to null
-		startTurn();
-	}
-
 	void startCharacterTurn(){
 		actionFrom = currentTurnCharacters [0];
 		if (currentTeam == "Player") {
 			ShowBattleMenu ();
+		}
+	}
+
+
+
+	void endTurn(){
+		checkDead ();
+		if (checkEndBattle ()) {
+			EndBattle (experienceEarned);
+		} else {
+			int teamInt = teams.IndexOf (currentTeam);
+			teamInt = (teamInt + 1);
+			if (teamInt == teams.Count) {
+				teamInt = 0;
+				print ("TEAMS COUNT " + teams.Count.ToString ());
+			}
+			currentTeam = teams [teamInt];
+
+			currentTurnCharacters = getCurrentTurnCharacters ();
+			// Remove finished player from list
+			// Check for list empty to either to go next team's turn or next character's
+			// reset current character to null
+			startTurn ();
 		}
 	}
 
@@ -428,7 +434,27 @@ public class CombatTracker : MonoBehaviour {
 		var sceneMan = gameManager.instance;
 		sceneMan.EndBattle (EXP);
 	}
-		
+
+	bool checkEndBattle (){
+		// Currently not generalized for turns well
+		bool livingPlayer = false;
+		bool livingEnemy = false;
+		for (int i = 0; i < numCharacters; i++) {
+			if (!characters [i].isDead) {
+				if (characters [i].team == "Player") {
+					livingPlayer = true;
+				} else {
+					livingEnemy = true;
+				}
+
+			}
+		}
+		if (!livingPlayer) {
+			experienceEarned = 0;
+			print ("Player Died");
+		}
+		return !(livingEnemy && livingPlayer);
+	}
 	void checkDead(){
 		// Checks all characters and kills them if dead
 		for (int i = 0; i < numCharacters; i++) {
@@ -445,7 +471,9 @@ public class CombatTracker : MonoBehaviour {
 	// This will likely move to one bit ugly filewith every ability
 	public void doAction(){
 		List<CharacterClass> targetsToDo = null;
-		//print ("Not Move, but " + actionToDo);
+
+		/************************************************** MOVING ******************************/
+
 		if (actionToDo.name == "Move") {
 			int[] tempOldCoords = actionFrom.battleLocation;
 			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
@@ -458,18 +486,15 @@ public class CombatTracker : MonoBehaviour {
 				moveTarget = map.getAbovePosFromCoords(coords[0],coords[1]);
 				isMoving = true;
 				actionFrom.MP -= map.getIntDistanceFromCoords (tempOldCoords, coords);
-				/*
-				print ("Moving Time");
-				actionFrom.battleLocation = coords;
-				actionFrom.battleAvatar.transform.position = map.getAbovePosFromCoords (coords [0], coords [1]);
-				actionFrom.MP -= map.getIntDistanceFromCoords (tempOldCoords, coords);
-				print ("Used " + tempIntDistance.ToString () + " MP, " + actionFrom.MP.ToString () + " remaining");
-				*/
+
 			} else {
 				print ("Insufficient MP, " + actionFrom.MP.ToString () + " of " + tempIntDistance.ToString ());
 
 			}
 			actionToDo = null;
+
+		/************************************************ ATTACKING *****************************/
+
 		} else if (actionToDo.name == "Basic Attack") {
 			print ("Attacking Time");
 			string battleMessage = actionFrom.Attack (actionTo);
@@ -479,6 +504,9 @@ public class CombatTracker : MonoBehaviour {
 			}
 
 			endTurn ();
+
+		/************************************************ SPECIAL *******************************/
+
 		} else if (actionToDo != null){
 			if (actionToDo.targetingType == "Single") {
 				actionToDo.cast (actionTo);
@@ -499,32 +527,6 @@ public class CombatTracker : MonoBehaviour {
 			}
 			endTurn ();
 		}
-		/*
-		if (actionToDo.name == "Fireball") {
-			print("Here we would do fireball deeps");
-			targetsToDo =  getEnemiesInRange (coords[0],coords[1],areaRange,actionFrom.team);
-			for (int i = 0; i < targetsToDo.Count; i++) {
-				// Here will be more generalized in the future, I will make a dealElementalDamage() function in characterClass that will be like Attack(target) only with magic stuffs.
-				targetsToDo [i].HP -= actionFrom.Intelligence * 2;
-				print ("Applying Fireball to " + targetsToDo [i].name);
-				if (targetsToDo [i].checkDead ()) {
-					killCharacter (targetsToDo [i]);
-				}
-			}
-			// Turn is  over, you attacked
-			EnemyTurn (0);
-		}
-		if (actionToDo == "Sniper Attack") {
-			print("Here we would do deeps to someone");
-			// Turn is  over, you attacked
-			EnemyTurn (0);
-		}
-		if (actionToDo == "Heal Self") {
-			print("Here we would do self healing");
-			// Turn is  over, you attacked
-			EnemyTurn (0);
-		}
-		*/
 	}
 	public void killCharacter(CharacterClass toKill){
 		// Kills the given character,

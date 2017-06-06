@@ -33,31 +33,35 @@ public class SelectTarget : MonoBehaviour {
 		battlemenu = battlemenu.GetComponent<BattleMenu>();
 	}
 	public void CreateAttackOptions(int nCharacters, List<CharacterClass> targets){//, List<CharacterClass> targets){
+		// Creates basic attack target options for the battle menu.  Will read each character fed in range and add their name as an option.
 		int targetNumber = 0;
 		for (int i = 0; i < nCharacters; i++) {
 			if (!targets [i].isDead) {
 				maxTargets = nCharacters;
+
+				// Create generic button option
 				GameObject temp = (GameObject)Instantiate (prefabbutton);
 				temp.transform.SetParent (TR, false);
+
+				// Set Text on the button to target's name
 				Text buttonText = temp.GetComponentInChildren<Text>();
 				buttonText.text = targets [i].name;
-				//option.Add (temp.GetComponent<Button> ());
+
+				// Place Button in unique location on screen
 				Vector3 pos = temp.transform.position;
 				pos [1] -= targetNumber * 30;
-				print (pos [1].ToString ());
 				temp.transform.position = pos;
-				//temp.onClick.AddListener (() => test (i));
-				//print ("Set for enemy" + i.ToString ());
+
+				// Add button to the list of options
 				option.Insert (targetNumber, temp.GetComponent<Button>());
-				// Need a tempi variable here for the int here to make sure each button has a different int (weird isue, I dunno kny really)
-				int tempi = i;
+
+				// Add an   {  AttackTarget (tempTarget);  }  function call to the button for when it is pressed
 				CharacterClass tempTarget = targets [i];
-				// Add a function to the button for when it's pressed
 				option [targetNumber].GetComponent<Button> ().onClick.AddListener (delegate {
 					AttackTarget (tempTarget);
 				});
-				// This way always has each button store the last value of i in it...
-				// option[i].GetComponent<Button>().onClick.AddListener (delegate{testtemp (i);});
+
+				// Stamp Collecting
 				//print (option [i].transform.position.ToString () + "   " + i.ToString () + "    " + option.Count.ToString ());
 				temp = null;
 				targetNumber++;
@@ -69,10 +73,12 @@ public class SelectTarget : MonoBehaviour {
 		// Creates a list of casting abilities to use
 		List<Ability> abilities = caster.abilities;
 		for(int i = 0; i < abilities.Count; i++){
+			
 			// Create Button Object
 			GameObject temp = (GameObject)Instantiate (prefabbutton);
 			temp.transform.SetParent (TR, false);
-			/// Reneme Button
+
+			/// Rename Button
 			Text buttonText = temp.GetComponentInChildren<Text>();
 			buttonText.text = abilities [i].name;
 
@@ -82,9 +88,10 @@ public class SelectTarget : MonoBehaviour {
 			print (pos [1].ToString ());
 			temp.transform.position = pos;
 
-
+			// Add button to the list of options
 			option.Insert (i, temp.GetComponent<Button>());
-			print (i.ToString () + "  " + combat.actionFrom.abilities [i]);
+
+			// Add a  {  DoAbility (tempAbility);  }   function call to the button for when it is pressed
 			Ability tempAbility = abilities [i];
 			option [i].GetComponent<Button> ().onClick.AddListener (delegate {
 				DoAbility (tempAbility);
@@ -97,25 +104,27 @@ public class SelectTarget : MonoBehaviour {
 
 
 	public void DestroyOptions(){
+		// Clear out the options used for selecting a target last time
 		for (int i = 0; i < option.Count; i++) {
 			Destroy (option [i].gameObject);
 		}
 		option.Clear ();
 	}
 	void AttackTarget(CharacterClass target){
-
+		// Now that we have selected a character, proceed with  the attack
 		combat.HideSelectMenu ();
-		//print ("Clicked for enemy" + num.ToString ());
-		//print("HEEERERERERERE "+ target.name);
 		combat.actionTo = target;
 		combat.doAction();
 	}
 	void DoAbility(Ability ability){
+		// Now that we have selected a character, proceed with  the ability cast
 		AbilityToCast = ability;
 		combat.HideSelectMenu ();
-		print ("Doing ability " + ability);
 		combat.actionToDo = ability;
 		int rangeBase = 0;
+
+		// Decide on stats to use based on the ability name
+		// I might replace the choosing method to a dictionary  or something
 		if (ability.name == "Fireball") {
 			rangeBase = 4;
 			combat.areaRange = 3;
