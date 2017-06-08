@@ -511,7 +511,9 @@ public class CombatTracker : MonoBehaviour {
 
 		} else if (actionToDo != null){
 			if (actionToDo.targetingType == "Single") {
-				actionToDo.cast (actionTo);
+				if (actionToDo.cast (actionTo)) {
+					killCharacter (actionTo);
+				}
 
 			} else if (actionToDo.targetingType == "Area") {
 				// If we've selected an area to cast on, cycle through the appropriate targets and apply the ability
@@ -524,7 +526,10 @@ public class CombatTracker : MonoBehaviour {
 				}
 				targetsToDo =  getEnemiesInRange (coords[0],coords[1],areaRange,actionFrom.team);
 				for (int i = 0; i < targetsToDo.Count; i++) {
-					actionToDo.cast (targetsToDo [i]);
+					if (actionToDo.cast (targetsToDo [i])) {
+						// If it kills
+						killCharacter(targetsToDo [i]);
+					};
 				}
 			}
 			endTurn ();

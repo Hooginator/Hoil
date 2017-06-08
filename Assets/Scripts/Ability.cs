@@ -64,8 +64,12 @@ public class Ability {
 			break;
 		}
 	}
-	public void cast(CharacterClass target){
+	public bool cast(CharacterClass target){
 		// What to cast for each ability
 		target.takeDamage(baseDamage + caster.Intelligence);
+		if (target.checkDead ()) {
+			return true;
+		}
+		return false;
 	}
 }
