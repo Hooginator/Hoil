@@ -53,6 +53,7 @@
      <Compile Include="Assets\Scripts\CharacterClass.cs" />
      <Compile Include="Assets\Scripts\CombatTracker.cs" />
      <Compile Include="Assets\Scripts\EnemyBehavior.cs" />
+     <Compile Include="Assets\Scripts\FloatingText.cs" />
      <Compile Include="Assets\Scripts\Map.cs" />
      <Compile Include="Assets\Scripts\MapGridUnit.cs" />
      <Compile Include="Assets\Scripts\SelectTarget.cs" />

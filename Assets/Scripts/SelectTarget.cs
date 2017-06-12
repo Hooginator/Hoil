@@ -85,7 +85,7 @@ public class SelectTarget : MonoBehaviour {
 			// Reposition Buttons
 			Vector3 pos = temp.transform.position;
 			pos [1] -= i * 30;
-			print (pos [1].ToString ());
+			//print (pos [1].ToString ());
 			temp.transform.position = pos;
 
 			// Add button to the list of options

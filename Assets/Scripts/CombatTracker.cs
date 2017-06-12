@@ -262,6 +262,7 @@ public class CombatTracker : MonoBehaviour {
 
 		// Start the Combat with Player Turn
 		startTurn ();
+
 	}
 	public void getTeamNames(){
 		teams = new List<string>();
@@ -398,6 +399,7 @@ public class CombatTracker : MonoBehaviour {
 	}
 
 	void startTurn(){
+		print ("Start of Turn");
 		actionFrom = currentTurnCharacters [0];
 		for (int i = 0; i < currentTurnCharacters.Count; i++) {
 			// Initialize for turns
@@ -406,7 +408,6 @@ public class CombatTracker : MonoBehaviour {
 		if (currentTeam == "Player") {
 			ShowBattleMenu ();
 		} else {
-			actionFrom = characters [0];
 			doTurn ();
 		}
 
@@ -442,6 +443,7 @@ public class CombatTracker : MonoBehaviour {
 		bool livingPlayer = false;
 		bool livingEnemy = false;
 		for (int i = 0; i < numCharacters; i++) {
+			print (i.ToString() + "  " + characters [i].team);
 			if (!characters [i].isDead) {
 				if (characters [i].team == "Player") {
 					livingPlayer = true;
@@ -454,6 +456,9 @@ public class CombatTracker : MonoBehaviour {
 		if (!livingPlayer) {
 			experienceEarned = 0;
 			print ("Player Died");
+		}
+		if (!livingEnemy) {
+			print ("Enemies Died");
 		}
 		return !(livingEnemy && livingPlayer);
 	}
@@ -538,6 +543,7 @@ public class CombatTracker : MonoBehaviour {
 	public void killCharacter(CharacterClass toKill){
 		// Kills the given character,
 		if (characters.Contains (toKill)) {
+			print ("Killing Character on " + toKill.team);
 			if (toKill.team != "Player") {
 				experienceEarned += toKill.baseExperienceGiven;
 			}

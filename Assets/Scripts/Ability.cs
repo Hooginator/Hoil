@@ -66,7 +66,7 @@ public class Ability {
 	}
 	public bool cast(CharacterClass target){
 		// What to cast for each ability
-		target.takeDamage(baseDamage + caster.Intelligence);
+		target.takeDamage(baseDamage + caster.Intelligence, damageType);
 		if (target.checkDead ()) {
 			return true;
 		}
