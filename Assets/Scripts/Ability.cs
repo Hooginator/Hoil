@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
+/***********************************************************/
+// Routine to use a special ability in battle.
+// Includes constructor and cast function to apply the ability.
+/***********************************************************/
+
 public class Ability {
 
 	public string name;

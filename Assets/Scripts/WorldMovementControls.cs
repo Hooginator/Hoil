@@ -2,8 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Lets you take control of the character on the World Map.  
+// Also does collisions and checks for battles starting
+/***********************************************************/
+
 public class WorldMovementControls : MonoBehaviour {
-	// Lets you take control of the character on the World Map.  
 
 	public float moveSpeed; // max Force that can be applied to object
 	public Rigidbody RB; // needed to apply forces to object.

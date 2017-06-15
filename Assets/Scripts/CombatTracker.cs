@@ -2,6 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// COMBAT TRACKER is the bread and butter of the Battle scene.
+// Initializes needed battle parameters from what GAME MANAGER provides
+// Has location selection and some menu management (back button)
+// Turnmanagement, map ranges and camera directions
+// Menu management between BATTLE MENU and SELECT MENU
+// the doAction() function that is the how all interactions with the battle are carried out:
+// -> Currently movement, abilities and basic attacks go through, will add items, run...
+/***********************************************************/
+
+
 public class CombatTracker : MonoBehaviour {
 	// Management Functions for the combat flow.
 	// Good Guys

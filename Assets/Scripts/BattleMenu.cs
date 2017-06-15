@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/***********************************************************/
+// Shows the options at the start of one's turn or after completing or cancelling an action.
+// Most functions just refer to what's in the Combat Tracker.
+/***********************************************************/
+
 public class BattleMenu : MonoBehaviour {
 	// Options for Player Combat Main Menu
 	public Button Attack;

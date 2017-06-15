@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/***********************************************************/
+// Tracks the world map teams and manages their growth / decay
+// Spawns individual enemies near the base.
+/***********************************************************/
+
 public class Team : MonoBehaviour {
 	public GameObject mainBase;
 	public int power;

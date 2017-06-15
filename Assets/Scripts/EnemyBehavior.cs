@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/***********************************************************/
+// Dictates the computer controlled enemy motions on the world map.
+// Also does management for starting battles on collisions and initializing
+/***********************************************************/
+
+
 public class EnemyBehavior : MonoBehaviour {
 	// Added to enemy units on the world map to control their behaviour
 	public float moveSpeed; // max Force that can be applied to object

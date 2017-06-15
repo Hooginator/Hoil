@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+
+/***********************************************************/
+// This is where all of the important stuff that is needed in multiple scenes goes.
+// GAME MANAGER is not destroyed on scene load, and a new one is not made.
+// Contains scene menegement, world initialization and the effects from one scene to another (combatants to battle, EXP to world..)
+/***********************************************************/
+
 public class gameManager : MonoBehaviour {
 	public bool inBattle = false;
 	public static gameManager instance = null;

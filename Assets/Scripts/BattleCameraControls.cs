@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Controls how the camera moves based on battle conditions and player input.
+// Current manual controls are WASD
+/***********************************************************/
+
 public class BattleCameraControls : MonoBehaviour {
 	public float moveSpeed; // Set to match the palyer
 	public float bufferx;

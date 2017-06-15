@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Individual unit used to generate square map
+// Has three resources whifch diuctate tile colour (RGB)
+// Has some functions to help adjust colour for selecting AOE tiles
+/***********************************************************/
+
 public class MapGridUnit : MonoBehaviour {
 	// Class added to individual tiles of the map and housing their individual parameters.
 	public float[] resources;// array of resource value of grid

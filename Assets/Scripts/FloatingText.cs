@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Used to generate floating text that will stay for a second or so.
+// For displaying the amount of damage taken. 
+/***********************************************************/
+
 public class FloatingText : MonoBehaviour {
 	// Information onf what the text will look like
 	public int damage;

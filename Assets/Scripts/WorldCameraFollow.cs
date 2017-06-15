@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Forces the world map camera to follow the player character as he moves.
+/***********************************************************/
+
 public class WorldCameraFollow : MonoBehaviour {
 	public float moveSpeed; // Set to match the palyer
 	public float bufferx;

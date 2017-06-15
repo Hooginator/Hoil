@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/***********************************************************/
+// Custom version of BATTLE MENU that is used to display options in range, abilities / items to use...
+// Buttons trigger what is to be done via COMBAT TRACKER calls.
+/***********************************************************/
+
+
 public class SelectTarget : MonoBehaviour {
 	public List<Button> option  = new  List<Button>();
 	public CombatTracker combat;
