@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/***********************************************************/
+// Shows the options at the start of one's turn or after completing or cancelling an action.
+// Most functions just refer to what's in the Combat Tracker.
+/***********************************************************/
+
 public class BattleMenu : MonoBehaviour {
 	// Options for Player Combat Main Menu
 	public Button Attack;
@@ -42,7 +48,13 @@ public class BattleMenu : MonoBehaviour {
 		//combat.CreateSelectOptions ();
 
 		combat.actionToDo = new Ability("Basic Attack",combat.actionFrom);
-		combat.ShowSelectMenu (combat.maxEnemyCharacters,combat.enemyCharacters);
+		List<CharacterClass> temp = combat.getEnemiesInRange (1, "Player");
+		if (temp != null) {
+			combat.HideBattleMenu ();
+			combat.ShowSelectMenu (combat.getEnemiesInRange (1, "Player"));
+		} else {
+			print ("NOONE IN MELEE RANGE");
+		}
 		//combat.PlayerAttack(0,0);
 	}	
 	public void MovePress(){

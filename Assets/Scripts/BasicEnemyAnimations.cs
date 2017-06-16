@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Dictates how the 3 outrer pieces rotate around the central piece for the basix enemy.
+// This will be attached to the prefab of each basic enemy following these animations.
+/***********************************************************/
+
 public class BasicEnemyAnimations : MonoBehaviour {
 	public GameObject sphere;
 	public Vector3 spherePos;

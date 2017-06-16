@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+
+/***********************************************************/
+// Manages the loading and unloading of scenes.
+/***********************************************************/
+
 public class sceneManager : MonoBehaviour {
 	public bool inBattle = false;
 	public static sceneManager instance = null;

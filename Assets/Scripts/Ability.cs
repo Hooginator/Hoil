@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
+/***********************************************************/
+// Routine to use a special ability in battle.
+// Includes constructor and cast function to apply the ability.
+/***********************************************************/
+
 public class Ability {
 
 	public string name;
@@ -64,8 +71,12 @@ public class Ability {
 			break;
 		}
 	}
-	public void cast(CharacterClass target){
+	public bool cast(CharacterClass target){
 		// What to cast for each ability
-		target.takeDamage(baseDamage + caster.Intelligence);
+		target.takeDamage(baseDamage + caster.Intelligence, damageType);
+		if (target.checkDead ()) {
+			return true;
+		}
+		return false;
 	}
 }

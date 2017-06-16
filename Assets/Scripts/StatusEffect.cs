@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Will be used to track status ailments and buffs
+/***********************************************************/
+
 public class StatusEffect : MonoBehaviour {
 
 	// these are the different Status effects

@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/***********************************************************/
+// Dictates the computer controlled enemy motions on the world map.
+// Also does management for starting battles on collisions and initializing
+/***********************************************************/
+
+
 public class EnemyBehavior : MonoBehaviour {
 	// Added to enemy units on the world map to control their behaviour
 	public float moveSpeed; // max Force that can be applied to object
@@ -43,13 +49,13 @@ public class EnemyBehavior : MonoBehaviour {
 			current = tempPos;
 			difference = current - target;
 			// If we are close enough to the target location, find a new target.
-			if (difference.magnitude < 0.0001) {
+			if (difference.magnitude < 0.01) {
 				NewTarget ();
 			}
 			// Move angle towards where eemy is going
 			Vector3 angle = Vector3.RotateTowards (TR.forward, difference, RotationSpeed, 2.0F);
 			// Apply angle
-			TR.rotation = Quaternion.LookRotation (angle);
+			//TR.rotation = Quaternion.LookRotation (angle);
 		}
 
 	}

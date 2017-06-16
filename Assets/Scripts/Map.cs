@@ -2,6 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Map management for the square grid
+// Contains functions for range checks, line of sight (soon)
+// Manages initialization and evolution of MAP GRID UNIT resources.
+// has functions to help manage positions on the map (set in middle of tile, getTile..)
+// Changes MAP GRIUD UNIT colour for AoE selction
+/***********************************************************/
+
 public class Map : MonoBehaviour {
 	// Used to create a 2D grid of square tiles making up a map.  This class is used for both the world and combat map
 
