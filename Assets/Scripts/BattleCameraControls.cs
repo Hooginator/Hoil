@@ -86,7 +86,7 @@ public class BattleCameraControls : MonoBehaviour {
 		}
 		TR = GetComponent<Transform> ();
 		// Position that the camera will always aim for relative to player
-		Idealpos = new Vector3(0,50,0);
+		Idealpos = new Vector3(0,100,0);
 		// Distance away we will start going towards idealpos
 		bufferx = 5;
 		bufferz = 5;
