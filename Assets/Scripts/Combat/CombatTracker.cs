@@ -559,13 +559,21 @@ public class CombatTracker : MonoBehaviour {
 			if (toKill.team != "Player") {
 				experienceEarned += toKill.baseExperienceGiven;
 			}
-			Destroy (toKill.battleAvatar);
+			StartCoroutine (DestroyCharacter (toKill.battleAvatar));
+			toKill.battleAvatar.GetComponent<BasicEnemyAnimations> ().animationType = "dying";
+			//Destroy (toKill.battleAvatar);
 			// Remove enemy from list
 			characters.Remove (toKill);
 			numCharacters -= 1;
 		} else {
 			print ("Couldn't find character to kill");
 		}
+	}
+
+	IEnumerator DestroyCharacter(GameObject avatar){
+		// Coroutine to let the enemy model exist for a second after it is killed.
+		yield return new WaitForSeconds(1.2f);
+		Destroy (avatar);
 	}
 
 	public void PlayerAttack(int player, int badguy){

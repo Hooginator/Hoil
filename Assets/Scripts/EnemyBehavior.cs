@@ -59,12 +59,6 @@ public class EnemyBehavior : MonoBehaviour {
 		}
 
 	}
-	// Update level indicator
-	public void updateLevelIndicator(){
-		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
-		//print ("Update level strings");
-		levelText.GetComponent<TextMesh>().text = level.ToString ();
-	}
 
 	void NewTarget(){
 		// Determines a new location, within maxTargetDistance of the enemy for the enemy to move towards.
@@ -84,8 +78,7 @@ public class EnemyBehavior : MonoBehaviour {
 
 	void Start () {
 		//level = Random.Range(3,25);
-		// Update display of level on the model
-		updateLevelIndicator ();
+
 		RB = GetComponent<Rigidbody> ();
 		TR = GetComponent<Transform> ();
 		current = TR.position;

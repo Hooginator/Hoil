@@ -1,11 +1,11 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\BattleCameraControls.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\BasicEnemyAnimations.cs">
     <Files>
       <File FileName="Assets\Scripts\WorldCameraFollow.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\CombatTracker.cs" Line="149" Column="7" />
-      <File FileName="Assets\Scripts\Ability.cs" Line="10" Column="20" />
-      <File FileName="Assets\Scripts\BattleMenu.cs" Line="9" Column="62" />
+      <File FileName="Assets\Scripts\CombatTracker.cs" Line="563" Column="86" />
+      <File FileName="Assets\Scripts\Ability.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\BattleMenu.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\SelectTarget.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\WorldMovementControls.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\sceneManager.cs" Line="1" Column="1" />
@@ -14,11 +14,11 @@
       <File FileName="Assets\Scripts\CharacterClass.cs" Line="157" Column="3" />
       <File FileName="Assets\Scripts\Map.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Team.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\FloatingText.cs" Line="36" Column="72" />
+      <File FileName="Assets\Scripts\FloatingText.cs" Line="19" Column="31" />
       <File FileName="Assets\Scripts\EnemyBehavior.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\MapGridUnit.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\BasicEnemyAnimations.cs" Line="5" Column="1" />
-      <File FileName="Assets\Scripts\BattleCameraControls.cs" Line="89" Column="30" />
+      <File FileName="Assets\Scripts\BasicEnemyAnimations.cs" Line="40" Column="57" />
+      <File FileName="Assets\Scripts\BattleCameraControls.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\StatusEffect.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>

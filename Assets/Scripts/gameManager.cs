@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 /***********************************************************/
 
 public class gameManager : MonoBehaviour {
-	public bool inBattle = false;
+	public bool inBattle = true;
 	public static gameManager instance = null;
 	// Characters that will stick around after scenes.
 	//public CharacterClass[] playerCharacters;
@@ -60,6 +60,11 @@ public class gameManager : MonoBehaviour {
 
 			Scene currentScene = SceneManager.GetActiveScene ();
 			string sceneName = currentScene.name;
+			if (sceneName == "Battle") {
+				inBattle = true;
+			} else {
+				inBattle = false;
+			}
 				worldPlayer = GameObject.Instantiate (playerWorldSprite, new Vector3 (90, 2, 0), Quaternion.identity);
 				worldPlayer.transform.SetParent (gameObject.transform);
 				playerMapPosition = worldPlayer.transform;
@@ -221,6 +226,9 @@ public class gameManager : MonoBehaviour {
 		InitializeWorld ();
 		inBattle = false;
 		//GameObject.Find ("Player").GetComponent<WorldMovementControls> ().Initialize ();
+	}
+	public bool checkInBattle(){
+		return inBattle;
 	}
 
 	/********************************************************************************************/ 

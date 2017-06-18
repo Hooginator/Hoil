@@ -46,22 +46,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\Ability.cs" />
      <Compile Include="Assets\Scripts\BasicEnemyAnimations.cs" />
-     <Compile Include="Assets\Scripts\BattleCameraControls.cs" />
-     <Compile Include="Assets\Scripts\BattleMenu.cs" />
      <Compile Include="Assets\Scripts\CharacterClass.cs" />
-     <Compile Include="Assets\Scripts\CombatTracker.cs" />
+     <Compile Include="Assets\Scripts\Combat\Ability.cs" />
+     <Compile Include="Assets\Scripts\Combat\BattleCameraControls.cs" />
+     <Compile Include="Assets\Scripts\Combat\BattleMenu.cs" />
+     <Compile Include="Assets\Scripts\Combat\CombatTracker.cs" />
+     <Compile Include="Assets\Scripts\Combat\FloatingText.cs" />
+     <Compile Include="Assets\Scripts\Combat\SelectTarget.cs" />
      <Compile Include="Assets\Scripts\EnemyBehavior.cs" />
-     <Compile Include="Assets\Scripts\FloatingText.cs" />
-     <Compile Include="Assets\Scripts\Map.cs" />
-     <Compile Include="Assets\Scripts\MapGridUnit.cs" />
-     <Compile Include="Assets\Scripts\SelectTarget.cs" />
      <Compile Include="Assets\Scripts\StatusEffect.cs" />
      <Compile Include="Assets\Scripts\Team.cs" />
-     <Compile Include="Assets\Scripts\WorldCameraFollow.cs" />
-     <Compile Include="Assets\Scripts\WorldMovementControls.cs" />
-     <Compile Include="Assets\Scripts\WorldTracker.cs" />
+     <Compile Include="Assets\Scripts\World\Map.cs" />
+     <Compile Include="Assets\Scripts\World\MapGridUnit.cs" />
+     <Compile Include="Assets\Scripts\World\WorldCameraFollow.cs" />
+     <Compile Include="Assets\Scripts\World\WorldMovementControls.cs" />
+     <Compile Include="Assets\Scripts\World\WorldTracker.cs" />
      <Compile Include="Assets\Scripts\gameManager.cs" />
      <Compile Include="Assets\Scripts\sceneManager.cs" />
  <Reference Include="UnityEngine.UI">
