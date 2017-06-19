@@ -54,9 +54,9 @@
      <Compile Include="Assets\Scripts\Combat\CombatTracker.cs" />
      <Compile Include="Assets\Scripts\Combat\FloatingText.cs" />
      <Compile Include="Assets\Scripts\Combat\SelectTarget.cs" />
-     <Compile Include="Assets\Scripts\EnemyBehavior.cs" />
      <Compile Include="Assets\Scripts\StatusEffect.cs" />
      <Compile Include="Assets\Scripts\Team.cs" />
+     <Compile Include="Assets\Scripts\World\EnemyBehavior.cs" />
      <Compile Include="Assets\Scripts\World\Map.cs" />
      <Compile Include="Assets\Scripts\World\MapGridUnit.cs" />
      <Compile Include="Assets\Scripts\World\WorldCameraFollow.cs" />

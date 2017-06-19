@@ -487,7 +487,7 @@ public class CombatTracker : MonoBehaviour {
 	/**************************************** Character Actions *********************************/ 
 	/********************************************************************************************/
 
-	// This will likely move to one bit ugly filewith every ability
+	// This will likely move to one big ugly filewith every ability
 	public void doAction(){
 		List<CharacterClass> targetsToDo = null;
 
@@ -548,6 +548,7 @@ public class CombatTracker : MonoBehaviour {
 						killCharacter(targetsToDo [i]);
 					};
 				}
+				actionToDo.doAnimation (map.getAbovePosFromCoords (coords [0], coords [1]));
 			}
 			endTurn ();
 		}
