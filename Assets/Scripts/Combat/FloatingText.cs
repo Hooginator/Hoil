@@ -16,7 +16,7 @@ public class FloatingText : MonoBehaviour {
 	public Color textColor;
 	public Vector3 position;
 	public int totalTime = 100;
-	public float movespeed = 0.05f;
+	public float movespeed = 0.03f;
 	// Time the text has existed for
 	private int t;
 
@@ -57,7 +57,7 @@ public class FloatingText : MonoBehaviour {
 		updateText ();
 	}
 	public void setSize (){
-		gameObject.GetComponent<TextMesh> ().fontSize = 10 + damage / 100;
+		gameObject.GetComponent<TextMesh> ().fontSize = 16 + damage / 100;
 	}
 	public void setPosition(Transform TR){
 		position = TR.position;

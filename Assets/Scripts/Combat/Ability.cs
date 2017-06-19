@@ -71,8 +71,20 @@ public class Ability {
 			break;
 		}
 	}
+	public void doAnimation(CharacterClass target){
+		// reserved for solo animations 
+	}
+	public void doAnimation(Vector3 pos){
+		// Do animation at position
+		if (name == "Fireball") {
+			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("Basic Explosion"));
+			temp.transform.position = pos;
+		} else {
+
+		}
+	}
 	public bool cast(CharacterClass target){
-		// What to cast for each ability
+		// What to do damage wise for each ability
 		target.takeDamage(baseDamage + caster.Intelligence, damageType);
 		if (target.checkDead ()) {
 			return true;
