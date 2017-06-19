@@ -58,7 +58,7 @@ public class BattleMenu : MonoBehaviour {
 		//combat.PlayerAttack(0,0);
 	}	
 	public void MovePress(){
-		// When you hit that attack button
+		// When you hit that move button
 		print ("MOOOVE");
 		combat.HideBattleMenu ();
 		combat.actionToDo = new Ability("Move",combat.actionFrom);

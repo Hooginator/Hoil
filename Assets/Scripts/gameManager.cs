@@ -86,7 +86,7 @@ public class gameManager : MonoBehaviour {
 			// Add second player character
 			CharacterClass temp2 = new CharacterClass ();
 			temp2.Initialize ("Secondary Character", 25, 0, "Player");
-			playerCharacters.Add (temp);
+			playerCharacters.Add (temp2);
 			currentPlayerCharacters += 1;
 
 				// Create the two teams and set their parent transforms to this gameobject (to not be destroyed)

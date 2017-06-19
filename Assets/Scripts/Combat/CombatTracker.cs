@@ -112,7 +112,6 @@ public class CombatTracker : MonoBehaviour {
 				targetLocation += temppos;
 				targetLocation = map.ForceInsideBoundaries (targetLocation);
 				updateCameraTarget (targetLocation);
-				print ("Target: " +targetLocation.ToString ());
 				//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
 				map.selectRange (targetLocation, areaRange);
 			}
@@ -125,7 +124,7 @@ public class CombatTracker : MonoBehaviour {
 			if (Input.GetButtonDown ("Submit") && wasUp) {
 				// when you hit space, get the tile selected to do what we wanted
 				coords = map.getTileCoordsFromPos(targetLocation);
-				print ("You have selected tile " + coords[0].ToString() + "  " + coords[1].ToString());
+				//print ("You have selected tile " + coords[0].ToString() + "  " + coords[1].ToString());
 
 
 				// Check if we're actually in range
@@ -359,10 +358,19 @@ public class CombatTracker : MonoBehaviour {
 
 
 	void endCharacterTurn(){
-		currentTurnCharacters.Remove (actionFrom);
+		//currentTurnCharacters.Remove (actionFrom);
+		actionFrom.turnTaken = true;
+		print (currentTurnCharacters.ToString ());
+		print (actionFrom.name + " has ended his turn");
 		actionFrom = null;
 		actionFromLocked = false;
-		if (currentTurnCharacters.Count == 0) {
+		for (int i = 0; i < currentTurnCharacters.Count; i++) {
+			if (!currentTurnCharacters [i].turnTaken) {
+				actionFrom = currentTurnCharacters [i];
+				break;
+			}
+		}
+		if(actionFrom == null){
 			endTurn ();
 		} else {
 			startCharacterTurn ();
@@ -370,7 +378,6 @@ public class CombatTracker : MonoBehaviour {
 	}
 
 	void startCharacterTurn(){
-		actionFrom = currentTurnCharacters [0];
 		if (currentTeam == "Player") {
 			ShowBattleMenu ();
 		}
@@ -379,10 +386,12 @@ public class CombatTracker : MonoBehaviour {
 
 
 	void endTurn(){
+		print ("ACTUALLY ENDING A TURN");
 		checkDead ();
 		if (checkEndBattle ()) {
 			EndBattle (experienceEarned);
 		} else {
+			// Setup for next turn
 			int teamInt = teams.IndexOf (currentTeam);
 			teamInt = (teamInt + 1);
 			if (teamInt == teams.Count) {
@@ -391,7 +400,7 @@ public class CombatTracker : MonoBehaviour {
 			}
 			currentTeam = teams [teamInt];
 
-			currentTurnCharacters = getCurrentTurnCharacters ();
+			currentTurnCharacters = null;
 			// Remove finished player from list
 			// Check for list empty to either to go next team's turn or next character's
 			// reset current character to null
@@ -401,6 +410,7 @@ public class CombatTracker : MonoBehaviour {
 
 	void startTurn(){
 		print ("Start of Turn");
+		currentTurnCharacters = getCurrentTurnCharacters ();
 		actionFrom = currentTurnCharacters [0];
 		for (int i = 0; i < currentTurnCharacters.Count; i++) {
 			// Initialize for turns
@@ -444,7 +454,7 @@ public class CombatTracker : MonoBehaviour {
 		bool livingPlayer = false;
 		bool livingEnemy = false;
 		for (int i = 0; i < numCharacters; i++) {
-			print (i.ToString() + "  " + characters [i].team);
+			//print (i.ToString() + "  " + characters [i].team);
 			if (!characters [i].isDead) {
 				if (characters [i].team == "Player") {
 					livingPlayer = true;
@@ -511,7 +521,8 @@ public class CombatTracker : MonoBehaviour {
 				killCharacter (actionTo);
 			}
 
-			endTurn ();
+			actionToDo = null;
+			endCharacterTurn ();
 
 		/************************************************ SPECIAL *******************************/
 
@@ -539,7 +550,9 @@ public class CombatTracker : MonoBehaviour {
 				}
 				actionToDo.doAnimation (map.getAbovePosFromCoords (coords [0], coords [1]));
 			}
-			endTurn ();
+
+			actionToDo = null;
+			endCharacterTurn ();
 		}
 	}
 	public void killCharacter(CharacterClass toKill){
@@ -571,7 +584,7 @@ public class CombatTracker : MonoBehaviour {
 		string battleMessage = characters [player].Attack (characters [badguy]);
 		// Check if you killed the enemy
 		//print (battleMessage);
-		endTurn ();
+		endCharacterTurn ();
 	}
 	public void PlayerItem(){
 		// Place Holderf for now
@@ -586,7 +599,7 @@ public class CombatTracker : MonoBehaviour {
 		EndBattle (0);
 	}
 	public void PlayerEndTurn(){
-		endTurn ();
+		endCharacterTurn ();
 	}
 
 	List<CharacterClass> getCharactersInRange(int x, int z, int range){
