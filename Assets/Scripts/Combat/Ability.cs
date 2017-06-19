@@ -38,7 +38,7 @@ public class Ability {
 		caster = casterIn;
 		switch (nameIn) {
 		case "Fireball":
-			baseRange = 4;
+			baseRange = 6;
 			AoERange = 3;
 			baseDamage = 30;
 			damageType = "Fire";
@@ -48,7 +48,7 @@ public class Ability {
 		case "Sniper Attack":
 			baseRange = 7;
 			AoERange = 0;
-			baseDamage = 20;
+			baseDamage = 80;
 			damageType = "Pierce";
 			targets = "Enemy";
 			targetingType = "Single";
@@ -64,7 +64,7 @@ public class Ability {
 		case "Basic Attack":
 			baseRange = 1;
 			AoERange = 0;
-			baseDamage = 10;
+			baseDamage = 20;
 			damageType = "Normal";
 			targets = "Enemy";
 			targetingType = "Single";

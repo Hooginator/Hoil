@@ -16,12 +16,6 @@ using UnityEngine;
 
 public class CombatTracker : MonoBehaviour {
 	// Management Functions for the combat flow.
-	// Good Guys
-	//public List<CharacterClass> playerCharacters  = new  List<CharacterClass>();
-	//int maxPlayerCharacters;
-	// Bad Guys
-	//public List<CharacterClass> enemyCharacters  = new  List<CharacterClass>();
-	//public int maxEnemyCharacters;
 
 	// General Turns
 	public int numCharacters;
@@ -30,10 +24,6 @@ public class CombatTracker : MonoBehaviour {
 
 	// Prefabs of the visuals used for characters in battle
 	public GameObject[] CharacterPrefabs;// = new GameObject[3];
-
-	// List of Players and Enemies visuals in the current battle.
-	//public GameObject[] playerSprites;
-	//public GameObject[] enemySprites;
 
 	public float experienceEarned;
 
@@ -304,9 +294,8 @@ public class CombatTracker : MonoBehaviour {
 				print ("Player Placement");
 				setToPosition (characters [i], 0, i);
 			} else {
-				print (i.ToString());
 				print (characters [i].name.ToString()+" Placement");
-				setToPosition (characters [i], 1, i + 2);
+				setToPosition (characters [i], 7, i + 2);
 			}
 		}
 	}

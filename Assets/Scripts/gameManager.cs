@@ -65,26 +65,29 @@ public class gameManager : MonoBehaviour {
 			} else {
 				inBattle = false;
 			}
-				worldPlayer = GameObject.Instantiate (playerWorldSprite, new Vector3 (90, 2, 0), Quaternion.identity);
-				worldPlayer.transform.SetParent (gameObject.transform);
-				playerMapPosition = worldPlayer.transform;
-				//playerMapPosition = new Vector3(0,3,0);
-				//playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
-				/****************************************** Start of the game here ***********************************************************/
-				// This will be called once at the very start of the game and then never again, good place to set up one time events at the start.
-				// Create Main character, probably will be more involved than this later :P
-				playerCharacters = new  List<CharacterClass> ();
-				teams = new  List<GameObject> ();
-				// Make temp something that should definitely not be Null...
-				CharacterClass temp = new CharacterClass ();
-				// Initialize stats to level 30 so we can beat level 15 generated badguy easily
-				temp.Initialize ("GoodGuy", 30, 0, "Player");
-				//string printstats = temp.printStats ();
-				//print (printstats);
-				// Add temp to the list
-				playerCharacters.Add (temp);
-				//playerCharacters.Add(new CharacterClass());
-				currentPlayerCharacters += 1;
+			worldPlayer = GameObject.Instantiate (playerWorldSprite, new Vector3 (90, 2, 0), Quaternion.identity);
+			worldPlayer.transform.SetParent (gameObject.transform);
+			playerMapPosition = worldPlayer.transform;
+			//playerMapPosition = new Vector3(0,3,0);
+			//playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
+			/****************************************** Start of the game here ***********************************************************/
+			// This will be called once at the very start of the game and then never again, good place to set up one time events at the start.
+			// Create Main character, probably will be more involved than this later :P
+			playerCharacters = new  List<CharacterClass> ();
+			teams = new  List<GameObject> ();
+
+			// Add Main CharacterPlayer character
+			CharacterClass temp = new CharacterClass ();
+			// Initialize stats to level 40 so we can beat level 15 generated badguy easily
+			temp.Initialize ("Main Character", 40, 0, "Player");
+			playerCharacters.Add (temp);
+			currentPlayerCharacters += 1;
+
+			// Add second player character
+			CharacterClass temp2 = new CharacterClass ();
+			temp2.Initialize ("Secondary Character", 25, 0, "Player");
+			playerCharacters.Add (temp);
+			currentPlayerCharacters += 1;
 
 				// Create the two teams and set their parent transforms to this gameobject (to not be destroyed)
 				GameObject tempTeam1 = GameObject.Instantiate (Resources.Load ("Blue Base"), new Vector3 (0, 1, 0), Quaternion.identity) as GameObject;
@@ -156,8 +159,8 @@ public class gameManager : MonoBehaviour {
 			combatants.Add (playerCharacters [i]);
 			//combatants [i] = playerCharacters [i];
 		}
-		// Add two lvl 15 enemies...
-		for (int i = 0; i < 2; i++) {
+		// Add four lvl 15 enemies...
+		for (int i = 0; i < 4; i++) {
 			combatants.Add (new CharacterClass ());
 			combatants [i+playerCharacters.Count].Initialize ("Enemy " + i.ToString (), 15, 1, "Red");
 		}
