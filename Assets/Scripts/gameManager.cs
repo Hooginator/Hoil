@@ -77,8 +77,8 @@ public class gameManager : MonoBehaviour {
 				teams = new  List<GameObject> ();
 				// Make temp something that should definitely not be Null...
 				CharacterClass temp = new CharacterClass ();
-				// Initialize stats to level 5 so we can beat level 1 generated badguy easily
-				temp.Initialize ("GoodGuy", 10, 0, "Player");
+				// Initialize stats to level 30 so we can beat level 15 generated badguy easily
+				temp.Initialize ("GoodGuy", 30, 0, "Player");
 				//string printstats = temp.printStats ();
 				//print (printstats);
 				// Add temp to the list

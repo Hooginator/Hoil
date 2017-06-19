@@ -40,7 +40,7 @@ public class Ability {
 		case "Fireball":
 			baseRange = 4;
 			AoERange = 3;
-			baseDamage = 10;
+			baseDamage = 30;
 			damageType = "Fire";
 			targets = "Enemy";
 			targetingType = "Area";
