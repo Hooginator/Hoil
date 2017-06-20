@@ -442,9 +442,10 @@ public class CombatTracker : MonoBehaviour {
 		temp.init ("Move", actionFrom);
 		actionToDo = temp;
 		// Move to a random location
-		int tempInt = Random.Range(-actionFrom.MP+1,actionFrom.MP)-1;
+		int tempInt = Random.Range(-actionFrom.MP,actionFrom.MP);
+		print ("Random Number x"+tempInt.ToString ());
 		coords [0] = actionFrom.battleLocation [0] + tempInt;
-		coords [1] = actionFrom.battleLocation [1] + Random.Range(-actionFrom.MP+tempInt+1,actionFrom.MP-tempInt-1);
+		coords [1] = actionFrom.battleLocation [1] + Random.Range(-actionFrom.MP + Mathf.Abs(tempInt),actionFrom.MP - Mathf.Abs(tempInt));
 		if (map.isIntInBoundaries (coords [0], coords [1]) && !map.isOccupied(coords [0], coords [1])) {
 			doAction ();
 		} else {
