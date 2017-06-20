@@ -313,7 +313,7 @@ public class CombatTracker : MonoBehaviour {
 		wasUp = false;
 		map = GameObject.Find ("Map").GetComponent<Map> ();
 		// Default select where Player 0 is
-		targetLocation = sprites [0].transform.position;
+		targetLocation = map.getAbovePosFromCoords(x,z);
 		map.setInRange (x, z, range);
 		HideBattleMenu();
 		selectingFromX = x;
@@ -325,18 +325,7 @@ public class CombatTracker : MonoBehaviour {
 		// Assume we are selecting from where the curent actor is
 		int x = actionFrom.battleLocation [0];
 		int z = actionFrom.battleLocation [1];
-		selectingTargetLocation = true;
-		wasUp = false;
-		map = GameObject.Find ("Map").GetComponent<Map> ();
-		// Default select where Player 0 is
-		targetLocation = sprites [0].transform.position;
-		map.setInRange (x, z, range);
-		HideBattleMenu();
-		selectingFromX = x;
-		selectingFromZ = z;
-		selectingRange = range;
-		windowStatus = "Selecting Location";
-
+		selectTargetLocation (x, z, range);
 	}
 	public void stopSelectingTargetLocation(){
 		selectingTargetLocation = false;
@@ -360,6 +349,7 @@ public class CombatTracker : MonoBehaviour {
 	void endCharacterTurn(){
 		//currentTurnCharacters.Remove (actionFrom);
 		actionFrom.turnTaken = true;
+		areaRange = 0;
 		print (currentTurnCharacters.ToString ());
 		print (actionFrom.name + " has ended his turn");
 		actionFrom = null;

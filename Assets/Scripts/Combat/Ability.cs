@@ -9,7 +9,7 @@ using UnityEngine;
 // Includes constructor and cast function to apply the ability.
 /***********************************************************/
 
-public class Ability {
+public class Ability : ScriptableObject{
 
 	public string name;
 	public int baseRange;
@@ -20,7 +20,7 @@ public class Ability {
 	public string targets;
 	public CharacterClass caster;
 
-	public Ability(string nameIn, int baseRangeIn, int AoERangeIn, float baseDamageIn, string damageTypeIn,string targetingTypeIn, string targetsIn, CharacterClass casterIn){
+	public void init(string nameIn, int baseRangeIn, int AoERangeIn, float baseDamageIn, string damageTypeIn,string targetingTypeIn, string targetsIn, CharacterClass casterIn){
 		// Create an ability
 		name = nameIn;
 		baseRange = baseRangeIn;
@@ -32,7 +32,7 @@ public class Ability {
 		caster = casterIn;
 	}
 
-	public Ability(string nameIn, CharacterClass casterIn){
+	public void init(string nameIn, CharacterClass casterIn){
 		// Create an ability
 		name = nameIn;
 		caster = casterIn;
@@ -80,9 +80,9 @@ public class Ability {
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("Basic Explosion"));
 			temp.transform.position = pos;
 		} else {
-
 		}
 	}
+
 	public bool cast(CharacterClass target){
 		// What to do damage wise for each ability
 		target.takeDamage(baseDamage + caster.Intelligence, damageType);
