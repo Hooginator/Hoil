@@ -61,7 +61,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		} else if (animationType == "dying") {
 			for (int i = 0; i < 3; i++) {
 				cubes [i].transform.RotateAround (spherePos, axisUp, 3 * rotationSpeed * Time.deltaTime);
-				cubes [i].transform.RotateAround (spherePos, new Vector3(1f,0f,0f), 3 * rotationSpeed * Time.deltaTime);
+				cubes [i].transform.RotateAround (spherePos, Random.insideUnitSphere, 3 * rotationSpeed * Time.deltaTime);
 			}
 		}
 	}

@@ -281,6 +281,7 @@ public class CombatTracker : MonoBehaviour {
 			ShowBattleMenu ();
 		} else {
 			print ("Continue enemy turn");
+			endCharacterTurn ();
 		}
 	}
 
@@ -289,12 +290,14 @@ public class CombatTracker : MonoBehaviour {
 		Vector3 tempPos = new Vector3(0,0,0);
 		for (int i = 0; i < numCharacters; i++) {
 			print ("Placing Character " + i.ToString () + "  " + characters [i].team);
+
+			// This is super poorly done but I'm too tired to fix now.  TODO TOOOODOOOOOOOOOOOOOOOOOOOOOOO
 			if (characters [i].team == "Player") {
 				print ("Player Placement");
-				setToPosition (characters [i], 0, i);
+				setToPosition (characters [i], 0, 2*i);
 			} else {
 				print (characters [i].name.ToString()+" Placement");
-				setToPosition (characters [i], 7, i + 2);
+				setToPosition (characters [i], 7, 2*i - 4);
 			}
 		}
 	}
@@ -370,6 +373,8 @@ public class CombatTracker : MonoBehaviour {
 	void startCharacterTurn(){
 		if (currentTeam == "Player") {
 			ShowBattleMenu ();
+		}else{
+			startComputerCharacterTurn ();
 		}
 	}
 
@@ -409,7 +414,7 @@ public class CombatTracker : MonoBehaviour {
 		if (currentTeam == "Player") {
 			ShowBattleMenu ();
 		} else {
-			doTurn ();
+			startComputerTurn ();
 		}
 
 	}
@@ -424,12 +429,29 @@ public class CombatTracker : MonoBehaviour {
 		return tempList;
 		
 	}
-	void doTurn(){
+	void startComputerTurn(){
 		// Do computer controlled turn
 		print ("General Computer Turn");
-		endTurn ();
+		currentTurnCharacters = getCurrentTurnCharacters ();
+		startComputerCharacterTurn ();
 
 	}
+	void startComputerCharacterTurn(){
+		// Do One computer character's turn
+		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
+		temp.init ("Move", actionFrom);
+		actionToDo = temp;
+		// Move to a random location
+		int tempInt = Random.Range(-actionFrom.MP+1,actionFrom.MP)-1;
+		coords [0] = actionFrom.battleLocation [0] + tempInt;
+		coords [1] = actionFrom.battleLocation [1] + Random.Range(-actionFrom.MP+tempInt+1,actionFrom.MP-tempInt-1);
+		if (map.isIntInBoundaries (coords [0], coords [1]) && !map.isOccupied(coords [0], coords [1])) {
+			doAction ();
+		} else {
+			endCharacterTurn ();
+		}
+	}
+
 	/// END OF GENERALIZED TURN TEST
 
 	void EndBattle(float EXP){
@@ -497,7 +519,7 @@ public class CombatTracker : MonoBehaviour {
 
 			} else {
 				print ("Insufficient MP, " + actionFrom.MP.ToString () + " of " + tempIntDistance.ToString ());
-
+				continueTurn ();
 			}
 			actionToDo = null;
 
@@ -565,7 +587,7 @@ public class CombatTracker : MonoBehaviour {
 
 	IEnumerator DestroyCharacter(GameObject avatar){
 		// Coroutine to let the enemy model exist for a second after it is killed.
-		yield return new WaitForSeconds(1.2f);
+		yield return new WaitForSeconds(2.2f);
 		Destroy (avatar);
 	}
 
