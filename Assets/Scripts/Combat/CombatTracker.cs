@@ -16,12 +16,6 @@ using UnityEngine;
 
 public class CombatTracker : MonoBehaviour {
 	// Management Functions for the combat flow.
-	// Good Guys
-	//public List<CharacterClass> playerCharacters  = new  List<CharacterClass>();
-	//int maxPlayerCharacters;
-	// Bad Guys
-	//public List<CharacterClass> enemyCharacters  = new  List<CharacterClass>();
-	//public int maxEnemyCharacters;
 
 	// General Turns
 	public int numCharacters;
@@ -30,10 +24,6 @@ public class CombatTracker : MonoBehaviour {
 
 	// Prefabs of the visuals used for characters in battle
 	public GameObject[] CharacterPrefabs;// = new GameObject[3];
-
-	// List of Players and Enemies visuals in the current battle.
-	//public GameObject[] playerSprites;
-	//public GameObject[] enemySprites;
 
 	public float experienceEarned;
 
@@ -122,7 +112,6 @@ public class CombatTracker : MonoBehaviour {
 				targetLocation += temppos;
 				targetLocation = map.ForceInsideBoundaries (targetLocation);
 				updateCameraTarget (targetLocation);
-				print ("Target: " +targetLocation.ToString ());
 				//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
 				map.selectRange (targetLocation, areaRange);
 			}
@@ -135,7 +124,7 @@ public class CombatTracker : MonoBehaviour {
 			if (Input.GetButtonDown ("Submit") && wasUp) {
 				// when you hit space, get the tile selected to do what we wanted
 				coords = map.getTileCoordsFromPos(targetLocation);
-				print ("You have selected tile " + coords[0].ToString() + "  " + coords[1].ToString());
+				//print ("You have selected tile " + coords[0].ToString() + "  " + coords[1].ToString());
 
 
 				// Check if we're actually in range
@@ -292,6 +281,7 @@ public class CombatTracker : MonoBehaviour {
 			ShowBattleMenu ();
 		} else {
 			print ("Continue enemy turn");
+			endCharacterTurn ();
 		}
 	}
 
@@ -300,13 +290,14 @@ public class CombatTracker : MonoBehaviour {
 		Vector3 tempPos = new Vector3(0,0,0);
 		for (int i = 0; i < numCharacters; i++) {
 			print ("Placing Character " + i.ToString () + "  " + characters [i].team);
+
+			// This is super poorly done but I'm too tired to fix now.  TODO TOOOODOOOOOOOOOOOOOOOOOOOOOOO
 			if (characters [i].team == "Player") {
 				print ("Player Placement");
-				setToPosition (characters [i], 0, i);
+				setToPosition (characters [i], 0, 2*i);
 			} else {
-				print (i.ToString());
 				print (characters [i].name.ToString()+" Placement");
-				setToPosition (characters [i], 1, i + 2);
+				setToPosition (characters [i], 7, 2*i - 4);
 			}
 		}
 	}
@@ -325,7 +316,7 @@ public class CombatTracker : MonoBehaviour {
 		wasUp = false;
 		map = GameObject.Find ("Map").GetComponent<Map> ();
 		// Default select where Player 0 is
-		targetLocation = sprites [0].transform.position;
+		targetLocation = map.getAbovePosFromCoords(x,z);
 		map.setInRange (x, z, range);
 		HideBattleMenu();
 		selectingFromX = x;
@@ -337,18 +328,7 @@ public class CombatTracker : MonoBehaviour {
 		// Assume we are selecting from where the curent actor is
 		int x = actionFrom.battleLocation [0];
 		int z = actionFrom.battleLocation [1];
-		selectingTargetLocation = true;
-		wasUp = false;
-		map = GameObject.Find ("Map").GetComponent<Map> ();
-		// Default select where Player 0 is
-		targetLocation = sprites [0].transform.position;
-		map.setInRange (x, z, range);
-		HideBattleMenu();
-		selectingFromX = x;
-		selectingFromZ = z;
-		selectingRange = range;
-		windowStatus = "Selecting Location";
-
+		selectTargetLocation (x, z, range);
 	}
 	public void stopSelectingTargetLocation(){
 		selectingTargetLocation = false;
@@ -370,10 +350,20 @@ public class CombatTracker : MonoBehaviour {
 
 
 	void endCharacterTurn(){
-		currentTurnCharacters.Remove (actionFrom);
+		//currentTurnCharacters.Remove (actionFrom);
+		actionFrom.turnTaken = true;
+		areaRange = 0;
+		print (currentTurnCharacters.ToString ());
+		print (actionFrom.name + " has ended his turn");
 		actionFrom = null;
 		actionFromLocked = false;
-		if (currentTurnCharacters.Count == 0) {
+		for (int i = 0; i < currentTurnCharacters.Count; i++) {
+			if (!currentTurnCharacters [i].turnTaken) {
+				actionFrom = currentTurnCharacters [i];
+				break;
+			}
+		}
+		if(actionFrom == null){
 			endTurn ();
 		} else {
 			startCharacterTurn ();
@@ -381,19 +371,22 @@ public class CombatTracker : MonoBehaviour {
 	}
 
 	void startCharacterTurn(){
-		actionFrom = currentTurnCharacters [0];
 		if (currentTeam == "Player") {
 			ShowBattleMenu ();
+		}else{
+			startComputerCharacterTurn ();
 		}
 	}
 
 
 
 	void endTurn(){
+		print ("ACTUALLY ENDING A TURN");
 		checkDead ();
 		if (checkEndBattle ()) {
 			EndBattle (experienceEarned);
 		} else {
+			// Setup for next turn
 			int teamInt = teams.IndexOf (currentTeam);
 			teamInt = (teamInt + 1);
 			if (teamInt == teams.Count) {
@@ -402,7 +395,7 @@ public class CombatTracker : MonoBehaviour {
 			}
 			currentTeam = teams [teamInt];
 
-			currentTurnCharacters = getCurrentTurnCharacters ();
+			currentTurnCharacters = null;
 			// Remove finished player from list
 			// Check for list empty to either to go next team's turn or next character's
 			// reset current character to null
@@ -412,6 +405,7 @@ public class CombatTracker : MonoBehaviour {
 
 	void startTurn(){
 		print ("Start of Turn");
+		currentTurnCharacters = getCurrentTurnCharacters ();
 		actionFrom = currentTurnCharacters [0];
 		for (int i = 0; i < currentTurnCharacters.Count; i++) {
 			// Initialize for turns
@@ -420,7 +414,7 @@ public class CombatTracker : MonoBehaviour {
 		if (currentTeam == "Player") {
 			ShowBattleMenu ();
 		} else {
-			doTurn ();
+			startComputerTurn ();
 		}
 
 	}
@@ -435,12 +429,30 @@ public class CombatTracker : MonoBehaviour {
 		return tempList;
 		
 	}
-	void doTurn(){
+	void startComputerTurn(){
 		// Do computer controlled turn
 		print ("General Computer Turn");
-		endTurn ();
+		currentTurnCharacters = getCurrentTurnCharacters ();
+		startComputerCharacterTurn ();
 
 	}
+	void startComputerCharacterTurn(){
+		// Do One computer character's turn
+		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
+		temp.init ("Move", actionFrom);
+		actionToDo = temp;
+		// Move to a random location
+		int tempInt = Random.Range(-actionFrom.MP,actionFrom.MP);
+		print ("Random Number x"+tempInt.ToString ());
+		coords [0] = actionFrom.battleLocation [0] + tempInt;
+		coords [1] = actionFrom.battleLocation [1] + Random.Range(-actionFrom.MP + Mathf.Abs(tempInt),actionFrom.MP - Mathf.Abs(tempInt));
+		if (map.isIntInBoundaries (coords [0], coords [1]) && !map.isOccupied(coords [0], coords [1])) {
+			doAction ();
+		} else {
+			endCharacterTurn ();
+		}
+	}
+
 	/// END OF GENERALIZED TURN TEST
 
 	void EndBattle(float EXP){
@@ -455,7 +467,7 @@ public class CombatTracker : MonoBehaviour {
 		bool livingPlayer = false;
 		bool livingEnemy = false;
 		for (int i = 0; i < numCharacters; i++) {
-			print (i.ToString() + "  " + characters [i].team);
+			//print (i.ToString() + "  " + characters [i].team);
 			if (!characters [i].isDead) {
 				if (characters [i].team == "Player") {
 					livingPlayer = true;
@@ -508,7 +520,7 @@ public class CombatTracker : MonoBehaviour {
 
 			} else {
 				print ("Insufficient MP, " + actionFrom.MP.ToString () + " of " + tempIntDistance.ToString ());
-
+				continueTurn ();
 			}
 			actionToDo = null;
 
@@ -522,7 +534,8 @@ public class CombatTracker : MonoBehaviour {
 				killCharacter (actionTo);
 			}
 
-			endTurn ();
+			actionToDo = null;
+			endCharacterTurn ();
 
 		/************************************************ SPECIAL *******************************/
 
@@ -550,7 +563,9 @@ public class CombatTracker : MonoBehaviour {
 				}
 				actionToDo.doAnimation (map.getAbovePosFromCoords (coords [0], coords [1]));
 			}
-			endTurn ();
+
+			actionToDo = null;
+			endCharacterTurn ();
 		}
 	}
 	public void killCharacter(CharacterClass toKill){
@@ -573,7 +588,7 @@ public class CombatTracker : MonoBehaviour {
 
 	IEnumerator DestroyCharacter(GameObject avatar){
 		// Coroutine to let the enemy model exist for a second after it is killed.
-		yield return new WaitForSeconds(1.2f);
+		yield return new WaitForSeconds(2.2f);
 		Destroy (avatar);
 	}
 
@@ -582,7 +597,7 @@ public class CombatTracker : MonoBehaviour {
 		string battleMessage = characters [player].Attack (characters [badguy]);
 		// Check if you killed the enemy
 		//print (battleMessage);
-		endTurn ();
+		endCharacterTurn ();
 	}
 	public void PlayerItem(){
 		// Place Holderf for now
@@ -597,7 +612,7 @@ public class CombatTracker : MonoBehaviour {
 		EndBattle (0);
 	}
 	public void PlayerEndTurn(){
-		endTurn ();
+		endCharacterTurn ();
 	}
 
 	List<CharacterClass> getCharactersInRange(int x, int z, int range){

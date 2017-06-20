@@ -76,20 +76,23 @@ public class BattleCameraControls : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		RB = GetComponent<Rigidbody>();
+
+		TR = GetComponent<Transform> ();
+		// Position that the camera will always aim for relative to player
+		Idealpos = new Vector3(0,60,0);
+
 		var gameManager = GameObject.Find ("GameManager");
 		var player = gameManager.GetComponent<gameManager>().worldPlayer;
 		inBattle = gameManager.GetComponent<gameManager> ().inBattle;
 		if (inBattle) {
-			moveSpeed = 40;
+			moveSpeed = 400;
+			TR.position = Idealpos +new Vector3(30,0,30);
 		}else{
-			moveSpeed = player.GetComponent<WorldMovementControls>().moveSpeed*4.2f; // takes max "move speed" which is really a force from the Player so we can match it.
+			moveSpeed = player.GetComponent<WorldMovementControls>().moveSpeed*2.2f; // takes max "move speed" which is really a force from the Player so we can match it.
 		}
-		TR = GetComponent<Transform> ();
-		// Position that the camera will always aim for relative to player
-		Idealpos = new Vector3(0,100,0);
 		// Distance away we will start going towards idealpos
-		bufferx = 5;
-		bufferz = 5;
+		bufferx = 30;
+		bufferz = 30;
 		manualCamera = true;
 	}
 }

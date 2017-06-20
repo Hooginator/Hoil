@@ -47,21 +47,28 @@ public class BattleMenu : MonoBehaviour {
 		combat.HideBattleMenu ();
 		//combat.CreateSelectOptions ();
 
-		combat.actionToDo = new Ability("Basic Attack",combat.actionFrom);
-		List<CharacterClass> temp = combat.getEnemiesInRange (1, "Player");
-		if (temp != null) {
+		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
+		temp.init ("Basic Attack", combat.actionFrom);
+		combat.actionToDo = temp;
+
+
+		List<CharacterClass> tempChars = combat.getEnemiesInRange (1, "Player");
+		if (tempChars != null) {
 			combat.HideBattleMenu ();
-			combat.ShowSelectMenu (combat.getEnemiesInRange (1, "Player"));
+			combat.ShowSelectMenu (tempChars);
 		} else {
 			print ("NOONE IN MELEE RANGE");
 		}
 		//combat.PlayerAttack(0,0);
 	}	
 	public void MovePress(){
-		// When you hit that attack button
+		// When you hit that move button
 		print ("MOOOVE");
 		combat.HideBattleMenu ();
-		combat.actionToDo = new Ability("Move",combat.actionFrom);
+		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
+		temp.init ("Move", combat.actionFrom);
+		combat.actionToDo = temp;
+
 		int[] pos = combat.actionFrom.battleLocation;
 		int MP = combat.actionFrom.MP;
 		combat.selectTargetLocation (pos[0],pos[1],MP);

@@ -61,6 +61,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		} else if (animationType == "dying") {
 			for (int i = 0; i < 3; i++) {
 				cubes [i].transform.RotateAround (spherePos, axisUp, 3 * rotationSpeed * Time.deltaTime);
+				cubes [i].transform.RotateAround (spherePos, Random.insideUnitSphere, 3 * rotationSpeed * Time.deltaTime);
 			}
 		}
 	}
@@ -103,6 +104,9 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		//levelText.SetActive (false);
 		levelText.GetComponent<MeshRenderer>().enabled = false;
 	}
-
+	public void updateLevel(int lvl){
+		level = lvl;
+		updateLevelIndicator ();
+	}
 
 }

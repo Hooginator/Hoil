@@ -89,6 +89,7 @@ public class Team : MonoBehaviour {
 		tempBehave.level = lvl;
 		tempBehave.prefab = enemyPrefab;
 		tempBehave.team = teamName;
+		tempArmy.GetComponent<BasicEnemyAnimations> ().updateLevel (lvl);
 		armies.Add (tempArmy);
 	}
 
