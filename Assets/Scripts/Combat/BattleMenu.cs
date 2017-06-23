@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/***********************************************************/
+// Shows the options at the start of one's turn or after completing or cancelling an action.
+// Most functions just refer to what's in the Combat Tracker.
+/***********************************************************/
+
 public class BattleMenu : MonoBehaviour {
 	// Options for Player Combat Main Menu
 	public Button Attack;
@@ -11,6 +17,8 @@ public class BattleMenu : MonoBehaviour {
 	public Button Run;
 
 	public CombatTracker combat;
+
+
 
 
 	/********************************************************************************************/ 
@@ -38,14 +46,29 @@ public class BattleMenu : MonoBehaviour {
 		//print ("ATTACKKKKK");
 		combat.HideBattleMenu ();
 		//combat.CreateSelectOptions ();
-		combat.ShowSelectMenu (combat.maxEnemyCharacters,combat.enemyCharacters);
+
+		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
+		temp.init ("Basic Attack", combat.actionFrom);
+		combat.actionToDo = temp;
+
+
+		List<CharacterClass> tempChars = combat.getEnemiesInRange (1, "Player");
+		if (tempChars != null) {
+			combat.HideBattleMenu ();
+			combat.ShowSelectMenu (tempChars);
+		} else {
+			print ("NOONE IN MELEE RANGE");
+		}
 		//combat.PlayerAttack(0,0);
 	}	
 	public void MovePress(){
-		// When you hit that attack button
+		// When you hit that move button
 		print ("MOOOVE");
 		combat.HideBattleMenu ();
-		combat.actionToDo = "Move";
+		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
+		temp.init ("Move", combat.actionFrom);
+		combat.actionToDo = temp;
+
 		int[] pos = combat.actionFrom.battleLocation;
 		int MP = combat.actionFrom.MP;
 		combat.selectTargetLocation (pos[0],pos[1],MP);

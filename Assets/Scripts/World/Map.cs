@@ -2,6 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Map management for the square grid
+// Contains functions for range checks, line of sight (soon)
+// Manages initialization and evolution of MAP GRID UNIT resources.
+// has functions to help manage positions on the map (set in middle of tile, getTile..)
+// Changes MAP GRIUD UNIT colour for AoE selction
+/***********************************************************/
+
 public class Map : MonoBehaviour {
 	// Used to create a 2D grid of square tiles making up a map.  This class is used for both the world and combat map
 
@@ -116,6 +125,10 @@ public class Map : MonoBehaviour {
 		// Checks if [x1,z1] is within range of [x2,z2]
 		return (Mathf.Abs(x1-x2) + Mathf.Abs(z1-z2)) <= range;
 	}
+	public bool isOccupied(int x,int z){
+		return tiles [x, z].GetComponent<MapGridUnit> ().isOccupied;
+	}
+
 	public void selectRange(Vector3 pos, int range){
 		int[] posInt = getTileCoordsFromPos (pos);
 		int x = posInt [0];
@@ -142,6 +155,9 @@ public class Map : MonoBehaviour {
 				}
 			}
 		}
+	}
+	public void deSelectAll(){
+		//todo
 	}
 	/********************************************************************************************/
 	/******************************** Tile Position Management **********************************/

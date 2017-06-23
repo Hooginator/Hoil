@@ -2,6 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Dictates how the 3 outrer pieces rotate around the central piece for the basix enemy.
+// This will be attached to the prefab of each basic enemy following these animations.
+// I want to create a general "Character Animations" that each individual Animation will inherit from.
+// general animation will hold the level indicator and hold spots for the animation calls I'll need (death, attack, power up..)
+/***********************************************************/
+
 public class BasicEnemyAnimations : MonoBehaviour {
 	public GameObject sphere;
 	public Vector3 spherePos;
@@ -12,7 +20,10 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	public float targetDistance;
 	public Vector3 axisUp;
 	public float rotationSpeed;
+	public string animationType;
+	public int level;
 	// Use this for initialization
+	Quaternion rotation;
 	void Start () {
 		cubes = new GameObject[3];
 		sphere = gameObject.transform.GetChild(1).gameObject;
@@ -22,19 +33,36 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		targetDistance = 3;
 		axisUp = new Vector3 (0, 1, 0);
 		rotationSpeed = 50f;
+		rotation = Quaternion.identity;
+		rotation.eulerAngles = new Vector3(70, 0, 0);
+		animationType = "normal";
+
+		// Update display of level on the model
+		var gameMan = GameObject.Find ("GameManager");
+		if (gameMan.GetComponent<gameManager> ().checkInBattle()) {
+			// Don't display level when in battle (it makes things cluttered)
+			hideLevelIndicator ();
+		} else {
+			// Put the text of character's level above head in world map.
+			updateLevelIndicator ();
+
+		}
+
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update () { 
+		gameObject.transform.GetChild (0).rotation = rotation;
 		spherePos = sphere.transform.position;
-		for (int i = 0; i < 3; i++) {
-			// get relative position of 
-			//tempPos = cubes [i].transform.position - spherePos;
-			//print(tempPos.x.ToString()+"  ASDFGHJKL");
-			//tempPos = rotateClockwise(tempPos);
-
-			cubes [i].transform.RotateAround (spherePos, axisUp, rotationSpeed * Time.deltaTime);
-			//cubes [i].transform.position = tempPos + spherePos;
+		if (animationType == "normal") {
+			for (int i = 0; i < 3; i++) {
+				cubes [i].transform.RotateAround (spherePos, axisUp, rotationSpeed * Time.deltaTime);
+			}
+		} else if (animationType == "dying") {
+			for (int i = 0; i < 3; i++) {
+				cubes [i].transform.RotateAround (spherePos, axisUp, 3 * rotationSpeed * Time.deltaTime);
+				cubes [i].transform.RotateAround (spherePos, Random.insideUnitSphere, 3 * rotationSpeed * Time.deltaTime);
+			}
 		}
 	}
 	Vector3 rotateClockwise(Vector3 relativePos){
@@ -61,4 +89,24 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		pos = pos * targetDistance;
 		return pos;
 	}
+
+	// Update level indicator
+	public void updateLevelIndicator(){
+		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
+		//print ("Update level strings");
+		//levelText.SetActive(true);
+		levelText.GetComponent<MeshRenderer>().enabled = true;
+		levelText.GetComponent<TextMesh>().text = level.ToString ();
+		levelText.GetComponent<MeshRenderer>().enabled = true;
+	}
+	public void hideLevelIndicator(){
+		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
+		//levelText.SetActive (false);
+		levelText.GetComponent<MeshRenderer>().enabled = false;
+	}
+	public void updateLevel(int lvl){
+		level = lvl;
+		updateLevelIndicator ();
+	}
+
 }

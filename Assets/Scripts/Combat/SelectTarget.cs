@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/***********************************************************/
+// Custom version of BATTLE MENU that is used to display options in range, abilities / items to use...
+// Buttons trigger what is to be done via COMBAT TRACKER calls.
+/***********************************************************/
+
+
 public class SelectTarget : MonoBehaviour {
 	public List<Button> option  = new  List<Button>();
 	public CombatTracker combat;
@@ -12,6 +19,8 @@ public class SelectTarget : MonoBehaviour {
 	public GameObject prefabbutton;
 
 	public BattleMenu battlemenu;
+
+	public Ability AbilityToCast;
 
 	// Update is called once per frame
 	void Update () {
@@ -31,30 +40,35 @@ public class SelectTarget : MonoBehaviour {
 		battlemenu = battlemenu.GetComponent<BattleMenu>();
 	}
 	public void CreateAttackOptions(int nCharacters, List<CharacterClass> targets){//, List<CharacterClass> targets){
+		// Creates basic attack target options for the battle menu.  Will read each character fed in range and add their name as an option.
 		int targetNumber = 0;
 		for (int i = 0; i < nCharacters; i++) {
 			if (!targets [i].isDead) {
 				maxTargets = nCharacters;
+
+				// Create generic button option
 				GameObject temp = (GameObject)Instantiate (prefabbutton);
 				temp.transform.SetParent (TR, false);
+
+				// Set Text on the button to target's name
 				Text buttonText = temp.GetComponentInChildren<Text>();
 				buttonText.text = targets [i].name;
-				//option.Add (temp.GetComponent<Button> ());
+
+				// Place Button in unique location on screen
 				Vector3 pos = temp.transform.position;
 				pos [1] -= targetNumber * 30;
-				print (pos [1].ToString ());
 				temp.transform.position = pos;
-				//temp.onClick.AddListener (() => test (i));
-				//print ("Set for enemy" + i.ToString ());
+
+				// Add button to the list of options
 				option.Insert (targetNumber, temp.GetComponent<Button>());
-				// Need a tempi variable here for the int here to make sure each button has a different int (weird isue, I dunno kny really)
-				int tempi = i;
-				// Add a function to the button for when it's pressed
+
+				// Add an   {  AttackTarget (tempTarget);  }  function call to the button for when it is pressed
+				CharacterClass tempTarget = targets [i];
 				option [targetNumber].GetComponent<Button> ().onClick.AddListener (delegate {
-					AttackTarget (tempi);
+					AttackTarget (tempTarget);
 				});
-				// This way always has each button store the last value of i in it...
-				// option[i].GetComponent<Button>().onClick.AddListener (delegate{testtemp (i);});
+
+				// Stamp Collecting
 				//print (option [i].transform.position.ToString () + "   " + i.ToString () + "    " + option.Count.ToString ());
 				temp = null;
 				targetNumber++;
@@ -64,25 +78,28 @@ public class SelectTarget : MonoBehaviour {
 
 	public void CreateAbilityOptions(CharacterClass caster){
 		// Creates a list of casting abilities to use
-		List<string> abilities = caster.abilities;
+		List<Ability> abilities = caster.abilities;
 		for(int i = 0; i < abilities.Count; i++){
+			
 			// Create Button Object
 			GameObject temp = (GameObject)Instantiate (prefabbutton);
 			temp.transform.SetParent (TR, false);
-			/// Reneme Button
+
+			/// Rename Button
 			Text buttonText = temp.GetComponentInChildren<Text>();
-			buttonText.text = abilities [i];
+			buttonText.text = abilities [i].name;
 
 			// Reposition Buttons
 			Vector3 pos = temp.transform.position;
 			pos [1] -= i * 30;
-			print (pos [1].ToString ());
+			//print (pos [1].ToString ());
 			temp.transform.position = pos;
 
-
+			// Add button to the list of options
 			option.Insert (i, temp.GetComponent<Button>());
-			print (i.ToString () + "  " + combat.actionFrom.abilities [i]);
-			string tempAbility = abilities [i];
+
+			// Add a  {  DoAbility (tempAbility);  }   function call to the button for when it is pressed
+			Ability tempAbility = abilities [i];
 			option [i].GetComponent<Button> ().onClick.AddListener (delegate {
 				DoAbility (tempAbility);
 			});
@@ -94,31 +111,38 @@ public class SelectTarget : MonoBehaviour {
 
 
 	public void DestroyOptions(){
+		// Clear out the options used for selecting a target last time
 		for (int i = 0; i < option.Count; i++) {
 			Destroy (option [i].gameObject);
 		}
 		option.Clear ();
 	}
-	void AttackTarget(int num){
-		//print ("Clicked for enemy" + num.ToString ());
-		battlemenu.AttackTarget (num);
-	}
-	void DoAbility(string ability){
-
+	void AttackTarget(CharacterClass target){
+		// Now that we have selected a character, proceed with  the attack
 		combat.HideSelectMenu ();
-		print ("Doing ability " + ability);
+		combat.actionTo = target;
+		combat.doAction();
+	}
+	void DoAbility(Ability ability){
+		// Now that we have selected a character, proceed with  the ability cast
+		AbilityToCast = ability;
+		combat.HideSelectMenu ();
 		combat.actionToDo = ability;
 		int rangeBase = 0;
-		if (ability == "Fireball") {
+
+		// Decide on stats to use based on the ability name
+		// I might replace the choosing method to a dictionary  or something
+		if (ability.name == "Fireball") {
 			rangeBase = 4;
 			combat.areaRange = 3;
 			combat.selectTargetLocation (rangeBase);
-		}else if(ability == "Sniper Attack"){
+		}else if(ability.name == "Sniper Attack"){
 			// Change to individual target
 			rangeBase = 8;
+
+			combat.ShowSelectMenu (combat.getEnemiesInRange (rangeBase, "Player"));
 			combat.areaRange = 1;
-			combat.selectTargetLocation (rangeBase);
-		}else if(ability == "Heal Self"){
+		}else if(ability.name == "Heal Self"){
 			// Change select method to individual ally, or just fuck it
 			rangeBase = 0;
 			combat.selectTargetLocation (rangeBase);

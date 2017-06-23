@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Initializes teams, this can possibly be put elsewhere.
+/***********************************************************/
+
 public class WorldTracker : MonoBehaviour {
 
 	// Use this for initialization
