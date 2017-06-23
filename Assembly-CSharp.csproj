@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{5A8C83B0-22B3-04CD-A6BF-AE1D7BFE2A85}</ProjectGuid>
+    <ProjectGuid>{6529AEAC-C74F-0EA2-E814-5FED17E40D66}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -46,19 +46,28 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\BattleMenu.cs" />
+     <Compile Include="Assets\Scripts\BasicEnemyAnimations.cs" />
      <Compile Include="Assets\Scripts\CharacterClass.cs" />
-     <Compile Include="Assets\Scripts\CombatTracker.cs" />
-     <Compile Include="Assets\Scripts\EnemyBehavior.cs" />
-     <Compile Include="Assets\Scripts\Map.cs" />
-     <Compile Include="Assets\Scripts\MapGridUnit.cs" />
-     <Compile Include="Assets\Scripts\SelectTarget.cs" />
+     <Compile Include="Assets\Scripts\Combat\Ability.cs" />
+     <Compile Include="Assets\Scripts\Combat\BattleCameraControls.cs" />
+     <Compile Include="Assets\Scripts\Combat\BattleMenu.cs" />
+     <Compile Include="Assets\Scripts\Combat\CombatTracker.cs" />
+     <Compile Include="Assets\Scripts\Combat\FloatingText.cs" />
+     <Compile Include="Assets\Scripts\Combat\SelectTarget.cs" />
+     <Compile Include="Assets\Scripts\Explosions.cs" />
      <Compile Include="Assets\Scripts\StatusEffect.cs" />
      <Compile Include="Assets\Scripts\Team.cs" />
-     <Compile Include="Assets\Scripts\WorldCameraFollow.cs" />
-     <Compile Include="Assets\Scripts\WorldMovementControls.cs" />
-     <Compile Include="Assets\Scripts\WorldTracker.cs" />
+     <Compile Include="Assets\Scripts\World\EnemyBehavior.cs" />
+     <Compile Include="Assets\Scripts\World\Map.cs" />
+     <Compile Include="Assets\Scripts\World\MapGridUnit.cs" />
+     <Compile Include="Assets\Scripts\World\WorldCameraFollow.cs" />
+     <Compile Include="Assets\Scripts\World\WorldMovementControls.cs" />
+     <Compile Include="Assets\Scripts\World\WorldTracker.cs" />
      <Compile Include="Assets\Scripts\gameManager.cs" />
+     <Compile Include="Assets\Scripts\sceneManager.cs" />
+ <Reference Include="UnityEngine.Advertisements">
+ <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
+ </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
@@ -73,6 +82,9 @@
  </Reference>
  <Reference Include="UnityEngine.HoloLens">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Purchasing">
+ <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/UnityPurchasing/UnityEngine.Purchasing.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.VR">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>

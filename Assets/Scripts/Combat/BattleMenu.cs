@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/***********************************************************/
+// Shows the options at the start of one's turn or after completing or cancelling an action.
+// Most functions just refer to what's in the Combat Tracker.
+/***********************************************************/
+
 public class BattleMenu : MonoBehaviour {
 	// Options for Player Combat Main Menu
 	public Button Attack;
@@ -11,6 +17,8 @@ public class BattleMenu : MonoBehaviour {
 	public Button Run;
 
 	public CombatTracker combat;
+
+
 
 
 	/********************************************************************************************/ 
@@ -38,8 +46,32 @@ public class BattleMenu : MonoBehaviour {
 		//print ("ATTACKKKKK");
 		combat.HideBattleMenu ();
 		//combat.CreateSelectOptions ();
-		combat.ShowSelectMenu (combat.maxEnemyCharacters,combat.enemyCharacters);
+
+		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
+		temp.init ("Basic Attack", combat.actionFrom);
+		combat.actionToDo = temp;
+
+
+		List<CharacterClass> tempChars = combat.getEnemiesInRange (1, "Player");
+		if (tempChars != null) {
+			combat.HideBattleMenu ();
+			combat.ShowSelectMenu (tempChars);
+		} else {
+			print ("NOONE IN MELEE RANGE");
+		}
 		//combat.PlayerAttack(0,0);
+	}	
+	public void MovePress(){
+		// When you hit that move button
+		print ("MOOOVE");
+		combat.HideBattleMenu ();
+		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
+		temp.init ("Move", combat.actionFrom);
+		combat.actionToDo = temp;
+
+		int[] pos = combat.actionFrom.battleLocation;
+		int MP = combat.actionFrom.MP;
+		combat.selectTargetLocation (pos[0],pos[1],MP);
 	}
 	public void AttackTarget(int target){
 		//print ("Attacking Target: " + target.ToString ());
@@ -51,8 +83,15 @@ public class BattleMenu : MonoBehaviour {
 		//print ("Item");
 		combat.PlayerItem ();
 	}
+	public void EndTurnPress(){
+		// When you hit the Item Button
+		//print ("Item");
+		combat.PlayerEndTurn ();
+	}
 	public void SpecialPress(){
-		combat.selectTargetLocation (1,1,3);
+		combat.HideBattleMenu ();
+		combat.ShowAbilitiesMenu ();
+		//combat.selectTargetLocation (1,1,3);
 		// WHen you hit the Special Button
 		//print ("Special");
 		combat.PlayerSpecial ();

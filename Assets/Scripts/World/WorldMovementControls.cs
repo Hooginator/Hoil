@@ -2,8 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Lets you take control of the character on the World Map.  
+// Also does collisions and checks for battles starting
+/***********************************************************/
+
 public class WorldMovementControls : MonoBehaviour {
-	// Lets you take control of the character on the World Map.  
 
 	public float moveSpeed; // max Force that can be applied to object
 	public Rigidbody RB; // needed to apply forces to object.
@@ -59,7 +64,7 @@ public class WorldMovementControls : MonoBehaviour {
 		TR.position = gameManager.GetComponent<gameManager> ().playerMapPosition.position;
 		RB.angularVelocity = Vector3.zero;
 		RotationSpeed = 5;
-		moveSpeed = 20;
+		moveSpeed = 500;
 	}
 
 	/********************************************************************************************/ 
@@ -67,14 +72,14 @@ public class WorldMovementControls : MonoBehaviour {
 	/********************************************************************************************/
 
 	void OnCollisionEnter(Collision col){
-		print ("Collision at:  " + col.collider.transform.position.ToString ());
+		//print ("Collision at:  " + col.collider.transform.position.ToString ());
 		// Only if what we collided with was an enemy
 		if (col.gameObject.GetComponent<EnemyBehavior>() != null) {
 			// Find game manager as that has the loading and unloading functions
 			var gameManager = GameObject.Find ("GameManager");
 			// If we're not already in battle, load it up. 
 			if (gameManager.GetComponent<gameManager> ().inBattle != true) {
-				print ("Gonna Load Up Battle");
+				//print ("Gonna Load Up Battle");
 				gameManager.GetComponent<gameManager> ().StartBattle(col.gameObject);
 				//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
 			}

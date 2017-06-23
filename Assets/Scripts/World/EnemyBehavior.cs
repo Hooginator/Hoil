@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/***********************************************************/
+// Dictates the computer controlled enemy motions on the world map.
+// Also does management for starting battles on collisions and initializing
+/***********************************************************/
+
+
 public class EnemyBehavior : MonoBehaviour {
 	// Added to enemy units on the world map to control their behaviour
 	public float moveSpeed; // max Force that can be applied to object
@@ -43,21 +49,15 @@ public class EnemyBehavior : MonoBehaviour {
 			current = tempPos;
 			difference = current - target;
 			// If we are close enough to the target location, find a new target.
-			if (difference.magnitude < 0.0001) {
+			if (difference.magnitude < 0.01) {
 				NewTarget ();
 			}
 			// Move angle towards where eemy is going
 			Vector3 angle = Vector3.RotateTowards (TR.forward, difference, RotationSpeed, 2.0F);
 			// Apply angle
-			TR.rotation = Quaternion.LookRotation (angle);
+			//TR.rotation = Quaternion.LookRotation (angle);
 		}
 
-	}
-	// Update level indicator
-	public void updateLevelIndicator(){
-		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
-		print ("Update level strings");
-		levelText.GetComponent<TextMesh>().text = level.ToString ();
 	}
 
 	void NewTarget(){
@@ -78,8 +78,7 @@ public class EnemyBehavior : MonoBehaviour {
 
 	void Start () {
 		//level = Random.Range(3,25);
-		// Update display of level on the model
-		updateLevelIndicator ();
+
 		RB = GetComponent<Rigidbody> ();
 		TR = GetComponent<Transform> ();
 		current = TR.position;
@@ -105,7 +104,7 @@ public class EnemyBehavior : MonoBehaviour {
 				var gameManager = GameObject.Find ("GameManager");
 				// If we're not already in battle, load it up. 
 				if (gameManager.GetComponent<gameManager> ().inBattle != true) {
-					print ("Enemies hit each other!@#$!");
+					//print ("Enemies hit each other!@#$!");
 					isMoving = false;
 					doBattle (col.gameObject);
 					//gameManager.GetComponent<SceneManager> ().UnLoadScene ("Hoil");
@@ -119,18 +118,18 @@ public class EnemyBehavior : MonoBehaviour {
 		int enemylevel = enemy.GetComponent<EnemyBehavior> ().level;
 		var gameMan = GameObject.Find ("GameManager").GetComponent<gameManager> ();
 		if (enemylevel > level) {
-			print (team + " army loses D:");
+			//print (team + " army loses D:");
 			// Reduce level of team
 			gameMan.ReduceTeamLevel(level, team);
 			GameObject.Destroy (gameObject);
 		} else if (enemylevel > level) {
-			print (team + " army wins :D");
+			//print (team + " army wins :D");
 			// reduce level of enemy team
 			gameMan.ReduceTeamLevel(enemylevel, enemy.GetComponent<EnemyBehavior> ().team);
 			GameObject.Destroy (enemy);
 		} else {
 			// Still locks enemy movement, I will add to this later
-			print ("tie game");
+			//print ("tie game");
 		}
 	}
 

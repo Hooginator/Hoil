@@ -2,6 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Map management for the square grid
+// Contains functions for range checks, line of sight (soon)
+// Manages initialization and evolution of MAP GRID UNIT resources.
+// has functions to help manage positions on the map (set in middle of tile, getTile..)
+// Changes MAP GRIUD UNIT colour for AoE selction
+/***********************************************************/
+
 public class Map : MonoBehaviour {
 	// Used to create a 2D grid of square tiles making up a map.  This class is used for both the world and combat map
 
@@ -77,8 +86,8 @@ public class Map : MonoBehaviour {
 		// Apply Colour to each tile
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
-				print (x.ToString () + "  " + NcellX.ToString ());
-				print (z.ToString () + "  " + NcellZ.ToString ());
+				//print (x.ToString () + "  " + NcellX.ToString ());
+				//print (z.ToString () + "  " + NcellZ.ToString ());
 				tiles [x, z].GetComponent<MapGridUnit> ().reColour ();
 			}
 		}
@@ -96,7 +105,7 @@ public class Map : MonoBehaviour {
 			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
 				if (isIntInBoundaries (i+x, j+z)) {
 					tiles [i+x, j+z].GetComponent<MapGridUnit> ().setInRange ();
-					print ("HERE I AM <<<<<<<<");
+					//print ("HERE I AM <<<<<<<<");
 				}
 			}
 		}
@@ -112,9 +121,44 @@ public class Map : MonoBehaviour {
 		}
 	}
 
+	public bool isInRange(int x1, int z1, int x2, int z2, int range ){
+		// Checks if [x1,z1] is within range of [x2,z2]
+		return (Mathf.Abs(x1-x2) + Mathf.Abs(z1-z2)) <= range;
+	}
+	public bool isOccupied(int x,int z){
+		return tiles [x, z].GetComponent<MapGridUnit> ().isOccupied;
+	}
 
-
-
+	public void selectRange(Vector3 pos, int range){
+		int[] posInt = getTileCoordsFromPos (pos);
+		int x = posInt [0];
+		int z = posInt [1];
+		for (int i = -range; i < range+1; i++){
+			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
+				if (isIntInBoundaries (i+x, j+z)) {
+					tiles [i+x, j+z].GetComponent<MapGridUnit> ().Select ();
+					//print ("HERE I AM <<<<<<<<");
+				}
+			}
+		}
+		tiles [x, z].GetComponent<MapGridUnit> ().centralSelect ();
+	}
+	public void deSelectRange(Vector3 pos, int range){
+		int[] posInt = getTileCoordsFromPos (pos);
+		int x = posInt [0];
+		int z = posInt [1];
+		for (int i = -range; i < range+1; i++){
+			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
+				if (isIntInBoundaries (i+x, j+z)) {
+					tiles [i+x, j+z].GetComponent<MapGridUnit> ().reColour ();
+					//print ("HERE I AM <<<<<<<<");
+				}
+			}
+		}
+	}
+	public void deSelectAll(){
+		//todo
+	}
 	/********************************************************************************************/
 	/******************************** Tile Position Management **********************************/
 	/********************************************************************************************/
@@ -123,7 +167,7 @@ public class Map : MonoBehaviour {
 		// returns the GameObject of the Tile which is under position given
 		//print("Get Tile From Pos");
 		int[] posInt = getTileCoordsFromPos(pos);
-		print (posInt[0].ToString () + "  " + posInt[1].ToString ());
+		//print (posInt[0].ToString () + "  " + posInt[1].ToString ());
 		return tiles [posInt[0], posInt[1]];
 	}
 	public int[] getTileCoordsFromPos(Vector3 pos){
@@ -145,11 +189,21 @@ public class Map : MonoBehaviour {
 		// Returns the integer distence between two locations.
 		int[] posInt1 = getTileCoordsFromPos (pos1);
 		int[] posInt2 = getTileCoordsFromPos (pos2);
-		return (Mathf.Abs (posInt1 [0] - posInt1 [1]) + Mathf.Abs (posInt2 [0] - posInt2 [1]));
+		return (Mathf.Abs (posInt1 [0] - posInt2 [0]) + Mathf.Abs (posInt1 [1] - posInt2 [1]));
+	}
+	public int getIntDistanceFromCoords(int[] pos1, int[] pos2){
+		// Returns the integer distence between two locations.
+		return (Mathf.Abs (pos1 [0] - pos2 [0]) + Mathf.Abs (pos1 [1] - pos2 [1]));
 	}
 	public Vector3 getPosFromCoords(int x, int z){
 		// Returns the central position of a tile based on int inputs
 		return tiles [x,z].transform.position;
+	}
+	public Vector3 getAbovePosFromCoords(int x, int z){
+		// Returns the central position of a tile based on int inputs
+		Vector3 temp =  tiles [x,z].transform.position;
+		temp [1] = 5;
+		return temp;
 	}
 
 
@@ -169,7 +223,7 @@ public class Map : MonoBehaviour {
 
 	public Vector3 ForceInsideBoundaries(Vector3 pos){
 		// takes a vector and places it barely within the borders if it is outside.
-		print("Force "+pos.ToString()+ " inside " + Xmax.ToString()+" "+Xmin.ToString());
+		//print("Force "+pos.ToString()+ " inside " + Xmax.ToString()+" "+Xmin.ToString());
 		if (pos [0] < Xmin) {
 			pos [0] = Xmin;
 		} else if (pos [0] > Xmax) {

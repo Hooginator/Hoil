@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/***********************************************************/
+// Tracks the world map teams and manages their growth / decay
+// Spawns individual enemies near the base.
+/***********************************************************/
+
 public class Team : MonoBehaviour {
 	public GameObject mainBase;
 	public int power;
@@ -84,6 +89,7 @@ public class Team : MonoBehaviour {
 		tempBehave.level = lvl;
 		tempBehave.prefab = enemyPrefab;
 		tempBehave.team = teamName;
+		tempArmy.GetComponent<BasicEnemyAnimations> ().updateLevel (lvl);
 		armies.Add (tempArmy);
 	}
 
@@ -96,7 +102,7 @@ public class Team : MonoBehaviour {
 	void Update () {
 		// Every so often add to a bases power level
 		if (Time.frameCount % 300 == 20) {
-			print ("Add to level");
+			//print ("Add to level");
 			level += 1;
 			updateLevelIndicator ();
 		}
@@ -106,7 +112,7 @@ public class Team : MonoBehaviour {
 	public void updateLevelIndicator(){
 		// As of now Army Text HAS to be the first child element in the base game object.
 		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
-		print ("Update team level strings");
+		//print ("Update team level strings");
 		levelText.GetComponent<TextMesh>().text = level.ToString ();
 	}
 }

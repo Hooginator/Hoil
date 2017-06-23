@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/***********************************************************/
+// Individual unit used to generate square map
+// Has three resources whifch diuctate tile colour (RGB)
+// Has some functions to help adjust colour for selecting AOE tiles
+/***********************************************************/
+
 public class MapGridUnit : MonoBehaviour {
 	// Class added to individual tiles of the map and housing their individual parameters.
 	public float[] resources;// array of resource value of grid
@@ -11,6 +18,7 @@ public class MapGridUnit : MonoBehaviour {
 	public Renderer rend;
 	public int reduceSaturation; // max saturation for a grid unit
 	public bool inRangeColoured;
+	public bool isOccupied;
 
 	// Update is called once per frame 
 	void Update () {
@@ -47,6 +55,8 @@ public class MapGridUnit : MonoBehaviour {
 		if(uniqueResources >= 3){
 			rend.material.color = new Color((int) (resources[0]/(maxResources-reduceSaturation)),(int) (resources[1]/maxResources),0,255);
 		}
+		// We will assume at first that noone is in the grid unit.
+		isOccupied = false;
 	}
 
 	/********************************************************************************************/
@@ -61,9 +71,9 @@ public class MapGridUnit : MonoBehaviour {
 			// Colour the tiles that are in range for your action Orange
 			rend.material.color = new Color (0.9f,0.4f,0f, 255);
 		} else {
-			if (uniqueResources >= 3) {
+			/*if (uniqueResources >= 3) {
 				rend.material.color = new Color (resources [0] / maxResources, resources [1] / maxResources, resources [2] / maxResources, 255);
-			}
+			}*/
 			if (uniqueResources == 2) {
 				rend.material.color = new Color ((resources [0] / (maxResources - reduceSaturation)), 0, resources [1] / (maxResources - reduceSaturation), 255);
 			}
@@ -72,7 +82,10 @@ public class MapGridUnit : MonoBehaviour {
 
 	public void Select(){
 		// Colour the square green to show it is selected
-		rend.material.color = new Color(0,1,0,255);
+		rend.material.color = new Color (rend.material.color[0], 0.5f, rend.material.color[2], 255);
+	}
+	public void centralSelect(){
+		rend.material.color = new Color (rend.material.color[0], 1, rend.material.color[2], 255);
 	}
 
 	public void setInRange(){
