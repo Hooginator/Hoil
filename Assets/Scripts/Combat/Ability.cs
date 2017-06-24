@@ -74,11 +74,13 @@ public class Ability : ScriptableObject{
 	public void doAnimation(CharacterClass target){
 		// reserved for solo animations 
 	}
-	public void doAnimation(Vector3 pos){
+	public void doAnimation(Vector3 startPos, Vector3 stopPos){
 		// Do animation at position
 		if (name == "Fireball") {
-			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("Basic Explosion"));
-			temp.transform.position = pos;
+			//GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("Basic Explosion"));
+			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
+			temp.transform.position = startPos;
+			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos);
 		} else {
 		}
 	}

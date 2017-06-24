@@ -561,7 +561,7 @@ public class CombatTracker : MonoBehaviour {
 						killCharacter(targetsToDo [i]);
 					};
 				}
-				actionToDo.doAnimation (map.getAbovePosFromCoords (coords [0], coords [1]));
+				actionToDo.doAnimation (actionFrom.battleAvatar.transform.position,  map.getAbovePosFromCoords (coords [0], coords [1]));
 			}
 
 			actionToDo = null;
