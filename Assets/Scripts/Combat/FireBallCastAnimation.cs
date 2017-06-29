@@ -44,6 +44,7 @@ public class FireBallCastAnimation : MonoBehaviour {
 
 			if (t > 60) {
 				currentStage = "Landing";
+
 			}
 		}
 
