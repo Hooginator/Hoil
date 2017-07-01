@@ -9,6 +9,7 @@ public class FireBallCastAnimation : MonoBehaviour {
 	int t;
 	float travelDistance;
 	int travelTime;
+	int castTime;
 	float distPerFrame;
 	Vector3 currentPos;
 	Vector3 start;
@@ -26,8 +27,10 @@ public class FireBallCastAnimation : MonoBehaviour {
 		currentStage = "Conjuring";
 		t = 0;
 		travelDistance = Vector3.Distance (startPos, stopPos);
+		castTime = 30;
 		travelTime = 30;
 		distPerFrame = travelDistance / travelTime;
+		reColour(new Color(1,1,0));
 	}
 	
 	// Update is called once per frame
@@ -35,22 +38,29 @@ public class FireBallCastAnimation : MonoBehaviour {
 		t++;
 		if (currentStage == "Conjuring") {
 			// Do conjuring animation
-			if (t > 30) {
+			if (t > castTime) {
 				currentStage = "Traveling";
 			}
 		}else if (currentStage == "Traveling") {
 			currentPos = Vector3.MoveTowards(currentPos, stop, distPerFrame);
 
 
-			if (t > 60) {
+			if (t > castTime + travelTime) {
 				currentStage = "Landing";
 
 			}
 		}
-
-
-
 		TR.position = currentPos;
+	}
+
+	void reColour(Color newColour){
+		bool done = false;
+		int i = 0;
+		foreach (Transform tempTR in TR){
+			var temp = tempTR.GetComponent<ParticleSystem> ().main;
+			temp.startColor = newColour;
+			i++;
+		}
 	}
 
 
