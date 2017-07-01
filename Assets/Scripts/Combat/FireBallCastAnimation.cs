@@ -82,7 +82,7 @@ public class FireBallCastAnimation : MonoBehaviour {
 		TR.position = currentPos;
 	}
 
-	void reColour(Color newColour){
+	public void reColour(Color newColour){
 		bool done = false;
 		int i = 0;
 		foreach (Transform tempTR in TR){

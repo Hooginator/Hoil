@@ -81,6 +81,7 @@ public class Ability : ScriptableObject{
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
 			temp.transform.position = startPos;
 			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos);
+			temp.GetComponent<FireBallCastAnimation> ().reColour(new Color (1, 0.5f, 0.5f, 1));
 		} else {
 		}
 	}
