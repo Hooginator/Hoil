@@ -45,6 +45,14 @@ public class Ability : ScriptableObject{
 			targets = "Enemy";
 			targetingType = "Area";
 			break;
+		case "Iceball":
+			baseRange = 8;
+			AoERange = 4;
+			baseDamage = 20;
+			damageType = "Ice";
+			targets = "Enemy";
+			targetingType = "Area";
+			break;
 		case "Sniper Attack":
 			baseRange = 7;
 			AoERange = 0;
@@ -82,7 +90,12 @@ public class Ability : ScriptableObject{
 			temp.transform.position = startPos;
 			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[0] );
 			//temp.GetComponent<FireBallCastAnimation> ().reColour(new Color (1, 0.5f, 0.5f, 1));
-		} else {
+		} else if (name == "Iceball") {
+			// recolour of fireball
+			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
+			temp.transform.position = startPos;
+			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[1] );
+			//temp.GetComponent<FireBallCastAnimation> ().reColour(new Color (1, 0.5f, 0.5f, 1));
 		}
 	}
 

@@ -148,6 +148,14 @@ public class gameManager : MonoBehaviour {
 		temp.init (tempColour,"Fire");
 		colourPalettes.Add (temp);
 		temp = null;
+		tempColour = null;
+		temp = new ColourPalette();
+		tempColour = new List<Color>();
+		tempColour.Add (new Color (0.1f, 0.1f, 0.9f));
+		tempColour.Add (new Color (0.2f,0.4f,0.8f));
+		tempColour.Add (new Color (0.0f,0.3f,0.7f));
+		temp.init (tempColour,"Ice");
+		colourPalettes.Add (temp);
 	}
 
 	/********************************************************************************************/ 
