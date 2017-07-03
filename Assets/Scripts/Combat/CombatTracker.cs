@@ -364,11 +364,21 @@ public class CombatTracker : MonoBehaviour {
 				break;
 			}
 		}
+		checkDead ();
+		if (checkEndBattle ()) {
+			EndBattle (experienceEarned);
+		}
 		if(actionFrom == null){
 			endTurn ();
 		} else {
-			startCharacterTurn ();
+			StartCoroutine(startCharacterTurnIn (1.0f));
 		}
+	}
+
+	IEnumerator startCharacterTurnIn(float t){
+		// Gives animations a second to go off before starting next turn
+		yield return new WaitForSeconds (t);
+		startCharacterTurn ();
 	}
 
 	void startCharacterTurn(){

@@ -88,13 +88,13 @@ public class Ability : ScriptableObject{
 			//GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("Basic Explosion"));
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
 			temp.transform.position = startPos;
-			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[0] );
+			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[0] ,AoERange);
 			//temp.GetComponent<FireBallCastAnimation> ().reColour(new Color (1, 0.5f, 0.5f, 1));
 		} else if (name == "Iceball") {
 			// recolour of fireball
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
 			temp.transform.position = startPos;
-			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[1] );
+			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[1] ,AoERange);
 			//temp.GetComponent<FireBallCastAnimation> ().reColour(new Color (1, 0.5f, 0.5f, 1));
 		}
 	}

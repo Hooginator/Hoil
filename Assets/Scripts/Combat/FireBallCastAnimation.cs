@@ -16,6 +16,7 @@ public class FireBallCastAnimation : MonoBehaviour {
 	float castTime;
 	float travelTime;
 	float distPerFrame;
+	int areaSize;
 	Vector3 currentPos;
 	Vector3 start;
 	Vector3 stop;
@@ -23,16 +24,17 @@ public class FireBallCastAnimation : MonoBehaviour {
 	void Start () {
 		TR = this.transform;
 	}
-	public void init(Vector3 startPos, Vector3 stopPos, ColourPalette colourPalette){
+	public void init(Vector3 startPos, Vector3 stopPos, ColourPalette colourPalette,int size){
 		TR = this.transform;
 		start = startPos;
 		stop = stopPos;
+		areaSize = size;
 		currentPos = startPos;
 		TR.position = currentPos;
 		currentStage = "Conjuring";
 		t = 0;
 		travelDistance = Vector3.Distance (startPos, stopPos);
-		castFrames = 130;
+		castFrames = 30;
 		travelFrames = 30;
 		castTime = castFrames * Time.deltaTime;
 		travelTime = travelFrames * Time.deltaTime;
@@ -65,6 +67,9 @@ public class FireBallCastAnimation : MonoBehaviour {
 			} else if (tempTR.CompareTag ("landing")) {
 				tempPS.Stop ();
 				temp.startDelay = castTime + travelTime;
+				float oldSpeed = temp.startSpeed.constant;
+				// Adjust explosion radius
+				temp.startSpeed = oldSpeed * Mathf.Pow( size,1.2f);
 				tempPS.Play ();
 				temp.startColor = colourPalette.getColour (landingCount);
 				landingCount++;
