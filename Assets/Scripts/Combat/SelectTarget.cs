@@ -22,6 +22,7 @@ public class SelectTarget : MonoBehaviour {
 
 	public Ability AbilityToCast;
 
+
 	// Update is called once per frame
 	void Update () {
 
@@ -67,6 +68,7 @@ public class SelectTarget : MonoBehaviour {
 				option [targetNumber].GetComponent<Button> ().onClick.AddListener (delegate {
 					AttackTarget (tempTarget);
 				});
+				option [targetNumber].GetComponent<ButtonManager> ().pos = targets[i].battleLocation;
 
 				// Stamp Collecting
 				//print (option [i].transform.position.ToString () + "   " + i.ToString () + "    " + option.Count.ToString ());
@@ -101,6 +103,7 @@ public class SelectTarget : MonoBehaviour {
 			// Add a  {  DoAbility (tempAbility);  }   function call to the button for when it is pressed
 			Ability tempAbility = abilities [i];
 			option [i].GetComponent<Button> ().onClick.AddListener (delegate {
+				//UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
 				DoAbility (tempAbility);
 			});
 		};
@@ -129,14 +132,14 @@ public class SelectTarget : MonoBehaviour {
 		combat.HideSelectMenu ();
 		combat.actionToDo = ability;
 		int rangeBase = 0;
-
+		combat.map.deSelectAll();
 		// Decide on stats to use based on the ability name
 		// I might replace the choosing method to a dictionary  or something
 		if (ability.targetingType == "Area") {
 			combat.areaRange = ability.AoERange;
 			combat.selectTargetLocation (ability.baseRange);
 		} else if (ability.targetingType == "Single") {
-			combat.ShowSelectMenu (combat.getEnemiesInRange (rangeBase, "Player"));
+			combat.ShowSelectMenu (combat.getEnemiesInRange (ability.baseRange, "Player"));
 		}
 		combat.selectingRange = ability.baseRange;
 

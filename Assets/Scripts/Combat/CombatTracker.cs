@@ -352,6 +352,8 @@ public class CombatTracker : MonoBehaviour {
 
 	void endCharacterTurn(){
 		//currentTurnCharacters.Remove (actionFrom);
+
+		map.deSelectAll();
 		actionFrom.turnTaken = true;
 		areaRange = 0;
 		print (currentTurnCharacters.ToString ());

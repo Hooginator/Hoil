@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\BasicEnemyAnimations.cs" />
+     <Compile Include="Assets\Scripts\ButtonManager.cs" />
      <Compile Include="Assets\Scripts\CharacterClass.cs" />
      <Compile Include="Assets\Scripts\ColourPalette.cs" />
      <Compile Include="Assets\Scripts\Combat\Ability.cs" />
