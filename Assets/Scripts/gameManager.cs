@@ -37,6 +37,7 @@ public class gameManager : MonoBehaviour {
 
 	public List<CharacterClass> combatants;
 
+	public List<ColourPalette> colourPalettes = new List<ColourPalette>();
 
 	//public Vector3 startPosition = new Vector3(60,2,-10);
 
@@ -105,6 +106,9 @@ public class gameManager : MonoBehaviour {
 				WMC.moveSpeed = 20;
 				WMC.RotationSpeed = 1;
 
+			// Initialize colour palettes
+			initializeColourPalette();
+
 			if (sceneName == "Hoil") {
 				InitializeWorld ();
 			} else if (sceneName == "Battle") {
@@ -132,6 +136,18 @@ public class gameManager : MonoBehaviour {
 		// Out for now as this references the main base which gets destroyed... might need to add that to the do not destroy list
 		//teams [0].spawnEnemies ();
 		//teams [1].spawnEnemies ();
+	}
+
+	public void initializeColourPalette(){
+		// Red fireball stuff
+		ColourPalette temp = new ColourPalette();
+		List<Color> tempColour = new List<Color>();
+		tempColour.Add (new Color (0.6f, 0.1f, 0.1f));
+		tempColour.Add (new Color (0.7f,0.5f,0.5f));
+		tempColour.Add (new Color (0.8f,0.3f,0.3f));
+		temp.init (tempColour,"Fire");
+		colourPalettes.Add (temp);
+		temp = null;
 	}
 
 	/********************************************************************************************/ 

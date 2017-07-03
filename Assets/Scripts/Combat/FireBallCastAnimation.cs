@@ -23,7 +23,7 @@ public class FireBallCastAnimation : MonoBehaviour {
 	void Start () {
 		TR = this.transform;
 	}
-	public void init(Vector3 startPos, Vector3 stopPos){
+	public void init(Vector3 startPos, Vector3 stopPos, ColourPalette colourPalette){
 		TR = this.transform;
 		start = startPos;
 		stop = stopPos;
@@ -38,15 +38,36 @@ public class FireBallCastAnimation : MonoBehaviour {
 		travelTime = travelFrames * Time.deltaTime;
 		distPerFrame = travelDistance / travelFrames;
 		//reColour(new Color(1,1,0));
+
+		// Loop through all parts of the animation and change their starting time based on the calculated travel time
+		// I will add the recolouring here as well 
+		int auraCount = 0;
+		int travelCount = 0;
+		int landingCount = 0;
 		foreach (Transform tempTR in TR) {
-			var temp = tempTR.GetComponent<ParticleSystem> ().main;
+			var tempPS = tempTR.GetComponent<ParticleSystem> ();
+			var temp = tempPS.main;
+
 			if (tempTR.CompareTag ("aura")) {
+				// Must stop particle system animation to change duration
+				tempPS.Stop ();
 				temp.duration = castTime;
+				tempPS.Play ();
+				temp.startColor = colourPalette.getColour (auraCount);
+				auraCount++;
 			} else if (tempTR.CompareTag ("travel")) {
+				tempPS.Stop ();
 				temp.startDelay = castTime;
 				temp.duration = travelTime;
+				tempPS.Play ();
+				temp.startColor = colourPalette.getColour (travelCount);
+				travelCount++;
 			} else if (tempTR.CompareTag ("landing")) {
+				tempPS.Stop ();
 				temp.startDelay = castTime + travelTime;
+				tempPS.Play ();
+				temp.startColor = colourPalette.getColour (landingCount);
+				landingCount++;
 			}
 		}
 		// Rotation
