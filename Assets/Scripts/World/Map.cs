@@ -136,12 +136,18 @@ public class Map : MonoBehaviour {
 		for (int i = -range; i < range+1; i++){
 			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
 				if (isIntInBoundaries (i+x, j+z)) {
-					tiles [i+x, j+z].GetComponent<MapGridUnit> ().Select ();
+					selectRangeUnit(i+x, j+z);
 					//print ("HERE I AM <<<<<<<<");
 				}
 			}
 		}
-		tiles [x, z].GetComponent<MapGridUnit> ().centralSelect ();
+		selectCentralUnit(x,z);
+	}
+	public void selectRangeUnit(int i,int j){
+		tiles [i, j].GetComponent<MapGridUnit> ().Select ();
+	}
+	public void selectCentralUnit(int i,int j){
+		tiles [i, j].GetComponent<MapGridUnit> ().centralSelect ();
 	}
 	public void deSelectRange(Vector3 pos, int range){
 		int[] posInt = getTileCoordsFromPos (pos);
@@ -150,14 +156,25 @@ public class Map : MonoBehaviour {
 		for (int i = -range; i < range+1; i++){
 			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
 				if (isIntInBoundaries (i+x, j+z)) {
-					tiles [i+x, j+z].GetComponent<MapGridUnit> ().reColour ();
+					deSelectUnit(i+x, j+z);
 					//print ("HERE I AM <<<<<<<<");
 				}
 			}
 		}
 	}
+	public void deSelectUnit(int i, int j){
+		tiles [i, j].GetComponent<MapGridUnit> ().reColour ();
+	}
+	public void deSelectUnit(int[] i){
+		deSelectUnit (i [0], i [1]);
+	}
 	public void deSelectAll(){
-		//todo
+		print ("deseletgin");
+		for (int i = 0; i < NcellZ; i++) {
+			for (int j = 0; j < NcellX; j++) {
+				deSelectUnit (i, j);
+			}
+		}
 	}
 	/********************************************************************************************/
 	/******************************** Tile Position Management **********************************/

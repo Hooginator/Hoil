@@ -54,7 +54,7 @@ public class Ability : ScriptableObject{
 			targetingType = "Area";
 			break;
 		case "Sniper Attack":
-			baseRange = 7;
+			baseRange = 20;
 			AoERange = 0;
 			baseDamage = 80;
 			damageType = "Pierce";
