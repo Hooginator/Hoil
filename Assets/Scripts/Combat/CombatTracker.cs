@@ -73,6 +73,7 @@ public class CombatTracker : MonoBehaviour {
 	// boolean for whether we are locked into the selection for who is going (say after they have done an action)
 	public bool actionFromLocked;
 
+	public List<ColourPalette> colourPalettes = new List<ColourPalette>();
 
 	/********************************************************************************************/ 
 	/**************************************** Upkeep ********************************************/ 
@@ -249,7 +250,7 @@ public class CombatTracker : MonoBehaviour {
 			}
 
 		}
-			
+		colourPalettes = gameManager.colourPalettes;	
 		// Set initial character positions
 		setInitialPositions();
 
@@ -363,11 +364,21 @@ public class CombatTracker : MonoBehaviour {
 				break;
 			}
 		}
+		checkDead ();
+		if (checkEndBattle ()) {
+			EndBattle (experienceEarned);
+		}
 		if(actionFrom == null){
 			endTurn ();
 		} else {
-			startCharacterTurn ();
+			StartCoroutine(startCharacterTurnIn (1.0f));
 		}
+	}
+
+	IEnumerator startCharacterTurnIn(float t){
+		// Gives animations a second to go off before starting next turn
+		yield return new WaitForSeconds (t);
+		startCharacterTurn ();
 	}
 
 	void startCharacterTurn(){
@@ -561,7 +572,7 @@ public class CombatTracker : MonoBehaviour {
 						killCharacter(targetsToDo [i]);
 					};
 				}
-				actionToDo.doAnimation (map.getAbovePosFromCoords (coords [0], coords [1]));
+				actionToDo.doAnimation (actionFrom.battleAvatar.transform.position,  map.getAbovePosFromCoords (coords [0], coords [1]),colourPalettes);
 			}
 
 			actionToDo = null;

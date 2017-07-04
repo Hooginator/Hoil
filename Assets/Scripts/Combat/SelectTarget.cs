@@ -124,7 +124,7 @@ public class SelectTarget : MonoBehaviour {
 		combat.doAction();
 	}
 	void DoAbility(Ability ability){
-		// Now that we have selected a character, proceed with  the ability cast
+		// Now that we have selected a character, proceed with  the ability location / target select
 		AbilityToCast = ability;
 		combat.HideSelectMenu ();
 		combat.actionToDo = ability;
@@ -132,7 +132,16 @@ public class SelectTarget : MonoBehaviour {
 
 		// Decide on stats to use based on the ability name
 		// I might replace the choosing method to a dictionary  or something
-		if (ability.name == "Fireball") {
+		if (ability.targetingType == "Area") {
+			combat.areaRange = ability.AoERange;
+			combat.selectTargetLocation (ability.baseRange);
+		} else if (ability.targetingType == "Single") {
+			combat.ShowSelectMenu (combat.getEnemiesInRange (rangeBase, "Player"));
+		}
+		combat.selectingRange = ability.baseRange;
+
+		// Old way, delete later
+		/*if (ability.name == "Fireball") {
 			rangeBase = 4;
 			combat.areaRange = 3;
 			combat.selectTargetLocation (rangeBase);
@@ -146,8 +155,8 @@ public class SelectTarget : MonoBehaviour {
 			// Change select method to individual ally, or just fuck it
 			rangeBase = 0;
 			combat.selectTargetLocation (rangeBase);
-		}
-		combat.selectingRange = rangeBase;
+		}*/
+		//rangeBase = ability.baseRange;
 		//combat.selectTargetLocation (rangeBase);
 	}
 

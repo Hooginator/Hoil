@@ -76,15 +76,15 @@ public class FloatingText : MonoBehaviour {
 	void checkColor(){
 		// Dictates which colour to use based on the damage type
 		if (damageType == "Fire") {
-			textColor = new Color (255, 100, 100, 1);
+			textColor = new Color (0.9f, 0.2f, 0.2f, 1);
 		} else if (damageType == "Ice") {
-			textColor = new Color (200, 200, 255, 1);
+			textColor = new Color (0.5f, 0.5f, 0.9f, 1);
 		} else if (damageType == "Toxic") {
-			textColor = new Color (100, 255, 100, 1);
+			textColor = new Color (0.2f, 0.9f, 0.2f, 1);
 		} else if (damageType == "Electric") {
-			textColor = new Color (100, 100, 255, 1);
+			textColor = new Color (0.1f, 0.1f, 0.9f, 1);
 		} else {
-			textColor = new Color (255, 255, 255, 1);
+			textColor = new Color (0.9f, 0.9f, 0.9f, 1);
 		}
 	}
 }
