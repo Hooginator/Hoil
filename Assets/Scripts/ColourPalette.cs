@@ -20,7 +20,6 @@ public class ColourPalette : ScriptableObject {
 
 	public Color getColour(int i){
 		// Gives out colours in order
-		//MonoBehaviour.print("colour Number:   "+i.ToString()+" of "+count.ToString());
 		return colourList [i % count];
 	}
 

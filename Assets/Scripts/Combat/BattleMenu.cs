@@ -57,13 +57,13 @@ public class BattleMenu : MonoBehaviour {
 			combat.HideBattleMenu ();
 			combat.ShowSelectMenu (tempChars);
 		} else {
-			print ("NOONE IN MELEE RANGE");
+			Debug.Log ("NOONE IN MELEE RANGE");
 		}
 		//combat.PlayerAttack(0,0);
 	}	
 	public void MovePress(){
 		// When you hit that move button
-		print ("MOOOVE");
+		// print ("MOOOVE");
 		combat.HideBattleMenu ();
 		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
 		temp.init ("Move", combat.actionFrom);
