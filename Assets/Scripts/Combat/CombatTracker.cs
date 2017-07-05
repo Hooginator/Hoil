@@ -282,7 +282,7 @@ public class CombatTracker : MonoBehaviour {
 			ShowBattleMenu ();
 		} else {
 			print ("Continue enemy turn");
-			endCharacterTurn ();
+			continueComputerCharacterTurn ();
 		}
 	}
 
@@ -456,12 +456,27 @@ public class CombatTracker : MonoBehaviour {
 		actionToDo = temp;
 		// Move to a random location
 		int tempInt = Random.Range(-actionFrom.MP,actionFrom.MP);
-		print ("Random Number x"+tempInt.ToString ());
 		coords [0] = actionFrom.battleLocation [0] + tempInt;
 		coords [1] = actionFrom.battleLocation [1] + Random.Range(-actionFrom.MP + Mathf.Abs(tempInt),actionFrom.MP - Mathf.Abs(tempInt));
-		if (map.isIntInBoundaries (coords [0], coords [1]) && !map.isOccupied(coords [0], coords [1])) {
+		if (map.isIntInBoundaries (coords [0], coords [1]) && !map.isOccupied (coords [0], coords [1])) {
 			doAction ();
 		} else {
+			// Do post movement part of turn
+			continueComputerCharacterTurn ();
+		}
+	}
+	void continueComputerCharacterTurn(){
+		// The part of the turn after computer moves.
+		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
+		temp.init ("Fireball", actionFrom);
+		actionToDo = temp;
+		int tempInt = Random.Range(-temp.baseRange,temp.baseRange);
+		coords [0] = actionFrom.battleLocation [0] + tempInt;
+		coords [1] = actionFrom.battleLocation [1] + Random.Range(-temp.baseRange + Mathf.Abs(tempInt),temp.baseRange - Mathf.Abs(tempInt));
+		if (map.isIntInBoundaries (coords [0], coords [1])) {
+			doAction ();
+		} else {
+			// Do post movement part of turn
 			endCharacterTurn ();
 		}
 	}
