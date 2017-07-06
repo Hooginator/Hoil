@@ -18,7 +18,9 @@ public class FireBallCastAnimation : MonoBehaviour {
 	float distPerFrame;
 	int areaSize;
 	Vector3 currentPos;
-	Vector3 start;
+	Vector3 casterPos;
+	// conjuringPos For where a fireball would emerge, not right on the caster.
+	Vector3 conjuringPos;
 	Vector3 stop;
 	// Use this for initialization
 	void Start () {
@@ -26,10 +28,11 @@ public class FireBallCastAnimation : MonoBehaviour {
 	}
 	public void init(Vector3 startPos, Vector3 stopPos, ColourPalette colourPalette,int size){
 		TR = this.transform;
-		start = startPos;
+		casterPos = startPos;
 		stop = stopPos;
+		conjuringPos = Vector3.MoveTowards (casterPos, stopPos, 0.5f);
 		areaSize = size;
-		currentPos = startPos;
+		currentPos = startPos; 
 		TR.position = currentPos;
 		currentStage = "Conjuring";
 		t = 0;
@@ -92,6 +95,7 @@ public class FireBallCastAnimation : MonoBehaviour {
 			// Do conjuring animation
 			if (t > castFrames) {
 				currentStage = "Traveling";
+				currentPos = conjuringPos;
 			}
 			// Rotation attempt..
 			//aura1.Rotate (Vector3.up, rotationSpeed);

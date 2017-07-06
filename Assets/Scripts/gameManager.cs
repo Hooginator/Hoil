@@ -177,18 +177,24 @@ public class gameManager : MonoBehaviour {
 
 		combatants = new List<CharacterClass> ();
 		CharacterClass tempCharacterClass;
-		for (int i = 0; i < playerCharacters.Count; i++) {
-			//tempCharacterClass = new CharacterClass ();
-			//tempCharacterClass = playerCharacters [i];
-			combatants.Add (playerCharacters [i]);
-			//combatants [i] = playerCharacters [i];
-		}
-		// Add four lvl 15 enemies...
-		for (int i = 0; i < 4; i++) {
-			combatants.Add (new CharacterClass ());
-			combatants [i+playerCharacters.Count].Initialize ("Enemy " + i.ToString (), 15, 1, "Red");
-		}
 
+		// Temporarily removed to test computer vs computer games.
+		currentPlayerCharacters = 0;
+		/*for (int i = 0; i < playerCharacters.Count; i++) {
+			combatants.Add (playerCharacters [i]);
+		}*/
+
+		// Add four lvl 15 enemies...
+		int maxRed = 2;
+		for (int i = 0; i < maxRed; i++) {
+			combatants.Add (new CharacterClass ());
+			combatants [i/*+playerCharacters.Count*/].Initialize ("Red Enemy " + i.ToString (), 15, 1, "Red");
+		}
+		int maxBlue = 2;
+		for (int i = maxRed; i < maxRed + maxBlue; i++) {
+			combatants.Add (new CharacterClass ());
+			combatants [i/*+playerCharacters.Count*/].Initialize ("Blue Enemy " + i.ToString (), 15, 2, "Blue");
+		}
 		inBattle = true;
 	}
 	public void StartBattle(GameObject enemyGameObject){
