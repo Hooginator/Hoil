@@ -205,12 +205,12 @@ public class CombatTracker : MonoBehaviour {
 		isMoving = false;
 		cancelWasUp = true;
 		moveSpeed = 0.4f;
-		var sceneMan = gameManager.instance;
+		var gameMan = gameManager.instance;
 		// Get List of Players
 		characters = new List<CharacterClass>();
-		for (int i = 0; i < sceneMan.combatants.Count; i++) {
-			print (sceneMan.combatants.Count.ToString ());
-			characters.Add(sceneMan.combatants [i]);
+		for (int i = 0; i < gameMan.combatants.Count; i++) {
+			print (gameMan.combatants.Count.ToString ());
+			characters.Add(gameMan.combatants [i]);
 		}
 		if (characters[0] == null) {
 			print ("Did not load any characters, ADD END BATTLE HERE");
@@ -258,9 +258,8 @@ public class CombatTracker : MonoBehaviour {
 
 
 		// set general turn stuff up
-		// Start with player turn
-		currentTeam = "Player";
-		currentTurnCharacters = getCurrentTurnCharacters ();
+		// Start with character[0] turn
+		currentTeam = characters[0].team;
 
 		// Start the Combat with Player Turn
 		startTurn ();
@@ -296,9 +295,12 @@ public class CombatTracker : MonoBehaviour {
 			if (characters [i].team == "Player") {
 				print ("Player Placement");
 				setToPosition (characters [i], 0, 2*i);
-			} else {
+			} else if(characters [i].team == "Red"){
 				print (characters [i].name.ToString()+" Placement");
-				setToPosition (characters [i], 7, 2*i - 4);
+				setToPosition (characters [i], 2, 2*i );
+			} else if(characters [i].team == "Blue"){
+				print (characters [i].name.ToString()+" Placement");
+				setToPosition (characters [i], 8, 2*i );
 			}
 		}
 	}
@@ -435,6 +437,7 @@ public class CombatTracker : MonoBehaviour {
 	List<CharacterClass> getCurrentTurnCharacters (){
 		List<CharacterClass> tempList = new List<CharacterClass>();
 		for(int i = 0;i<characters.Count;i++){
+			print ("Adding character to " + currentTeam);
 			if(characters[i].team == currentTeam){
 				tempList.Add(characters[i]);
 			}
@@ -445,7 +448,6 @@ public class CombatTracker : MonoBehaviour {
 	void startComputerTurn(){
 		// Do computer controlled turn
 		print ("General Computer Turn");
-		currentTurnCharacters = getCurrentTurnCharacters ();
 		startComputerCharacterTurn ();
 
 	}
@@ -491,28 +493,33 @@ public class CombatTracker : MonoBehaviour {
 	}
 
 	bool checkEndBattle (){
-		// Currently not generalized for turns well
-		bool livingPlayer = false;
-		bool livingEnemy = false;
+		// Currently checks for two teams to be alive
+		bool livingCharacter = false;
+		string livingTeam = null;
 		for (int i = 0; i < numCharacters; i++) {
-			//print (i.ToString() + "  " + characters [i].team);
 			if (!characters [i].isDead) {
-				if (characters [i].team == "Player") {
-					livingPlayer = true;
-				} else {
-					livingEnemy = true;
+				if (livingCharacter) {
+					if (livingTeam != characters [i].team) {
+						return false;
+					}
+				}else{
+					livingCharacter = true;
+					livingTeam = characters [i].team;
 				}
+
 
 			}
 		}
-		if (!livingPlayer) {
+		return true;
+
+		/*if (!livingPlayer) {
 			experienceEarned = 0;
 			print ("Player Died");
 		}
 		if (!livingEnemy) {
 			print ("Enemies Died");
 		}
-		return !(livingEnemy && livingPlayer);
+		return !(livingEnemy && livingPlayer);*/
 	}
 	void checkDead(){
 		// Checks all characters and kills them if dead
