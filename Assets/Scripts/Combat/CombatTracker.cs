@@ -557,8 +557,10 @@ public class CombatTracker : MonoBehaviour {
 		if (actionToDo.name == "Move") {
 			int[] tempOldCoords = actionFrom.battleLocation;
 			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
+
+			List<int[]> path = map.getPath (tempOldCoords, coords, actionFrom.MP);
 			// If destination is in range
-			if (tempIntDistance <= actionFrom.MP) {
+			if (tempIntDistance <= actionFrom.MP && path != null) {
 
 				// Immediately set position to where you chose to move to
 				//setToPosition (actionFrom, coords [0], coords [1]);

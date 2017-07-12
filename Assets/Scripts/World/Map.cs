@@ -128,7 +128,9 @@ public class Map : MonoBehaviour {
 	public bool isOccupied(int x,int z){
 		return tiles [x, z].GetComponent<MapGridUnit> ().isOccupied;
 	}
-
+	public bool isOccupied(int[] x){
+		return tiles [x[0], x[1]].GetComponent<MapGridUnit> ().isOccupied;
+	}
 	public void selectRange(Vector3 pos, int range){
 		int[] posInt = getTileCoordsFromPos (pos);
 		int x = posInt [0];
@@ -221,6 +223,43 @@ public class Map : MonoBehaviour {
 		Vector3 temp =  tiles [x,z].transform.position;
 		temp [1] = 5;
 		return temp;
+	}
+
+	public List<int[]> getPath(int[] pos1, int[]pos2, int maxDist){
+		int wiggleRoom = maxDist - getIntDistanceFromCoords (pos1, pos2);
+		int[] currentPos = pos1;
+		List<int[]> path = new List<int[]>();
+
+		for(int i = 0;i<maxDist;i++){
+			currentPos = moveTowards (currentPos, pos2);
+			if (isOccupied (currentPos)) {
+				return null;
+			}
+			path.Add (currentPos);
+			if (currentPos == pos2) {
+				break;
+			}
+		}
+		return path;
+
+	}
+	public int[] moveTowards(int[] pos1,int[] pos2){
+		int deltaX = pos1[0] - pos2[0];
+		int deltaZ = pos1[1] - pos2[1];
+		if (Mathf.Abs (deltaX) >= Mathf.Abs (deltaZ)) {
+			if (pos1 [0] > pos2 [0]) {
+				pos1 [0] -= 1;
+			} else if (pos1 [0] < pos2 [0]) {
+				pos1 [0] += 1;
+			}
+		} else if (Mathf.Abs (deltaX) <= Mathf.Abs (deltaZ)) {
+			if (pos1 [1] > pos2 [1]) {
+				pos1 [1] -= 1;
+			} else if (pos1 [1] < pos2 [1]) {
+				pos1 [1] += 1;
+			}
+		}
+		return pos1;
 	}
 
 
