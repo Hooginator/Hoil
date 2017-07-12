@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 public class ButtonManager : MonoBehaviour, ISelectHandler, IDeselectHandler, IPointerEnterHandler {
 
-	// position of terget
+	// class used to highlight selections from button.
 	public int [] pos;
 	Map map;
 	CombatTracker CT;

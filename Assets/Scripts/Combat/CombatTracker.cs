@@ -457,9 +457,7 @@ public class CombatTracker : MonoBehaviour {
 		temp.init ("Move", actionFrom);
 		actionToDo = temp;
 		// Move to a random location
-		int tempInt = Random.Range(-actionFrom.MP,actionFrom.MP);
-		coords [0] = actionFrom.battleLocation [0] + tempInt;
-		coords [1] = actionFrom.battleLocation [1] + Random.Range(-actionFrom.MP + Mathf.Abs(tempInt),actionFrom.MP - Mathf.Abs(tempInt));
+		bool foundTarget = getRandomTarget(5,actionFrom.MP);
 		if (map.isIntInBoundaries (coords [0], coords [1]) && !map.isOccupied (coords [0], coords [1])) {
 			doAction ();
 		} else {
@@ -467,18 +465,33 @@ public class CombatTracker : MonoBehaviour {
 			continueComputerCharacterTurn ();
 		}
 	}
+	bool getRandomTarget( int maxAttempts, int range){
+		// set coords to a Target for actionFrom ability coming in
+		int tempRandomInt;
+		bool foundTarget = false;
+		for (int tempAttempt = 0; tempAttempt < 5;tempAttempt ++) {
+			tempRandomInt = Random.Range(-range,range);
+			coords [0] = actionFrom.battleLocation [0] + tempRandomInt;
+			coords [1] = actionFrom.battleLocation [1] + Random.Range(-range + Mathf.Abs(tempRandomInt),range - Mathf.Abs(tempRandomInt));
+			if (map.isIntInBoundaries (coords [0], coords [1])) {
+				foundTarget = true;
+				break;
+			}
+			tempAttempt++;
+		}
+		return foundTarget;
+	}
 	void continueComputerCharacterTurn(){
 		// The part of the turn after computer moves.
 		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
-		temp.init ("Fireball", actionFrom);
+		temp.init ("Iceball", actionFrom);
 		actionToDo = temp;
-		int tempInt = Random.Range(-temp.baseRange,temp.baseRange);
-		coords [0] = actionFrom.battleLocation [0] + tempInt;
-		coords [1] = actionFrom.battleLocation [1] + Random.Range(-temp.baseRange + Mathf.Abs(tempInt),temp.baseRange - Mathf.Abs(tempInt));
-		if (map.isIntInBoundaries (coords [0], coords [1])) {
+		int tempRandomInt;
+		bool foundTarget = getRandomTarget(5,actionToDo.baseRange);
+		if (foundTarget) {
 			doAction ();
 		} else {
-			// Do post movement part of turn
+			// note I only end character turn IF I didn't fgind a fireball target.  the fireball actions ends turn on its own after casting.
 			endCharacterTurn ();
 		}
 	}
@@ -537,6 +550,7 @@ public class CombatTracker : MonoBehaviour {
 	// This will likely move to one big ugly filewith every ability
 	public void doAction(){
 		List<CharacterClass> targetsToDo = null;
+		areaRange = actionToDo.AoERange;
 
 		/************************************************** MOVING ******************************/
 
