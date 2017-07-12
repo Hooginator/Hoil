@@ -107,7 +107,7 @@ public class gameManager : MonoBehaviour {
 				WMC.RotationSpeed = 1;
 
 			// Initialize colour palettes
-			initializeColourPalette();
+			ColourPalette.initializeColourPalette(colourPalettes);
 
 			if (sceneName == "Hoil") {
 				InitializeWorld ();
@@ -137,7 +137,7 @@ public class gameManager : MonoBehaviour {
 		//teams [0].spawnEnemies ();
 		//teams [1].spawnEnemies ();
 	}
-
+	/*
 	public void initializeColourPalette(){
 		// Red fireball stuff
 		ColourPalette temp = new ColourPalette();
@@ -156,7 +156,7 @@ public class gameManager : MonoBehaviour {
 		tempColour.Add (new Color (0.0f,0.3f,0.7f));
 		temp.init (tempColour,"Ice");
 		colourPalettes.Add (temp);
-	}
+	}*/
 
 	/********************************************************************************************/ 
 	/******************************* Battle Management ******************************************/ 
