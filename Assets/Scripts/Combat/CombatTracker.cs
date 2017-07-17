@@ -294,13 +294,13 @@ public class CombatTracker : MonoBehaviour {
 			// This is super poorly done but I'm too tired to fix now.  TODO TOOOODOOOOOOOOOOOOOOOOOOOOOOO
 			if (characters [i].team == "Player") {
 				print ("Player Placement");
-				setToPosition (characters [i], 0, 2*i);
+				setToPosition (characters [i], 0, i);
 			} else if(characters [i].team == "Red"){
 				print (characters [i].name.ToString()+" Placement");
-				setToPosition (characters [i], 2, 2*i );
+				setToPosition (characters [i], 2, i );
 			} else if(characters [i].team == "Blue"){
 				print (characters [i].name.ToString()+" Placement");
-				setToPosition (characters [i], 8, 2*i );
+				setToPosition (characters [i], 8, i );
 			}
 		}
 	}
@@ -537,7 +537,7 @@ public class CombatTracker : MonoBehaviour {
 	void checkDead(){
 		// Checks all characters and kills them if dead
 		for (int i = 0; i < numCharacters; i++) {
-			if (characters [i].checkDead ()) {
+			if (characters [i] != null && characters [i].checkDead ()) {
 				killCharacter (characters [i]);
 			}
 		}

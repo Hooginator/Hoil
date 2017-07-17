@@ -229,10 +229,10 @@ public class Map : MonoBehaviour {
 		int wiggleRoom = maxDist - getIntDistanceFromCoords (pos1, pos2);
 		int[] currentPos = pos1;
 		List<int[]> path = new List<int[]>();
-
 		for(int i = 0;i<maxDist;i++){
 			currentPos = moveTowards (currentPos, pos2);
 			if (isOccupied (currentPos)) {
+				Debug.Log ("Failed moving, someone in the way"+currentPos.ToString());
 				return null;
 			}
 			path.Add (currentPos);

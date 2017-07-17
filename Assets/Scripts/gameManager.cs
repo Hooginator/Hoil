@@ -184,13 +184,13 @@ public class gameManager : MonoBehaviour {
 			combatants.Add (playerCharacters [i]);
 		}*/
 
-		// Add four lvl 15 enemies...
-		int maxRed = 2;
+		// Add Starting AI Computer opponents
+		int maxRed = 4;
 		for (int i = 0; i < maxRed; i++) {
 			combatants.Add (new CharacterClass ());
 			combatants [i/*+playerCharacters.Count*/].Initialize ("Red Enemy " + i.ToString (), 15, 1, "Red");
 		}
-		int maxBlue = 2;
+		int maxBlue = 4;
 		for (int i = maxRed; i < maxRed + maxBlue; i++) {
 			combatants.Add (new CharacterClass ());
 			combatants [i/*+playerCharacters.Count*/].Initialize ("Blue Enemy " + i.ToString (), 15, 2, "Blue");
