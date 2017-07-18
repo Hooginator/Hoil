@@ -307,6 +307,23 @@ public class Map : MonoBehaviour {
 		return pos;
 	}
 
+	public int[] MirrorInsideBoundaries(int[] pos){
+		// mirrors coordinates back onto map
+		// Should preserve range..  (IE if I have range N and the input pos is within N squares of me, so will the reflected point)
+		if (pos [0] < 0) {
+			pos [0] = -pos [0];
+		}if (pos [0] > NcellX) {
+			pos [0] =  2 * pos [0] - NcellX;
+		}
+		if (pos [1] < 0) {
+			pos [1] = -pos [1];
+		}if (pos [1] > NcellZ) {
+			pos [1] = 2 * pos [1] - NcellZ;
+		}
+
+		return pos;
+	}
+
 	/********************************************************************************************/
 	/******************************** Resource Management ***************************************/
 	/********************************************************************************************/

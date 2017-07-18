@@ -53,6 +53,14 @@ public class Ability : ScriptableObject{
 			targets = "Enemy";
 			targetingType = "Area";
 			break;
+		case "Acidball":
+			baseRange = 5;
+			AoERange = 2;
+			baseDamage = 40;
+			damageType = "Toxic";
+			targets = "Enemy";
+			targetingType = "Area";
+			break;
 		case "Sniper Attack":
 			baseRange = 20;
 			AoERange = 0;
@@ -95,6 +103,12 @@ public class Ability : ScriptableObject{
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
 			temp.transform.position = startPos;
 			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[1] ,AoERange);
+			//temp.GetComponent<FireBallCastAnimation> ().reColour(new Color (1, 0.5f, 0.5f, 1));
+		} else if (name == "Acidball") {
+			// recolour of fireball
+			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
+			temp.transform.position = startPos;
+			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[2] ,AoERange);
 			//temp.GetComponent<FireBallCastAnimation> ().reColour(new Color (1, 0.5f, 0.5f, 1));
 		}
 	}

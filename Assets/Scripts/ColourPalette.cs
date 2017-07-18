@@ -32,6 +32,16 @@ public class ColourPalette : ScriptableObject {
 		tempColour.Add (new Color (0.0f,0.3f,0.7f));
 		temp.init (tempColour,"Ice");
 		colourPalettes.Add (temp);
+		// Green toxic stuff
+		temp = null;
+		tempColour = null;
+		temp = new ColourPalette();
+		tempColour = new List<Color>();
+		tempColour.Add (new Color (0.0f, 0.9f, 0.1f));
+		tempColour.Add (new Color (0.6f,0.9f,0.4f));
+		tempColour.Add (new Color (0.2f,0.6f,0.1f));
+		temp.init (tempColour,"Toxic");
+		colourPalettes.Add (temp);
 		return colourPalettes;
 	}
 

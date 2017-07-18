@@ -473,6 +473,7 @@ public class CombatTracker : MonoBehaviour {
 			tempRandomInt = Random.Range(-range,range);
 			coords [0] = actionFrom.battleLocation [0] + tempRandomInt;
 			coords [1] = actionFrom.battleLocation [1] + Random.Range(-range + Mathf.Abs(tempRandomInt),range - Mathf.Abs(tempRandomInt));
+			coords = map.MirrorInsideBoundaries (coords);
 			if (map.isIntInBoundaries (coords [0], coords [1])) {
 				foundTarget = true;
 				break;
@@ -484,7 +485,8 @@ public class CombatTracker : MonoBehaviour {
 	void continueComputerCharacterTurn(){
 		// The part of the turn after computer moves.
 		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
-		temp.init ("Iceball", actionFrom);
+		string abilityName = getAbilityToUse ();
+		temp.init (abilityName, actionFrom);
 		actionToDo = temp;
 		int tempRandomInt;
 		bool foundTarget = getRandomTarget(5,actionToDo.baseRange);
@@ -495,7 +497,26 @@ public class CombatTracker : MonoBehaviour {
 			endCharacterTurn ();
 		}
 	}
+	string getAbilityToUse(){
+		// generates a random ability string to use for computer turns
+		int rand = Random.Range(1,4);
+		switch (rand) {
+		case 1:
+			return "Fireball";
+			break;
+		case 2:
+			return "Iceball";
+			break;
+		case 3:
+			return "Acidball";
+			break;
 
+		}
+
+
+		/// default
+		return "Fireball";
+	}
 	/// END OF GENERALIZED TURN TEST
 
 	void EndBattle(float EXP){
