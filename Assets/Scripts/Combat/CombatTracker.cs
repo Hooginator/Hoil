@@ -287,12 +287,35 @@ public class CombatTracker : MonoBehaviour {
 
 	public void setInitialPositions(){
 		// Set initial character positions
+		int tempIndex;
 		Vector3 tempPos = new Vector3(0,0,0);
+		List<int> charactersPlaced = new List<int>();
+		List<string> tempTeams = new List<string>();
 		for (int i = 0; i < numCharacters; i++) {
 			print ("Placing Character " + i.ToString () + "  " + characters [i].team);
+			if (!tempTeams.Contains (characters [i].team)) {
+				tempTeams.Add (characters [i].team);
+				charactersPlaced.Add (0);
+			}
+			// SOme kind of voodoo magic hax trick here.  FindIndex is not as straightforward as I had hoped
+			tempIndex = tempTeams.FindIndex (tempTeam => tempTeam == characters [i].team);
+			switch (tempIndex) {
+			case 0:
+				setToPosition (characters [i], 4 + charactersPlaced [tempIndex], 1);
+				break;
+			case 1:
+				setToPosition (characters [i], 8, 2 + charactersPlaced [tempIndex]);
+				break;
+			case 2:
+				setToPosition (characters [i], 1, 2 + charactersPlaced [tempIndex]);
+				break;
+			}
+			charactersPlaced [tempIndex] += 1;
+		}
+
 
 			// This is super poorly done but I'm too tired to fix now.  TODO TOOOODOOOOOOOOOOOOOOOOOOOOOOO
-			if (characters [i].team == "Player") {
+			/*if (characters [i].team == "Player") {
 				print ("Player Placement");
 				setToPosition (characters [i], 0, i);
 			} else if(characters [i].team == "Red"){
@@ -302,7 +325,7 @@ public class CombatTracker : MonoBehaviour {
 				print (characters [i].name.ToString()+" Placement");
 				setToPosition (characters [i], 8, i );
 			}
-		}
+		}*/
 	}
 
 	public void setToPosition(CharacterClass charToMove, int x, int z){
