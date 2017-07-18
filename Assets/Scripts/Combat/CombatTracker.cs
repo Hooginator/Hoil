@@ -444,17 +444,21 @@ public class CombatTracker : MonoBehaviour {
 	void startTurn(){
 		print ("Start of Turn");
 		currentTurnCharacters = getCurrentTurnCharacters ();
-		actionFrom = currentTurnCharacters [0];
-		for (int i = 0; i < currentTurnCharacters.Count; i++) {
-			// Initialize for turns
-			currentTurnCharacters [i].startTurn ();
-		}
-		if (currentTeam == "Player") {
-			ShowBattleMenu ();
+		if (currentTurnCharacters != null) {
+			actionFrom = currentTurnCharacters [0];
+			for (int i = 0; i < currentTurnCharacters.Count; i++) {
+				// Initialize for turns
+				currentTurnCharacters [i].startTurn ();
+			}
+			if (currentTeam == "Player") {
+				ShowBattleMenu ();
+			} else {
+				startComputerTurn ();
+			}
 		} else {
-			startComputerTurn ();
+			// if there are no current turn characters we don't need to do this turn
+			endTurn ();
 		}
-
 	}
 
 	List<CharacterClass> getCurrentTurnCharacters (){
