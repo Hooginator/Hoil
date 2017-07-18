@@ -205,12 +205,12 @@ public class CombatTracker : MonoBehaviour {
 		isMoving = false;
 		cancelWasUp = true;
 		moveSpeed = 0.4f;
-		var sceneMan = gameManager.instance;
+		var gameMan = gameManager.instance;
 		// Get List of Players
 		characters = new List<CharacterClass>();
-		for (int i = 0; i < sceneMan.combatants.Count; i++) {
-			print (sceneMan.combatants.Count.ToString ());
-			characters.Add(sceneMan.combatants [i]);
+		for (int i = 0; i < gameMan.combatants.Count; i++) {
+			print (gameMan.combatants.Count.ToString ());
+			characters.Add(gameMan.combatants [i]);
 		}
 		if (characters[0] == null) {
 			print ("Did not load any characters, ADD END BATTLE HERE");
@@ -258,9 +258,8 @@ public class CombatTracker : MonoBehaviour {
 
 
 		// set general turn stuff up
-		// Start with player turn
-		currentTeam = "Player";
-		currentTurnCharacters = getCurrentTurnCharacters ();
+		// Start with character[0] turn
+		currentTeam = characters[0].team;
 
 		// Start the Combat with Player Turn
 		startTurn ();
@@ -282,7 +281,7 @@ public class CombatTracker : MonoBehaviour {
 			ShowBattleMenu ();
 		} else {
 			print ("Continue enemy turn");
-			endCharacterTurn ();
+			continueComputerCharacterTurn ();
 		}
 	}
 
@@ -296,9 +295,12 @@ public class CombatTracker : MonoBehaviour {
 			if (characters [i].team == "Player") {
 				print ("Player Placement");
 				setToPosition (characters [i], 0, 2*i);
-			} else {
+			} else if(characters [i].team == "Red"){
 				print (characters [i].name.ToString()+" Placement");
-				setToPosition (characters [i], 7, 2*i - 4);
+				setToPosition (characters [i], 2, 2*i );
+			} else if(characters [i].team == "Blue"){
+				print (characters [i].name.ToString()+" Placement");
+				setToPosition (characters [i], 8, 2*i );
 			}
 		}
 	}
@@ -352,6 +354,8 @@ public class CombatTracker : MonoBehaviour {
 
 	void endCharacterTurn(){
 		//currentTurnCharacters.Remove (actionFrom);
+
+		map.deSelectAll();
 		actionFrom.turnTaken = true;
 		areaRange = 0;
 		print (currentTurnCharacters.ToString ());
@@ -433,6 +437,7 @@ public class CombatTracker : MonoBehaviour {
 	List<CharacterClass> getCurrentTurnCharacters (){
 		List<CharacterClass> tempList = new List<CharacterClass>();
 		for(int i = 0;i<characters.Count;i++){
+			print ("Adding character to " + currentTeam);
 			if(characters[i].team == currentTeam){
 				tempList.Add(characters[i]);
 			}
@@ -443,7 +448,6 @@ public class CombatTracker : MonoBehaviour {
 	void startComputerTurn(){
 		// Do computer controlled turn
 		print ("General Computer Turn");
-		currentTurnCharacters = getCurrentTurnCharacters ();
 		startComputerCharacterTurn ();
 
 	}
@@ -453,13 +457,41 @@ public class CombatTracker : MonoBehaviour {
 		temp.init ("Move", actionFrom);
 		actionToDo = temp;
 		// Move to a random location
-		int tempInt = Random.Range(-actionFrom.MP,actionFrom.MP);
-		print ("Random Number x"+tempInt.ToString ());
-		coords [0] = actionFrom.battleLocation [0] + tempInt;
-		coords [1] = actionFrom.battleLocation [1] + Random.Range(-actionFrom.MP + Mathf.Abs(tempInt),actionFrom.MP - Mathf.Abs(tempInt));
-		if (map.isIntInBoundaries (coords [0], coords [1]) && !map.isOccupied(coords [0], coords [1])) {
+		bool foundTarget = getRandomTarget(5,actionFrom.MP);
+		if (map.isIntInBoundaries (coords [0], coords [1]) && !map.isOccupied (coords [0], coords [1])) {
 			doAction ();
 		} else {
+			// Do post movement part of turn
+			continueComputerCharacterTurn ();
+		}
+	}
+	bool getRandomTarget( int maxAttempts, int range){
+		// set coords to a Target for actionFrom ability coming in
+		int tempRandomInt;
+		bool foundTarget = false;
+		for (int tempAttempt = 0; tempAttempt < 5;tempAttempt ++) {
+			tempRandomInt = Random.Range(-range,range);
+			coords [0] = actionFrom.battleLocation [0] + tempRandomInt;
+			coords [1] = actionFrom.battleLocation [1] + Random.Range(-range + Mathf.Abs(tempRandomInt),range - Mathf.Abs(tempRandomInt));
+			if (map.isIntInBoundaries (coords [0], coords [1])) {
+				foundTarget = true;
+				break;
+			}
+			tempAttempt++;
+		}
+		return foundTarget;
+	}
+	void continueComputerCharacterTurn(){
+		// The part of the turn after computer moves.
+		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
+		temp.init ("Iceball", actionFrom);
+		actionToDo = temp;
+		int tempRandomInt;
+		bool foundTarget = getRandomTarget(5,actionToDo.baseRange);
+		if (foundTarget) {
+			doAction ();
+		} else {
+			// note I only end character turn IF I didn't fgind a fireball target.  the fireball actions ends turn on its own after casting.
 			endCharacterTurn ();
 		}
 	}
@@ -474,28 +506,33 @@ public class CombatTracker : MonoBehaviour {
 	}
 
 	bool checkEndBattle (){
-		// Currently not generalized for turns well
-		bool livingPlayer = false;
-		bool livingEnemy = false;
+		// Currently checks for two teams to be alive
+		bool livingCharacter = false;
+		string livingTeam = null;
 		for (int i = 0; i < numCharacters; i++) {
-			//print (i.ToString() + "  " + characters [i].team);
 			if (!characters [i].isDead) {
-				if (characters [i].team == "Player") {
-					livingPlayer = true;
-				} else {
-					livingEnemy = true;
+				if (livingCharacter) {
+					if (livingTeam != characters [i].team) {
+						return false;
+					}
+				}else{
+					livingCharacter = true;
+					livingTeam = characters [i].team;
 				}
+
 
 			}
 		}
-		if (!livingPlayer) {
+		return true;
+
+		/*if (!livingPlayer) {
 			experienceEarned = 0;
 			print ("Player Died");
 		}
 		if (!livingEnemy) {
 			print ("Enemies Died");
 		}
-		return !(livingEnemy && livingPlayer);
+		return !(livingEnemy && livingPlayer);*/
 	}
 	void checkDead(){
 		// Checks all characters and kills them if dead
@@ -513,6 +550,7 @@ public class CombatTracker : MonoBehaviour {
 	// This will likely move to one big ugly filewith every ability
 	public void doAction(){
 		List<CharacterClass> targetsToDo = null;
+		areaRange = actionToDo.AoERange;
 
 		/************************************************** MOVING ******************************/
 

@@ -54,7 +54,7 @@ public class Ability : ScriptableObject{
 			targetingType = "Area";
 			break;
 		case "Sniper Attack":
-			baseRange = 7;
+			baseRange = 20;
 			AoERange = 0;
 			baseDamage = 80;
 			damageType = "Pierce";
@@ -83,7 +83,7 @@ public class Ability : ScriptableObject{
 		// reserved for solo animations 
 	}
 	public void doAnimation(Vector3 startPos, Vector3 stopPos, List<ColourPalette> colourPalettes){
-		// Do animation at position
+		// Do animation at position indicated.
 		if (name == "Fireball") {
 			//GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("Basic Explosion"));
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
