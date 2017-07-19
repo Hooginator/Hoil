@@ -639,6 +639,9 @@ public class CombatTracker : MonoBehaviour {
 		/************************************************ SPECIAL *******************************/
 
 		} else if (actionToDo != null){
+
+			actionToDo.doAnimation (actionFrom.battleAvatar.transform.position,  map.getAbovePosFromCoords (coords [0], coords [1]),colourPalettes);
+
 			if (actionToDo.targetingType == "Single") {
 				if (actionToDo.cast (actionTo)) {
 					killCharacter (actionTo);
@@ -660,7 +663,6 @@ public class CombatTracker : MonoBehaviour {
 						killCharacter(targetsToDo [i]);
 					};
 				}
-				actionToDo.doAnimation (actionFrom.battleAvatar.transform.position,  map.getAbovePosFromCoords (coords [0], coords [1]),colourPalettes);
 			}
 
 			actionToDo = null;
@@ -674,8 +676,12 @@ public class CombatTracker : MonoBehaviour {
 			if (toKill.team != "Player") {
 				experienceEarned += toKill.baseExperienceGiven;
 			}
-			StartCoroutine (DestroyCharacter (toKill.battleAvatar));
-			toKill.battleAvatar.GetComponent<BasicEnemyAnimations> ().animationType = "dying";
+			// Destroy GameObject
+			StartCoroutine (DestroyCharacter (toKill.battleAvatar, 2.2f));
+			// Do death animation
+			if(toKill.battleAvatar != null){
+				StartCoroutine (StartDeathAnimation (toKill.battleAvatar, 0.5f));
+			}
 			//Destroy (toKill.battleAvatar);
 			// Remove enemy from list
 			characters.Remove (toKill);
@@ -685,10 +691,15 @@ public class CombatTracker : MonoBehaviour {
 		}
 	}
 
-	IEnumerator DestroyCharacter(GameObject avatar){
+	IEnumerator DestroyCharacter(GameObject avatar, float t){
 		// Coroutine to let the enemy model exist for a second after it is killed.
-		yield return new WaitForSeconds(2.2f);
+		yield return new WaitForSeconds(t);
 		Destroy (avatar);
+	}
+	IEnumerator StartDeathAnimation(GameObject avatar, float t){
+		// Coroutine to let the enemy model exist for a second after it is killed.
+		yield return new WaitForSeconds(t);
+		avatar.GetComponent<BasicEnemyAnimations> ().animationType = "dying";
 	}
 
 	public void PlayerAttack(int player, int badguy){

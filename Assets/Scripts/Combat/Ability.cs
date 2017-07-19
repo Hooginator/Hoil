@@ -18,6 +18,8 @@ public class Ability : ScriptableObject{
 	public string damageType;
 	public string targetingType;
 	public string targets;
+	// Delay for conjuring / casting
+	public float damageDelay = 1.0f;
 	public CharacterClass caster;
 
 	public void init(string nameIn, int baseRangeIn, int AoERangeIn, float baseDamageIn, string damageTypeIn,string targetingTypeIn, string targetsIn, CharacterClass casterIn){
@@ -115,7 +117,7 @@ public class Ability : ScriptableObject{
 
 	public bool cast(CharacterClass target){
 		// What to do damage wise for each ability
-		target.takeDamage(baseDamage + caster.Intelligence, damageType);
+		target.takeDamage(baseDamage + caster.Intelligence, damageType,damageDelay);
 		if (target.checkDead ()) {
 			return true;
 		}
