@@ -287,22 +287,45 @@ public class CombatTracker : MonoBehaviour {
 
 	public void setInitialPositions(){
 		// Set initial character positions
+		int tempIndex;
 		Vector3 tempPos = new Vector3(0,0,0);
+		List<int> charactersPlaced = new List<int>();
+		List<string> tempTeams = new List<string>();
 		for (int i = 0; i < numCharacters; i++) {
 			print ("Placing Character " + i.ToString () + "  " + characters [i].team);
+			if (!tempTeams.Contains (characters [i].team)) {
+				tempTeams.Add (characters [i].team);
+				charactersPlaced.Add (0);
+			}
+			// SOme kind of voodoo magic hax trick here.  FindIndex is not as straightforward as I had hoped
+			tempIndex = tempTeams.FindIndex (tempTeam => tempTeam == characters [i].team);
+			switch (tempIndex) {
+			case 0:
+				setToPosition (characters [i], 4 + charactersPlaced [tempIndex], 1);
+				break;
+			case 1:
+				setToPosition (characters [i], 8, 2 + charactersPlaced [tempIndex]);
+				break;
+			case 2:
+				setToPosition (characters [i], 1, 2 + charactersPlaced [tempIndex]);
+				break;
+			}
+			charactersPlaced [tempIndex] += 1;
+		}
+
 
 			// This is super poorly done but I'm too tired to fix now.  TODO TOOOODOOOOOOOOOOOOOOOOOOOOOOO
-			if (characters [i].team == "Player") {
+			/*if (characters [i].team == "Player") {
 				print ("Player Placement");
-				setToPosition (characters [i], 0, 2*i);
+				setToPosition (characters [i], 0, i);
 			} else if(characters [i].team == "Red"){
 				print (characters [i].name.ToString()+" Placement");
-				setToPosition (characters [i], 2, 2*i );
+				setToPosition (characters [i], 2, i );
 			} else if(characters [i].team == "Blue"){
 				print (characters [i].name.ToString()+" Placement");
-				setToPosition (characters [i], 8, 2*i );
+				setToPosition (characters [i], 8, i );
 			}
-		}
+		}*/
 	}
 
 	public void setToPosition(CharacterClass charToMove, int x, int z){
@@ -420,18 +443,26 @@ public class CombatTracker : MonoBehaviour {
 
 	void startTurn(){
 		print ("Start of Turn");
-		currentTurnCharacters = getCurrentTurnCharacters ();
-		actionFrom = currentTurnCharacters [0];
-		for (int i = 0; i < currentTurnCharacters.Count; i++) {
-			// Initialize for turns
-			currentTurnCharacters [i].startTurn ();
-		}
-		if (currentTeam == "Player") {
-			ShowBattleMenu ();
+		if (!checkTeam (currentTeam)) {
+			endTurn ();
 		} else {
-			startComputerTurn ();
+			currentTurnCharacters = getCurrentTurnCharacters ();
+			if (currentTurnCharacters != null) {
+				actionFrom = currentTurnCharacters [0];
+				for (int i = 0; i < currentTurnCharacters.Count; i++) {
+					// Initialize for turns
+					currentTurnCharacters [i].startTurn ();
+				}
+				if (currentTeam == "Player") {
+					ShowBattleMenu ();
+				} else {
+					startComputerTurn ();
+				}
+			} else {
+				// if there are no current turn characters we don't need to do this turn
+				endTurn ();
+			}
 		}
-
 	}
 
 	List<CharacterClass> getCurrentTurnCharacters (){
@@ -473,6 +504,7 @@ public class CombatTracker : MonoBehaviour {
 			tempRandomInt = Random.Range(-range,range);
 			coords [0] = actionFrom.battleLocation [0] + tempRandomInt;
 			coords [1] = actionFrom.battleLocation [1] + Random.Range(-range + Mathf.Abs(tempRandomInt),range - Mathf.Abs(tempRandomInt));
+			coords = map.MirrorInsideBoundaries (coords);
 			if (map.isIntInBoundaries (coords [0], coords [1])) {
 				foundTarget = true;
 				break;
@@ -484,7 +516,8 @@ public class CombatTracker : MonoBehaviour {
 	void continueComputerCharacterTurn(){
 		// The part of the turn after computer moves.
 		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
-		temp.init ("Iceball", actionFrom);
+		string abilityName = getAbilityToUse ();
+		temp.init (abilityName, actionFrom);
 		actionToDo = temp;
 		int tempRandomInt;
 		bool foundTarget = getRandomTarget(5,actionToDo.baseRange);
@@ -495,7 +528,26 @@ public class CombatTracker : MonoBehaviour {
 			endCharacterTurn ();
 		}
 	}
+	string getAbilityToUse(){
+		// generates a random ability string to use for computer turns
+		int rand = Random.Range(1,4);
+		switch (rand) {
+		case 1:
+			return "Fireball";
+			break;
+		case 2:
+			return "Iceball";
+			break;
+		case 3:
+			return "Acidball";
+			break;
 
+		}
+
+
+		/// default
+		return "Fireball";
+	}
 	/// END OF GENERALIZED TURN TEST
 
 	void EndBattle(float EXP){
@@ -503,6 +555,19 @@ public class CombatTracker : MonoBehaviour {
 		characters = null;
 		var sceneMan = gameManager.instance;
 		sceneMan.EndBattle (EXP);
+	}
+
+	bool checkTeam(string teamName){
+		// Checks if there are any living members of teamName left alive
+		// Takes: string teamName to check if that team has any living members
+		// Returns: bool of true when team exists, false otherwise.
+
+		for (int i = 0; i < numCharacters; i++) {
+			if (!characters [i].isDead && characters [i].team == teamName) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	bool checkEndBattle (){
@@ -534,10 +599,11 @@ public class CombatTracker : MonoBehaviour {
 		}
 		return !(livingEnemy && livingPlayer);*/
 	}
+
 	void checkDead(){
 		// Checks all characters and kills them if dead
 		for (int i = 0; i < numCharacters; i++) {
-			if (characters [i].checkDead ()) {
+			if (characters [i] != null && characters [i].checkDead ()) {
 				killCharacter (characters [i]);
 			}
 		}
@@ -557,8 +623,10 @@ public class CombatTracker : MonoBehaviour {
 		if (actionToDo.name == "Move") {
 			int[] tempOldCoords = actionFrom.battleLocation;
 			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
+
+			List<int[]> path = map.getPath (tempOldCoords, coords, actionFrom.MP);
 			// If destination is in range
-			if (tempIntDistance <= actionFrom.MP) {
+			if (tempIntDistance <= actionFrom.MP && path != null) {
 
 				// Immediately set position to where you chose to move to
 				//setToPosition (actionFrom, coords [0], coords [1]);
@@ -589,6 +657,9 @@ public class CombatTracker : MonoBehaviour {
 		/************************************************ SPECIAL *******************************/
 
 		} else if (actionToDo != null){
+
+			actionToDo.doAnimation (actionFrom.battleAvatar.transform.position,  map.getAbovePosFromCoords (coords [0], coords [1]),colourPalettes);
+
 			if (actionToDo.targetingType == "Single") {
 				if (actionToDo.cast (actionTo)) {
 					killCharacter (actionTo);
@@ -610,7 +681,6 @@ public class CombatTracker : MonoBehaviour {
 						killCharacter(targetsToDo [i]);
 					};
 				}
-				actionToDo.doAnimation (actionFrom.battleAvatar.transform.position,  map.getAbovePosFromCoords (coords [0], coords [1]),colourPalettes);
 			}
 
 			actionToDo = null;
@@ -624,8 +694,12 @@ public class CombatTracker : MonoBehaviour {
 			if (toKill.team != "Player") {
 				experienceEarned += toKill.baseExperienceGiven;
 			}
-			StartCoroutine (DestroyCharacter (toKill.battleAvatar));
-			toKill.battleAvatar.GetComponent<BasicEnemyAnimations> ().animationType = "dying";
+			// Destroy GameObject
+			StartCoroutine (DestroyCharacter (toKill.battleAvatar, 2.2f));
+			// Do death animation
+			if(toKill.battleAvatar != null){
+				StartCoroutine (StartDeathAnimation (toKill.battleAvatar, 0.5f));
+			}
 			//Destroy (toKill.battleAvatar);
 			// Remove enemy from list
 			characters.Remove (toKill);
@@ -635,10 +709,15 @@ public class CombatTracker : MonoBehaviour {
 		}
 	}
 
-	IEnumerator DestroyCharacter(GameObject avatar){
+	IEnumerator DestroyCharacter(GameObject avatar, float t){
 		// Coroutine to let the enemy model exist for a second after it is killed.
-		yield return new WaitForSeconds(2.2f);
+		yield return new WaitForSeconds(t);
 		Destroy (avatar);
+	}
+	IEnumerator StartDeathAnimation(GameObject avatar, float t){
+		// Coroutine to let the enemy model exist for a second after it is killed.
+		yield return new WaitForSeconds(t);
+		avatar.GetComponent<BasicEnemyAnimations> ().animationType = "dying";
 	}
 
 	public void PlayerAttack(int player, int badguy){

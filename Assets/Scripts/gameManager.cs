@@ -82,29 +82,29 @@ public class gameManager : MonoBehaviour {
 			// Initialize stats to level 40 so we can beat level 15 generated badguy easily
 			temp.Initialize ("Main Character", 40, 0, "Player");
 			playerCharacters.Add (temp);
-			currentPlayerCharacters += 1;
+			//currentPlayerCharacters += 1;
 
 			// Add second player character
 			CharacterClass temp2 = new CharacterClass ();
 			temp2.Initialize ("Secondary Character", 25, 0, "Player");
 			playerCharacters.Add (temp2);
-			currentPlayerCharacters += 1;
+			//currentPlayerCharacters += 1;
 
-				// Create the two teams and set their parent transforms to this gameobject (to not be destroyed)
-				GameObject tempTeam1 = GameObject.Instantiate (Resources.Load ("Blue Base"), new Vector3 (0, 1, 0), Quaternion.identity) as GameObject;
-				tempTeam1.GetComponent<Transform> ().parent = gameObject.transform;
-				teams.Add (tempTeam1);
-				GameObject tempTeam2 = GameObject.Instantiate (Resources.Load ("Red Base"), new Vector3 (90, 1, 90), Quaternion.identity) as GameObject;
-				tempTeam2.GetComponent<Transform> ().parent = gameObject.transform;
-				teams.Add (tempTeam2);
+			// Create the two teams and set their parent transforms to this gameobject (to not be destroyed)
+			GameObject tempTeam1 = GameObject.Instantiate (Resources.Load ("Blue Base"), new Vector3 (0, 1, 0), Quaternion.identity) as GameObject;
+			tempTeam1.GetComponent<Transform> ().parent = gameObject.transform;
+			teams.Add (tempTeam1);
+			GameObject tempTeam2 = GameObject.Instantiate (Resources.Load ("Red Base"), new Vector3 (90, 1, 90), Quaternion.identity) as GameObject;
+			tempTeam2.GetComponent<Transform> ().parent = gameObject.transform;
+			teams.Add (tempTeam2);
 
-				//teams[0].GetComponent<Team>().Initialize();
-				//teams[1].GetComponent<Team>().Initialize();
-				// Initialize everything that would also be initialized post battle
-				// Apply the movement controls for the world map to the player
-				WorldMovementControls WMC = worldPlayer.AddComponent<WorldMovementControls> ();
-				WMC.moveSpeed = 20;
-				WMC.RotationSpeed = 1;
+			//teams[0].GetComponent<Team>().Initialize();
+			//teams[1].GetComponent<Team>().Initialize();
+			// Initialize everything that would also be initialized post battle
+			// Apply the movement controls for the world map to the player
+			WorldMovementControls WMC = worldPlayer.AddComponent<WorldMovementControls> ();
+			WMC.moveSpeed = 20;
+			WMC.RotationSpeed = 1;
 
 			// Initialize colour palettes
 			ColourPalette.initializeColourPalette(colourPalettes);
@@ -178,22 +178,31 @@ public class gameManager : MonoBehaviour {
 		combatants = new List<CharacterClass> ();
 		CharacterClass tempCharacterClass;
 
-		// Temporarily removed to test computer vs computer games.
-		currentPlayerCharacters = 0;
-		/*for (int i = 0; i < playerCharacters.Count; i++) {
-			combatants.Add (playerCharacters [i]);
-		}*/
 
-		// Add four lvl 15 enemies...
-		int maxRed = 2;
+		// ADD PLAYER CHARACTERS
+		currentPlayerCharacters = 0;
+		// Temporarily removed to test computer vs computer games.
+		bool playerCharactersEngaged = true;
+		if (playerCharactersEngaged) {
+			// Add all player characters
+			for (int i = 0; i < playerCharacters.Count; i++) {
+				combatants.Add (playerCharacters [i]);
+				currentPlayerCharacters += 1;
+			}
+		} else {
+			Debug.Log ("No Player Characters Added");
+		}
+
+		// Add Starting AI Computer opponents
+		int maxRed = 4;
 		for (int i = 0; i < maxRed; i++) {
 			combatants.Add (new CharacterClass ());
-			combatants [i/*+playerCharacters.Count*/].Initialize ("Red Enemy " + i.ToString (), 15, 1, "Red");
+			combatants [i+currentPlayerCharacters].Initialize ("Red Enemy " + i.ToString (), 15, 1, "Red");
 		}
-		int maxBlue = 2;
+		int maxBlue = 4;
 		for (int i = maxRed; i < maxRed + maxBlue; i++) {
 			combatants.Add (new CharacterClass ());
-			combatants [i/*+playerCharacters.Count*/].Initialize ("Blue Enemy " + i.ToString (), 15, 2, "Blue");
+			combatants [i+currentPlayerCharacters].Initialize ("Blue Enemy " + i.ToString (), 15, 2, "Blue");
 		}
 		inBattle = true;
 	}

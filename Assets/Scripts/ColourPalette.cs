@@ -18,7 +18,7 @@ public class ColourPalette : ScriptableObject {
 		ColourPalette temp = new ColourPalette();
 		List<Color> tempColour = new List<Color>();
 		tempColour.Add (new Color (0.6f, 0.1f, 0.1f));
-		tempColour.Add (new Color (0.7f,0.5f,0.5f));
+		tempColour.Add (new Color (0.7f,0.6f,0.5f));
 		tempColour.Add (new Color (0.8f,0.3f,0.3f));
 		temp.init (tempColour,"Fire");
 		colourPalettes.Add (temp);
@@ -28,9 +28,19 @@ public class ColourPalette : ScriptableObject {
 		temp = new ColourPalette();
 		tempColour = new List<Color>();
 		tempColour.Add (new Color (0.1f, 0.1f, 0.9f));
-		tempColour.Add (new Color (0.2f,0.4f,0.8f));
-		tempColour.Add (new Color (0.0f,0.3f,0.7f));
+		tempColour.Add (new Color (0.2f,0.6f,0.8f));
+		tempColour.Add (new Color (0.5f,0.3f,0.7f));
 		temp.init (tempColour,"Ice");
+		colourPalettes.Add (temp);
+		// Green toxic stuff
+		temp = null;
+		tempColour = null;
+		temp = new ColourPalette();
+		tempColour = new List<Color>();
+		tempColour.Add (new Color (0.3f, 0.8f, 0.5f));
+		tempColour.Add (new Color (0.6f,0.7f,0.4f));
+		tempColour.Add (new Color (0.15f,0.4f,0.1f));
+		temp.init (tempColour,"Toxic");
 		colourPalettes.Add (temp);
 		return colourPalettes;
 	}

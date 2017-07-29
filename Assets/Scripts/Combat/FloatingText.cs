@@ -57,7 +57,7 @@ public class FloatingText : MonoBehaviour {
 		updateText ();
 	}
 	public void setSize (){
-		gameObject.GetComponent<TextMesh> ().fontSize = 16 + damage / 100;
+		gameObject.GetComponent<TextMesh> ().fontSize = 16 + damage / 10;
 	}
 	public void setPosition(Transform TR){
 		position = TR.position;

@@ -79,14 +79,14 @@ public class BattleCameraControls : MonoBehaviour {
 
 		TR = GetComponent<Transform> ();
 		// Position that the camera will always aim for relative to player
-		Idealpos = new Vector3(0,60,0);
+		Idealpos = new Vector3(0,100,0);
 
 		var gameManager = GameObject.Find ("GameManager");
 		var player = gameManager.GetComponent<gameManager>().worldPlayer;
 		inBattle = gameManager.GetComponent<gameManager> ().inBattle;
 		if (inBattle) {
 			moveSpeed = 400;
-			TR.position = Idealpos +new Vector3(30,0,30);
+			TR.position = Idealpos +new Vector3(50,0,50);
 		}else{
 			moveSpeed = player.GetComponent<WorldMovementControls>().moveSpeed*2.2f; // takes max "move speed" which is really a force from the Player so we can match it.
 		}

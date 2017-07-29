@@ -128,7 +128,9 @@ public class Map : MonoBehaviour {
 	public bool isOccupied(int x,int z){
 		return tiles [x, z].GetComponent<MapGridUnit> ().isOccupied;
 	}
-
+	public bool isOccupied(int[] x){
+		return tiles [x[0], x[1]].GetComponent<MapGridUnit> ().isOccupied;
+	}
 	public void selectRange(Vector3 pos, int range){
 		int[] posInt = getTileCoordsFromPos (pos);
 		int x = posInt [0];
@@ -223,6 +225,43 @@ public class Map : MonoBehaviour {
 		return temp;
 	}
 
+	public List<int[]> getPath(int[] pos1, int[]pos2, int maxDist){
+		int wiggleRoom = maxDist - getIntDistanceFromCoords (pos1, pos2);
+		int[] currentPos = pos1;
+		List<int[]> path = new List<int[]>();
+		for(int i = 0;i<maxDist;i++){
+			currentPos = moveTowards (currentPos, pos2);
+			if (isOccupied (currentPos)) {
+				Debug.Log ("Failed moving, someone in the way"+currentPos.ToString());
+				return null;
+			}
+			path.Add (currentPos);
+			if (currentPos == pos2) {
+				break;
+			}
+		}
+		return path;
+
+	}
+	public int[] moveTowards(int[] pos1,int[] pos2){
+		int deltaX = pos1[0] - pos2[0];
+		int deltaZ = pos1[1] - pos2[1];
+		if (Mathf.Abs (deltaX) >= Mathf.Abs (deltaZ)) {
+			if (pos1 [0] > pos2 [0]) {
+				pos1 [0] -= 1;
+			} else if (pos1 [0] < pos2 [0]) {
+				pos1 [0] += 1;
+			}
+		} else if (Mathf.Abs (deltaX) <= Mathf.Abs (deltaZ)) {
+			if (pos1 [1] > pos2 [1]) {
+				pos1 [1] -= 1;
+			} else if (pos1 [1] < pos2 [1]) {
+				pos1 [1] += 1;
+			}
+		}
+		return pos1;
+	}
+
 
 
 	/********************************************************************************************/
@@ -265,6 +304,23 @@ public class Map : MonoBehaviour {
 		} else if (pos [2] > Zmax) {
 			pos [2] = 2*Zmax-pos[2];
 		}
+		return pos;
+	}
+
+	public int[] MirrorInsideBoundaries(int[] pos){
+		// mirrors coordinates back onto map
+		// Should preserve range..  (IE if I have range N and the input pos is within N squares of me, so will the reflected point)
+		if (pos [0] < 0) {
+			pos [0] = -pos [0];
+		}if (pos [0] > NcellX) {
+			pos [0] =  2 * pos [0] - NcellX;
+		}
+		if (pos [1] < 0) {
+			pos [1] = -pos [1];
+		}if (pos [1] > NcellZ) {
+			pos [1] = 2 * pos [1] - NcellZ;
+		}
+
 		return pos;
 	}
 
