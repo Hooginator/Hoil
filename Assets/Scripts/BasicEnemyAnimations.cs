@@ -4,19 +4,21 @@ using UnityEngine;
 
 
 /***********************************************************/
-// Dictates how the 3 outrer pieces rotate around the central piece for the basix enemy.
+// Dictates how the 3 outer pieces rotate around the central piece for the basix enemy.
 // This will be attached to the prefab of each basic enemy following these animations.
 // I want to create a general "Character Animations" that each individual Animation will inherit from.
 // general animation will hold the level indicator and hold spots for the animation calls I'll need (death, attack, power up..)
 /***********************************************************/
 
 public class BasicEnemyAnimations : MonoBehaviour {
+	// Central Sphere
 	public GameObject sphere;
 	public Vector3 spherePos;
+
 	public GameObject[] cubes;
 	public float[] angleXZ;
 	public float[] angleY;
-	public Vector3 tempPos;
+	public Vector3 centralPos;
 	public float targetDistance;
 	public Vector3 axisUp;
 	public float rotationSpeed;

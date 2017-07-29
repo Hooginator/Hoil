@@ -443,21 +443,25 @@ public class CombatTracker : MonoBehaviour {
 
 	void startTurn(){
 		print ("Start of Turn");
-		currentTurnCharacters = getCurrentTurnCharacters ();
-		if (currentTurnCharacters != null) {
-			actionFrom = currentTurnCharacters [0];
-			for (int i = 0; i < currentTurnCharacters.Count; i++) {
-				// Initialize for turns
-				currentTurnCharacters [i].startTurn ();
-			}
-			if (currentTeam == "Player") {
-				ShowBattleMenu ();
-			} else {
-				startComputerTurn ();
-			}
-		} else {
-			// if there are no current turn characters we don't need to do this turn
+		if (!checkTeam (currentTeam)) {
 			endTurn ();
+		} else {
+			currentTurnCharacters = getCurrentTurnCharacters ();
+			if (currentTurnCharacters != null) {
+				actionFrom = currentTurnCharacters [0];
+				for (int i = 0; i < currentTurnCharacters.Count; i++) {
+					// Initialize for turns
+					currentTurnCharacters [i].startTurn ();
+				}
+				if (currentTeam == "Player") {
+					ShowBattleMenu ();
+				} else {
+					startComputerTurn ();
+				}
+			} else {
+				// if there are no current turn characters we don't need to do this turn
+				endTurn ();
+			}
 		}
 	}
 
@@ -553,6 +557,19 @@ public class CombatTracker : MonoBehaviour {
 		sceneMan.EndBattle (EXP);
 	}
 
+	bool checkTeam(string teamName){
+		// Checks if there are any living members of teamName left alive
+		// Takes: string teamName to check if that team has any living members
+		// Returns: bool of true when team exists, false otherwise.
+
+		for (int i = 0; i < numCharacters; i++) {
+			if (!characters [i].isDead && characters [i].team == teamName) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	bool checkEndBattle (){
 		// Currently checks for two teams to be alive
 		bool livingCharacter = false;
@@ -582,6 +599,7 @@ public class CombatTracker : MonoBehaviour {
 		}
 		return !(livingEnemy && livingPlayer);*/
 	}
+
 	void checkDead(){
 		// Checks all characters and kills them if dead
 		for (int i = 0; i < numCharacters; i++) {
