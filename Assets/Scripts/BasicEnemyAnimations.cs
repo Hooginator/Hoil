@@ -37,7 +37,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		}
 		targetDistance = 3;
 		axisUp = new Vector3 (0, 1, 0);
-		rotationSpeed = 50f;
+		rotationSpeed = 100f;
 		topOrientation = axisUp;
 		desiredTopOrientation = axisUp;
 		animationType = "normal";
@@ -53,7 +53,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			updateLevelIndicator ();
 
 		}
-		setTopVector(new Vector3(1,0,0));
+		//setTopVector(new Vector3(1,-99,1));
 
 	}
 	
@@ -70,12 +70,16 @@ public class BasicEnemyAnimations : MonoBehaviour {
 				cubes [i].transform.RotateAround (spherePos, topOrientation, 3 * rotationSpeed * Time.deltaTime);
 				cubes [i].transform.Translate(topOrientation * Mathf.Sin(0.1f*Time.frameCount) * 0.4f * rotationSpeed * Time.deltaTime);
 			}
+		} else if (animationType == "casting") {
+			for (int i = 0; i < 3; i++) {
+				cubes [i].transform.RotateAround (spherePos, topOrientation, 3 * rotationSpeed * Time.deltaTime);
+			}
 		}
 		if (topRotation) {
-			maxRadiansTop = 0.01f * rotationSpeed * Time.deltaTime;
+			maxRadiansTop = 0.04f * rotationSpeed * Time.deltaTime;
 			print (maxRadiansTop.ToString () + "   " + Time.frameCount);
 			if (topOrientation == desiredTopOrientation) {
-				print ("DONE WITH ROTATINGGGGGG");
+				//print ("DONE WITH ROTATINGGGGGG");
 				topRotation = false;
 			} else {
 				topOrientation = Vector3.RotateTowards (topOrientation, desiredTopOrientation, maxRadiansTop, 1);
@@ -86,7 +90,28 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		}
 
 	}
-	void setTopVector(Vector3 newTop){
+	public void castTowards(Vector3 target){
+		// Do cast animation towards target location
+		setTopVector(target);
+		animationType = "casting";
+		StartCoroutine(setDefaultIn(1));
+	}
+
+	IEnumerator setAnimationTypeIn(string type, float t){
+		// Gives animations a second to go off before starting next turn
+		yield return new WaitForSeconds (t);
+		animationType = type;
+	}
+
+	IEnumerator setDefaultIn(float t){
+		// Gives animations a second to go off before starting next turn
+		yield return new WaitForSeconds (t);
+		animationType = "normal";
+		setTopVector (new Vector3 (0, 1, 0));
+	}
+
+
+	public void setTopVector(Vector3 newTop){
 		desiredTopOrientation = newTop;
 		desiredTopOrientation.Normalize();
 		topRotation = true;
