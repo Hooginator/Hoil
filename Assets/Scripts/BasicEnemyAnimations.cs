@@ -28,6 +28,12 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	Vector3 topOrientation;
 	Vector3 desiredTopOrientation;
 	bool topRotation;
+	bool recoiling;
+	Vector3 recoilSpeed;
+	float sphereDelta;
+	// Initial recoil direction 
+	Vector3 recoilDirection;
+	float recoilAcceleration;
 	float maxRadiansTop;
 	void Start () {
 		cubes = new GameObject[3];
@@ -42,6 +48,9 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		desiredTopOrientation = axisUp;
 		animationType = "normal";
 		topRotation = false;
+		recoiling = false;
+		recoilAcceleration = 1.2f;
+		sphereDelta = 0;
 
 		// Update display of level on the model
 		var gameMan = GameObject.Find ("GameManager");
@@ -75,8 +84,18 @@ public class BasicEnemyAnimations : MonoBehaviour {
 				cubes [i].transform.RotateAround (spherePos, topOrientation, 3 * rotationSpeed * Time.deltaTime);
 			}
 		}
+		if (recoiling) {
+			// distance from where the sphere is and it is supposed to be
+			sphereDelta = Vector3.Magnitude(spherePos - centralPos);
+			recoilSpeed += getReturningSphereSpeed (sphereDelta);
+			gameObject.transform.position += recoilSpeed;
+			recoilSpeed *= 0.99f;
+			if (sphereDelta < 0.001f) {
+				recoiling = false;
+			}
+		}
 		if (topRotation) {
-			maxRadiansTop = 0.04f * rotationSpeed * Time.deltaTime;
+			maxRadiansTop = 0.03f * rotationSpeed * Time.deltaTime;
 			print (maxRadiansTop.ToString () + "   " + Time.frameCount);
 			if (topOrientation == desiredTopOrientation) {
 				//print ("DONE WITH ROTATINGGGGGG");
@@ -90,17 +109,26 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		}
 
 	}
+	public void setPos(){
+		// Sets Central pos to current position.  For use after character is moved to another tile.
+		centralPos = sphere.transform.position;
+	}
+	public void setPos(Vector3 newPos){
+		// Sets Central pos to current position.  For use after character is moved to another tile.
+		centralPos = newPos;
+	}
 	public void castTowards(Vector3 target){
 		// Do cast animation towards target location
 		setTopVector(target);
 		animationType = "casting";
-		StartCoroutine(setDefaultIn(1));
+		StartCoroutine(fireIn(1,target));
 	}
 
-	IEnumerator setAnimationTypeIn(string type, float t){
+	IEnumerator fireIn(float t,Vector3 target){
 		// Gives animations a second to go off before starting next turn
 		yield return new WaitForSeconds (t);
-		animationType = type;
+		recoilFrom (-target);
+		StartCoroutine(setDefaultIn(0.5f));
 	}
 
 	IEnumerator setDefaultIn(float t){
@@ -110,11 +138,18 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		setTopVector (new Vector3 (0, 1, 0));
 	}
 
-
+	Vector3 getReturningSphereSpeed(float dist){
+		// Returns the vector pointing the sphere to where it is supposed to go that gets larget as the sphere is farther waway
+		return Vector3.Normalize(centralPos - spherePos) * dist;
+	}
 	public void setTopVector(Vector3 newTop){
 		desiredTopOrientation = newTop;
 		desiredTopOrientation.Normalize();
 		topRotation = true;
+	}
+	public void recoilFrom(Vector3 initialSpeed){
+		recoiling = true;
+		recoilSpeed = 0.9f*initialSpeed;
 	}
 
 	Vector3 rotateClockwise(Vector3 relativePos){

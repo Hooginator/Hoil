@@ -333,6 +333,7 @@ public class CombatTracker : MonoBehaviour {
 		map.tiles[x,z].GetComponent<MapGridUnit>().isOccupied = true;
 		charToMove.battleLocation = new int[2]{ x, z };
 		charToMove.battleAvatar.transform.position = map.getAbovePosFromCoords (x, z);
+		charToMove.battleAvatar.GetComponent<BasicEnemyAnimations> ().setPos (map.getAbovePosFromCoords (x, z));
 	}
 
 
