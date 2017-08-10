@@ -85,13 +85,14 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			}
 		}
 		if (recoiling) {
-			// distance from where the sphere is and it is supposed to be
-			sphereDelta = Vector3.Magnitude(spherePos - centralPos);
-			recoilSpeed += getReturningSphereSpeed (sphereDelta);
 			gameObject.transform.position += recoilSpeed;
-			recoilSpeed *= 0.99f;
-			if (sphereDelta < 0.001f) {
+			// distance from where the sphere is and it is supposed to be
+			sphereDelta = Vector3.Magnitude(gameObject.transform.position - centralPos);
+			recoilSpeed += getReturningSphereSpeed (sphereDelta);
+			recoilSpeed *= Mathf.Pow(Vector3.Magnitude(recoilSpeed),-0.5f);
+			if (sphereDelta < 0.1f) {
 				recoiling = false;
+				gameObject.transform.position = centralPos;
 			}
 		}
 		if (topRotation) {
@@ -149,7 +150,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	}
 	public void recoilFrom(Vector3 initialSpeed){
 		recoiling = true;
-		recoilSpeed = 0.9f*initialSpeed;
+		recoilSpeed = 0.2f*initialSpeed;
 	}
 
 	Vector3 rotateClockwise(Vector3 relativePos){
