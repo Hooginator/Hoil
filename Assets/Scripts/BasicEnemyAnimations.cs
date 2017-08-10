@@ -25,7 +25,10 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	public string animationType;
 	public int level;
 	// Use this for initialization
-	Quaternion rotation;
+	Vector3 topOrientation;
+	Vector3 desiredTopOrientation;
+	bool topRotation;
+	float maxRadiansTop;
 	void Start () {
 		cubes = new GameObject[3];
 		sphere = gameObject.transform.GetChild(1).gameObject;
@@ -34,10 +37,11 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		}
 		targetDistance = 3;
 		axisUp = new Vector3 (0, 1, 0);
-		rotationSpeed = 50f;
-		rotation = Quaternion.identity;
-		rotation.eulerAngles = new Vector3(70, 0, 0);
+		rotationSpeed = 100f;
+		topOrientation = axisUp;
+		desiredTopOrientation = axisUp;
 		animationType = "normal";
+		topRotation = false;
 
 		// Update display of level on the model
 		var gameMan = GameObject.Find ("GameManager");
@@ -49,24 +53,70 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			updateLevelIndicator ();
 
 		}
+		//setTopVector(new Vector3(1,-99,1));
 
 	}
 	
 	// Update is called once per frame
 	void Update () { 
-		gameObject.transform.GetChild (0).rotation = rotation;
+		//gameObject.transform.GetChild (0).rotation = topRotation;
 		spherePos = sphere.transform.position;
 		if (animationType == "normal") {
 			for (int i = 0; i < 3; i++) {
-				cubes [i].transform.RotateAround (spherePos, axisUp, rotationSpeed * Time.deltaTime);
+				cubes [i].transform.RotateAround (spherePos, topOrientation, rotationSpeed * Time.deltaTime);
 			}
 		} else if (animationType == "dying") {
 			for (int i = 0; i < 3; i++) {
-				cubes [i].transform.RotateAround (spherePos, axisUp, 3 * rotationSpeed * Time.deltaTime);
-				cubes [i].transform.Translate(axisUp * Mathf.Sin(0.1f*Time.frameCount) * 0.4f * rotationSpeed * Time.deltaTime);
+				cubes [i].transform.RotateAround (spherePos, topOrientation, 3 * rotationSpeed * Time.deltaTime);
+				cubes [i].transform.Translate(topOrientation * Mathf.Sin(0.1f*Time.frameCount) * 0.4f * rotationSpeed * Time.deltaTime);
+			}
+		} else if (animationType == "casting") {
+			for (int i = 0; i < 3; i++) {
+				cubes [i].transform.RotateAround (spherePos, topOrientation, 3 * rotationSpeed * Time.deltaTime);
 			}
 		}
+		if (topRotation) {
+			maxRadiansTop = 0.04f * rotationSpeed * Time.deltaTime;
+			print (maxRadiansTop.ToString () + "   " + Time.frameCount);
+			if (topOrientation == desiredTopOrientation) {
+				//print ("DONE WITH ROTATINGGGGGG");
+				topRotation = false;
+			} else {
+				topOrientation = Vector3.RotateTowards (topOrientation, desiredTopOrientation, maxRadiansTop, 1);
+				for (int i = 0; i < 3; i++) {
+					cubes [i].transform.RotateAround (spherePos, Vector3.Cross (topOrientation, desiredTopOrientation), (180 / Mathf.PI) * maxRadiansTop);
+				}
+			}
+		}
+
 	}
+	public void castTowards(Vector3 target){
+		// Do cast animation towards target location
+		setTopVector(target);
+		animationType = "casting";
+		StartCoroutine(setDefaultIn(1));
+	}
+
+	IEnumerator setAnimationTypeIn(string type, float t){
+		// Gives animations a second to go off before starting next turn
+		yield return new WaitForSeconds (t);
+		animationType = type;
+	}
+
+	IEnumerator setDefaultIn(float t){
+		// Gives animations a second to go off before starting next turn
+		yield return new WaitForSeconds (t);
+		animationType = "normal";
+		setTopVector (new Vector3 (0, 1, 0));
+	}
+
+
+	public void setTopVector(Vector3 newTop){
+		desiredTopOrientation = newTop;
+		desiredTopOrientation.Normalize();
+		topRotation = true;
+	}
+
 	Vector3 rotateClockwise(Vector3 relativePos){
 		
 		float angle = getXZAngle (relativePos);

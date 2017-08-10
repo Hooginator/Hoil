@@ -37,7 +37,7 @@ public class FireBallCastAnimation : MonoBehaviour {
 		currentStage = "Conjuring";
 		t = 0;
 		travelDistance = Vector3.Distance (startPos, stopPos);
-		castFrames = 30;
+		castFrames = 60;
 		travelFrames = 30;
 		castTime = castFrames * Time.deltaTime;
 		travelTime = travelFrames * Time.deltaTime;
