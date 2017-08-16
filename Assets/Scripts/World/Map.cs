@@ -41,6 +41,10 @@ public class Map : MonoBehaviour {
 	private gameManager gameMan;
 
 
+	// HEX
+	float offsetX = 20*0.8660254f;
+	float offsetZ = 15;
+
 	// Update is called once per frame
 	void Update () {
 	}
@@ -64,10 +68,28 @@ public class Map : MonoBehaviour {
 		gameMan = GameObject.Find ("GameManager").GetComponent<gameManager>();
 
 		// Loop through all grid places to be used for initialization
+		float tilePosX;
+		float tilePosZ;
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
+
+
+
+				// HEX time!
+				tilePosZ = z * offsetZ;
+				if (z % 2 == 0) {
+					// For even rows
+					tilePosX = x*offsetX;
+				} else {
+					// For odd rows
+					tilePosX = (x+0.5f)*offsetX;
+				}
+					
+
+
+
 				// Create instance of prefab
-				tiles[x,z] = Instantiate (Prefab, new Vector3 (x*10, 0, z*10), Quaternion.identity);
+				tiles[x,z] = Instantiate (Prefab, new Vector3 (tilePosX, 0, tilePosZ), Quaternion.Euler(new Vector3(90,0,0)));
 				// Add MapGridUnit to prefab (maybe could just be in prefab?)
 				tiles[x,z].AddComponent<MapGridUnit>();
 				// Assign Map.cs as the parent of the Map Tiles
