@@ -236,7 +236,7 @@ public class Map : MonoBehaviour {
 		// Returns the integer distence between two locations.
 		int[] posInt1 = getTileCoordsFromPos (pos1);
 		int[] posInt2 = getTileCoordsFromPos (pos2);
-		return (Mathf.Abs (posInt1 [0] - posInt2 [0]) + Mathf.Abs (posInt1 [1] - posInt2 [1]));
+		return getIntDistanceFromCoords(posInt1,posInt2);
 	}
 	public int getIntDistanceFromCoords(int[] pos1, int[] pos2){
 		// Returns the integer distence between two locations.
