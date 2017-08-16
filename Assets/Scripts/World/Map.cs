@@ -68,28 +68,15 @@ public class Map : MonoBehaviour {
 		gameMan = GameObject.Find ("GameManager").GetComponent<gameManager>();
 
 		// Loop through all grid places to be used for initialization
-		float tilePosX;
-		float tilePosZ;
+		//float tilePosX;
+		//float tilePosZ;
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
 
-
-
 				// HEX time!
-				tilePosZ = z * offsetZ;
-				if (z % 2 == 0) {
-					// For even rows
-					tilePosX = x*offsetX;
-				} else {
-					// For odd rows
-					tilePosX = (x+0.5f)*offsetX;
-				}
-					
-
-
 
 				// Create instance of prefab
-				tiles[x,z] = Instantiate (Prefab, new Vector3 (tilePosX, 0, tilePosZ), Quaternion.Euler(new Vector3(90,0,0)));
+				tiles[x,z] = Instantiate (Prefab, calculateTilePosFromCoords(x,z), Quaternion.Euler(new Vector3(90,0,0)));
 				// Add MapGridUnit to prefab (maybe could just be in prefab?)
 				tiles[x,z].AddComponent<MapGridUnit>();
 				// Assign Map.cs as the parent of the Map Tiles
@@ -115,7 +102,20 @@ public class Map : MonoBehaviour {
 		}
 	}
 
-
+	Vector3 calculateTilePosFromCoords(int x,int z){
+		// For HEX
+		float tempX;
+		float tempZ;
+		tempZ = z * offsetZ;
+		if (z % 2 == 0) {
+			// For even rows
+			tempX = x*offsetX;
+		} else {
+			// For odd rows
+			tempX = (x+0.5f)*offsetX;
+		}
+		return new Vector3 (tempX, 0, tempZ);
+	}
 
 	/********************************************************************************************/
 	/******************************** Tile Management *******************************************/
@@ -145,8 +145,14 @@ public class Map : MonoBehaviour {
 
 	public bool isInRange(int x1, int z1, int x2, int z2, int range ){
 		// Checks if [x1,z1] is within range of [x2,z2]
-		return (Mathf.Abs(x1-x2) + Mathf.Abs(z1-z2)) <= range;
+		//return (Mathf.Abs(x1-x2) + Mathf.Abs(z1-z2)) <= range;
+
+		// HEX
+		return (getIntDistanceFromCoords(new int[] {x1,z1},new int[] {x2,z2} ) <= range);
+
+
 	}
+
 	public bool isOccupied(int x,int z){
 		return tiles [x, z].GetComponent<MapGridUnit> ().isOccupied;
 	}
@@ -234,7 +240,32 @@ public class Map : MonoBehaviour {
 	}
 	public int getIntDistanceFromCoords(int[] pos1, int[] pos2){
 		// Returns the integer distence between two locations.
-		return (Mathf.Abs (pos1 [0] - pos2 [0]) + Mathf.Abs (pos1 [1] - pos2 [1]));
+		/// HEX
+		print ("WSERDFTVGYBUHNJIMK");
+		return cubeDistance(cartesianToCube(pos1), cartesianToCube(pos2));
+		//return (Mathf.Abs (pos1 [0] - pos2 [0]) + Mathf.Abs (pos1 [1] - pos2 [1]));
+	}
+
+	public int[] cubeToCartesian(int[] cube){
+		// Change to cube coords to make maths easier
+		int[] tempPos = new int[2];
+		tempPos [0] = cube[0] + (cube[1] + cube[1] % 2) / 2;
+		tempPos [1] = cube[1];
+		return tempPos;
+	}
+
+	public int[] cartesianToCube(int[] tempPos){
+		// Change to cube coords to make maths easier
+		int[] tempCube = new int[3];
+		tempCube [0] = tempPos[0] + (tempPos[1] + tempPos[1] % 2) / 2;
+		tempCube [2] = tempPos[1];
+		tempCube [1] = -tempCube[0]-tempCube[2];
+		return tempCube;
+	}
+	public int cubeDistance(int[] cube1,int[] cube2){
+		
+		return (Mathf.Abs (cube1 [0] - cube2 [0]) + Mathf.Abs (cube1 [1] - cube2 [1]) + Mathf.Abs (cube1 [2] - cube2 [2])) / 2;
+
 	}
 	public Vector3 getPosFromCoords(int x, int z){
 		// Returns the central position of a tile based on int inputs

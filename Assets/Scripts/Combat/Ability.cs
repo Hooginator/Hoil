@@ -40,7 +40,7 @@ public class Ability : ScriptableObject{
 		caster = casterIn;
 		switch (nameIn) {
 		case "Fireball":
-			baseRange = 6;
+			baseRange = 2;
 			AoERange = 3;
 			baseDamage = 30;
 			damageType = "Fire";
@@ -48,15 +48,15 @@ public class Ability : ScriptableObject{
 			targetingType = "Area";
 			break;
 		case "Iceball":
-			baseRange = 8;
-			AoERange = 4;
+			baseRange = 4;
+			AoERange = 7;
 			baseDamage = 20;
 			damageType = "Ice";
 			targets = "Enemy";
 			targetingType = "Area";
 			break;
 		case "Acidball":
-			baseRange = 5;
+			baseRange = 3;
 			AoERange = 2;
 			baseDamage = 40;
 			damageType = "Toxic";
