@@ -197,7 +197,6 @@ public class Map : MonoBehaviour {
 		for(int i = -range;i < range +1; i++){
 			for (int j = Mathf.Max (-range, -i - range); j < Mathf.Min (range, -i + range) +1; j++) {
 				tempList.Add (new int[]{i + cubePos[0],j + cubePos[1],-i-j + cubePos[2]} );
-				print (cubeToCartesian (new int[]{i + cubePos[0],j + cubePos[1],-i-j + cubePos[2]})[0].ToString() + "  " + cubeToCartesian (new int[]{i + cubePos[0],j + cubePos[1],-i-j + cubePos[2]})[1].ToString());
 			}
 		}
 		return tempList;
@@ -224,22 +223,18 @@ public class Map : MonoBehaviour {
 			}
 		}*/
 	}
-
-	/********************************************************************************************/
-	/******************************** Tile Management Old (NON HEX) *****************************/
-	/********************************************************************************************/
-
 	public void setOutOfRange(int x, int z, int range){
 		// Will recolour the tiles within range of the position (x,z) back to the normal colour
-		for (int i = -range; i < range+1; i++){
-			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
-				if (isIntInBoundaries (i+x, j+z)) {
-					tiles [i+x, j+z].GetComponent<MapGridUnit> ().setOutOfRange ();
-				}
+		// HEX
+		List<int[]> toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
+		int[] tempCart;
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				tiles [tempCart [0], tempCart [1]].GetComponent<MapGridUnit> ().reColour ();
 			}
 		}
 	}
-		
 
 	public bool isOccupied(int x,int z){
 		return tiles [x, z].GetComponent<MapGridUnit> ().isOccupied;
@@ -247,19 +242,32 @@ public class Map : MonoBehaviour {
 	public bool isOccupied(int[] x){
 		return tiles [x[0], x[1]].GetComponent<MapGridUnit> ().isOccupied;
 	}
+
 	public void selectRange(Vector3 pos, int range){
 		int[] posInt = getTileCoordsFromPos (pos);
 		int x = posInt [0];
 		int z = posInt [1];
-		for (int i = -range; i < range+1; i++){
-			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
-				if (isIntInBoundaries (i+x, j+z)) {
-					selectRangeUnit(i+x, j+z);
-					//print ("HERE I AM <<<<<<<<");
-				}
+		List<int[]> toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
+		int[] tempCart;
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				selectRangeUnit(tempCart [0], tempCart [1]);
 			}
 		}
 		selectCentralUnit(x,z);
+	}
+
+	public void selectRange(int[] posInt, int range){
+		List<int[]> toSet = getInRange (cartesianToCube (posInt),range);
+		int[] tempCart = new int[]{0,0};
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				selectRangeUnit(tempCart [0], tempCart [1]);
+			}
+		}
+		selectCentralUnit(posInt[0],posInt[1]);
 	}
 	public void selectRangeUnit(int i,int j){
 		tiles [i, j].GetComponent<MapGridUnit> ().Select ();
@@ -267,19 +275,31 @@ public class Map : MonoBehaviour {
 	public void selectCentralUnit(int i,int j){
 		tiles [i, j].GetComponent<MapGridUnit> ().centralSelect ();
 	}
+
 	public void deSelectRange(Vector3 pos, int range){
 		int[] posInt = getTileCoordsFromPos (pos);
 		int x = posInt [0];
 		int z = posInt [1];
-		for (int i = -range; i < range+1; i++){
-			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
-				if (isIntInBoundaries (i+x, j+z)) {
-					deSelectUnit(i+x, j+z);
-					//print ("HERE I AM <<<<<<<<");
-				}
+		List<int[]> toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
+		int[] tempCart;
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				deSelectUnit(tempCart [0], tempCart [1]);
 			}
 		}
 	}
+	public void deSelectRange(int[] posInt, int range){
+		List<int[]> toSet = getInRange (cartesianToCube (posInt),range);
+		int[] tempCart;
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				deSelectUnit(tempCart [0], tempCart [1]);
+			}
+		}
+	}
+
 	public void deSelectUnit(int i, int j){
 		tiles [i, j].GetComponent<MapGridUnit> ().reColour ();
 	}
@@ -287,12 +307,15 @@ public class Map : MonoBehaviour {
 		deSelectUnit (i [0], i [1]);
 	}
 	public void deSelectAll(){
-		print ("deseletgin");
 		for (int i = 0; i < NcellZ; i++) {
 			for (int j = 0; j < NcellX; j++) {
 				deSelectUnit (i, j);
 			}
 		}
+	}
+
+	public GameObject getTile(int[] posInt){
+		return tiles[posInt[0],posInt[1]];
 	}
 	/********************************************************************************************/
 	/******************************** Tile Position Management **********************************/
@@ -306,12 +329,19 @@ public class Map : MonoBehaviour {
 		return tiles [posInt[0], posInt[1]];
 	}
 	public int[] getTileCoordsFromPos(Vector3 pos){
-		// Gives the coordinates od the tile under a position
+
+		// UNTESTED
+
 		int[] posInt = new int [2];
-		posInt [0] = (int)Mathf.Floor ((pos [0] - Xmin) / gridSize);
-		posInt [1] = (int) Mathf.Floor((pos [2] - Zmin) / gridSize);
+		posInt [1] = (int) Mathf.Floor((pos[2]-0.5f*offsetZ) / offsetZ);
+		if (posInt [1] % 2 == 0) {
+			posInt [0] = (int)Mathf.Floor ((pos [0]+0.5f*offsetX) / offsetX - 0.5f);
+		} else {
+			posInt [0] = (int)Mathf.Floor ((pos [0]+0.5f*offsetX) / offsetX);
+		}
 		return posInt;
 	}
+
 	public Vector3 centreInTile(Vector3 pos){
 		// Centres the Vector in its current tile.
 		Vector3 temppos = getTileFromPos(pos).transform.position;
@@ -320,7 +350,9 @@ public class Map : MonoBehaviour {
 		return temppos;
 
 	}
-	public int getIntDistance(Vector3 pos1, Vector3 pos2){
+	public int getIntDistance(Vector3 pos1, Vector3 pos2){ 
+
+
 		// Returns the integer distence between two locations.
 		int[] posInt1 = getTileCoordsFromPos (pos1);
 		int[] posInt2 = getTileCoordsFromPos (pos2);
@@ -402,6 +434,19 @@ public class Map : MonoBehaviour {
 			pos [2] = Zmin;
 		} else if (pos [2] > Zmax) {
 			pos [2] = Zmax;
+		}
+		return pos;
+	}
+	public int[] ForceIntInsideBoundaries(int[] pos){
+		if (pos [0] < 0) {
+			pos [0] = 0;
+		} else if (pos [0] > NcellX-1) {
+			pos [0] = NcellX-1;
+		}
+		if (pos [1] < 0) {
+			pos [1] = 0;
+		} else if (pos [1] > NcellZ-1) {
+			pos [1] = NcellZ-1;
 		}
 		return pos;
 	}

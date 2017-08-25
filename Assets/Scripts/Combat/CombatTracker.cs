@@ -28,6 +28,7 @@ public class CombatTracker : MonoBehaviour {
 	public float experienceEarned;
 
 	public Vector3 targetLocation;
+	public int[] targetIntLocation;
 	bool selectingTargetLocation;
 
 	GameObject BattleMenu;
@@ -36,7 +37,7 @@ public class CombatTracker : MonoBehaviour {
 	public string previousWindowStatus;
 
 	public Map map;
-	public Vector3 temppos;
+	public int[] temppos;
 	// Number of turns that have gone by, so I can kill the infinite loops witha  failsafe
 	private int nTurns = 0;
 
@@ -94,27 +95,28 @@ public class CombatTracker : MonoBehaviour {
 			}
 		}
 
-		temppos = new Vector3 (0, 0, 0);
+		temppos = new int[] {0,0};
 		// Check if we are currenntly picking a cell to attack
 		if (selectingTargetLocation) {
 			if (Input.GetButtonDown ("Left")) {
-				temppos -= new Vector3(map.gridSize,0,0);
+				temppos[0] -= 1;
 			}else if (Input.GetButtonDown ("Right")) {
-				temppos += new Vector3(map.gridSize,0,0);
+				temppos[0] += 1;
 			}	
 			if (Input.GetButtonDown ("Down")) {
-				temppos -= new Vector3(0,0,map.gridSize);
+				temppos[1] -= 1;
 			}else if (Input.GetButtonDown ("Up")) {
-				temppos += new Vector3(0,0,map.gridSize);
+				temppos[1] += 1;
 			}
-			if(temppos != new Vector3(0,0,0)){
-				map.deSelectRange (targetLocation, areaRange);
-				map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().reColour ();
-				targetLocation += temppos;
-				targetLocation = map.ForceInsideBoundaries (targetLocation);
-				updateCameraTarget (targetLocation);
+			if(temppos != new int[] {0,0}){
+				map.deSelectRange (targetIntLocation, areaRange);
+				map.getTile (targetIntLocation).GetComponent<MapGridUnit>().reColour ();
+				targetIntLocation[0] += temppos[0];
+				targetIntLocation[1] += temppos[1];
+				targetIntLocation = map.ForceIntInsideBoundaries (targetIntLocation);
+				updateCameraTarget (map.getAbovePosFromCoords(targetIntLocation[0],targetIntLocation[1]));
 				//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
-				map.selectRange (targetLocation, areaRange);
+				map.selectRange (targetIntLocation, areaRange);
 			}
 			//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
 			if (Input.GetButtonUp ("Submit")) {
@@ -124,7 +126,7 @@ public class CombatTracker : MonoBehaviour {
 			}
 			if (Input.GetButtonDown ("Submit") && wasUp) {
 				// when you hit space, get the tile selected to do what we wanted
-				coords = map.getTileCoordsFromPos(targetLocation);
+				coords = targetIntLocation;
 				//print ("You have selected tile " + coords[0].ToString() + "  " + coords[1].ToString());
 
 
@@ -343,7 +345,8 @@ public class CombatTracker : MonoBehaviour {
 		wasUp = false;
 		map = GameObject.Find ("Map").GetComponent<Map> ();
 		// Default select where Player 0 is
-		targetLocation = map.getAbovePosFromCoords(x,z);
+		//targetLocation = map.getAbovePosFromCoords(x,z);
+		targetIntLocation = new int[]{ x, z };
 		map.setInRange (x, z, range);
 		HideBattleMenu();
 		selectingFromX = x;
@@ -361,9 +364,11 @@ public class CombatTracker : MonoBehaviour {
 		selectingTargetLocation = false;
 		//map = GameObject.Find ("Map").GetComponent<Map> ();
 		// Default select where Player 0 is
-		map.deSelectRange (targetLocation, areaRange);
-		map.getTileFromPos (targetLocation).GetComponent<MapGridUnit> ().reColour ();
-		targetLocation = sprites [0].transform.position;
+		//map.deSelectRange (targetLocation, areaRange);
+		map.deSelectRange (targetIntLocation, areaRange);
+		//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit> ().reColour ();
+		map.getTile (targetIntLocation).GetComponent<MapGridUnit>().reColour ();
+		//targetLocation = sprites [0].transform.position;
 		map.setOutOfRange (selectingFromX, selectingFromZ, selectingRange);
 		windowStatus = "None";
 
