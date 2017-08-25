@@ -301,7 +301,7 @@ public class CombatTracker : MonoBehaviour {
 			tempIndex = tempTeams.FindIndex (tempTeam => tempTeam == characters [i].team);
 			switch (tempIndex) {
 			case 0:
-				setToPosition (characters [i], 4 + charactersPlaced [tempIndex], 1);
+				setToPosition (characters [i], 4 + charactersPlaced [tempIndex], 4);
 				break;
 			case 1:
 				setToPosition (characters [i], 8, 2 + charactersPlaced [tempIndex]);

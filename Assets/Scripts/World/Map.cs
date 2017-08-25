@@ -102,8 +102,12 @@ public class Map : MonoBehaviour {
 		}
 	}
 
+	/********************************************************************************************/
+	/******************************** Tile Management HEX!! *************************************/
+	/********************************************************************************************/
+
 	Vector3 calculateTilePosFromCoords(int x,int z){
-		// For HEX
+		// For HEX TILES
 		float tempX;
 		float tempZ;
 		tempZ = z * offsetZ;
@@ -117,21 +121,114 @@ public class Map : MonoBehaviour {
 		return new Vector3 (tempX, 0, tempZ);
 	}
 
-	/********************************************************************************************/
-	/******************************** Tile Management *******************************************/
-	/********************************************************************************************/
+	public int getIntDistanceFromCoords(int[] pos1, int[] pos2){
+		// Returns the integer distence between two locations.
+		/// HEX
+		print ("WSERDFTVGYBUHNJIMK");
+		return cubeDistance(cartesianToCube(pos1), cartesianToCube(pos2));
+		//return (Mathf.Abs (pos1 [0] - pos2 [0]) + Mathf.Abs (pos1 [1] - pos2 [1]));
+	}
+
+	public int getIntDistanceFromCube(int[] cube1, int[] cube2){
+		// Returns the integer distence between two locations.
+		/// HEX
+		return cubeDistance(cube1, cube2);
+		//return (Mathf.Abs (pos1 [0] - pos2 [0]) + Mathf.Abs (pos1 [1] - pos2 [1]));
+	}
+
+	public int[] cubeToCartesian(int[] cube){
+		// HEX
+		// Change to cube coords to make maths easier
+		int[] tempPos = new int[2];
+		tempPos [0] = cube[0] + (cube[2] - cube[2] % 2) / 2;
+		tempPos [1] = cube[2];
+		return tempPos;
+	}
+
+	public int[] cartesianToCube(int[] tempPos){
+		// HEX
+		// Change to cube coords to make maths easier
+		int[] tempCube = new int[3];
+		tempCube [0] = tempPos[0] - (tempPos[1] - tempPos[1] % 2) / 2;
+		tempCube [2] = tempPos[1];
+		tempCube [1] = -tempCube[0]-tempCube[2];
+		return tempCube;
+	}
+	public int cubeDistance(int[] cube1,int[] cube2){
+		// HEX
+		return (Mathf.Abs (cube1 [0] - cube2 [0]) + Mathf.Abs (cube1 [1] - cube2 [1]) + Mathf.Abs (cube1 [2] - cube2 [2])) / 2;
+
+	}
+	public bool isInRange(int x1, int z1, int x2, int z2, int range ){
+		// Checks if [x1,z1] is within range of [x2,z2]
+		//return (Mathf.Abs(x1-x2) + Mathf.Abs(z1-z2)) <= range;
+
+		// HEX
+		return (getIntDistanceFromCoords(new int[] {x1,z1},new int[] {x2,z2} ) <= range);
+
+
+	}
+	public bool isCubeInRange(int[] cube1,int[] cube2,int range){
+
+
+		return(getIntDistanceFromCube (cube1, cube2) <= range);
+	}
+
+	public List<int[]> getInRange(int[] cubePos, int range){
+		// HEX
+		// provides a list of tile coordinates in cube within range of cubePos
+		// Does not check on boundaries
+
+
+		List<int[]> tempList = new List<int[]> ();
+		// BRUTE FORCE, CHECK EVERYTHING
+		/*int[] tempCube;
+		for (int i = 0; i < NcellX; i++) {
+			for (int j = 0; j < NcellZ; j++) {
+				tempCube = cartesianToCube (new int[]{ i, j });
+				print ("Cart: " + i.ToString() + " " + j.ToString() + " Cube: " + tempCube[0] + " " + tempCube[1] + " " + tempCube[2] + " ");
+				if (isCubeInRange(cubePos,cartesianToCube(new int[]{i,j}),range)){
+
+					tiles [i, j].GetComponent<MapGridUnit> ().setInRange ();
+				}
+			}
+		}*/
+		// BE ELEGANT
+		for(int i = -range;i < range +1; i++){
+			for (int j = Mathf.Max (-range, -i - range); j < Mathf.Min (range, -i + range) +1; j++) {
+				tempList.Add (new int[]{i + cubePos[0],j + cubePos[1],-i-j + cubePos[2]} );
+				print (cubeToCartesian (new int[]{i + cubePos[0],j + cubePos[1],-i-j + cubePos[2]})[0].ToString() + "  " + cubeToCartesian (new int[]{i + cubePos[0],j + cubePos[1],-i-j + cubePos[2]})[1].ToString());
+			}
+		}
+		return tempList;
+	}
 
 	public void setInRange(int x, int z, int range){
 		// Will recolour the tiles within range of the position (x,z) to the "In range" colour
-		for (int i = -range; i < range+1; i++){
+		// HEX
+		List<int[]> toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
+		int[] tempCart;
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				tiles [tempCart [0], tempCart [1]].GetComponent<MapGridUnit> ().setInRange ();
+			}
+		}
+
+		/*for (int i = -range; i < range+1; i++){
 			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
 				if (isIntInBoundaries (i+x, j+z)) {
 					tiles [i+x, j+z].GetComponent<MapGridUnit> ().setInRange ();
 					//print ("HERE I AM <<<<<<<<");
 				}
 			}
-		}
+		}*/
 	}
+
+	/********************************************************************************************/
+	/******************************** Tile Management Old (NON HEX) *****************************/
+	/********************************************************************************************/
+
 	public void setOutOfRange(int x, int z, int range){
 		// Will recolour the tiles within range of the position (x,z) back to the normal colour
 		for (int i = -range; i < range+1; i++){
@@ -142,16 +239,7 @@ public class Map : MonoBehaviour {
 			}
 		}
 	}
-
-	public bool isInRange(int x1, int z1, int x2, int z2, int range ){
-		// Checks if [x1,z1] is within range of [x2,z2]
-		//return (Mathf.Abs(x1-x2) + Mathf.Abs(z1-z2)) <= range;
-
-		// HEX
-		return (getIntDistanceFromCoords(new int[] {x1,z1},new int[] {x2,z2} ) <= range);
-
-
-	}
+		
 
 	public bool isOccupied(int x,int z){
 		return tiles [x, z].GetComponent<MapGridUnit> ().isOccupied;
@@ -238,35 +326,7 @@ public class Map : MonoBehaviour {
 		int[] posInt2 = getTileCoordsFromPos (pos2);
 		return getIntDistanceFromCoords(posInt1,posInt2);
 	}
-	public int getIntDistanceFromCoords(int[] pos1, int[] pos2){
-		// Returns the integer distence between two locations.
-		/// HEX
-		print ("WSERDFTVGYBUHNJIMK");
-		return cubeDistance(cartesianToCube(pos1), cartesianToCube(pos2));
-		//return (Mathf.Abs (pos1 [0] - pos2 [0]) + Mathf.Abs (pos1 [1] - pos2 [1]));
-	}
 
-	public int[] cubeToCartesian(int[] cube){
-		// Change to cube coords to make maths easier
-		int[] tempPos = new int[2];
-		tempPos [0] = cube[0] + (cube[1] + cube[1] % 2) / 2;
-		tempPos [1] = cube[1];
-		return tempPos;
-	}
-
-	public int[] cartesianToCube(int[] tempPos){
-		// Change to cube coords to make maths easier
-		int[] tempCube = new int[3];
-		tempCube [0] = tempPos[0] + (tempPos[1] + tempPos[1] % 2) / 2;
-		tempCube [2] = tempPos[1];
-		tempCube [1] = -tempCube[0]-tempCube[2];
-		return tempCube;
-	}
-	public int cubeDistance(int[] cube1,int[] cube2){
-		
-		return (Mathf.Abs (cube1 [0] - cube2 [0]) + Mathf.Abs (cube1 [1] - cube2 [1]) + Mathf.Abs (cube1 [2] - cube2 [2])) / 2;
-
-	}
 	public Vector3 getPosFromCoords(int x, int z){
 		// Returns the central position of a tile based on int inputs
 		return tiles [x,z].transform.position;
