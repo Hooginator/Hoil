@@ -62,13 +62,10 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			updateLevelIndicator ();
 
 		}
-		//setTopVector(new Vector3(1,-99,1));
-
 	}
 	
 	// Update is called once per frame
 	void Update () { 
-		//gameObject.transform.GetChild (0).rotation = topRotation;
 		spherePos = sphere.transform.position;
 		if (animationType == "normal") {
 			for (int i = 0; i < 3; i++) {
@@ -88,8 +85,8 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			gameObject.transform.position += recoilSpeed;
 			// distance from where the sphere is and it is supposed to be
 			sphereDelta = Vector3.Magnitude(gameObject.transform.position - centralPos);
-			recoilSpeed += getReturningSphereSpeed (sphereDelta);
-			recoilSpeed *= Mathf.Pow(Vector3.Magnitude(recoilSpeed),-0.5f);
+			recoilSpeed *= 0.5f;
+			recoilSpeed += 0.05f*getReturningSphereSpeed (sphereDelta);
 			if (sphereDelta < 0.1f) {
 				recoiling = false;
 				gameObject.transform.position = centralPos;
@@ -97,9 +94,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		}
 		if (topRotation) {
 			maxRadiansTop = 0.03f * rotationSpeed * Time.deltaTime;
-			print (maxRadiansTop.ToString () + "   " + Time.frameCount);
 			if (topOrientation == desiredTopOrientation) {
-				//print ("DONE WITH ROTATINGGGGGG");
 				topRotation = false;
 			} else {
 				topOrientation = Vector3.RotateTowards (topOrientation, desiredTopOrientation, maxRadiansTop, 1);
@@ -152,14 +147,21 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		recoiling = true;
 		recoilSpeed = 0.2f*initialSpeed;
 	}
+	public void recoilFromIn(Vector3 initialSpeed,float t){
+		StartCoroutine(recoilIn(initialSpeed,t));
+	}
+	IEnumerator recoilIn(Vector3 initialSpeed,float t){
+		// Gives animations a second to go off before recoiling fromm effect
+		yield return new WaitForSeconds (t);
+
+		recoilFrom(initialSpeed);
+	}
 
 	Vector3 rotateClockwise(Vector3 relativePos){
 		
 		float angle = getXZAngle (relativePos);
 		angle += 0.01f;
-		//print (relativePos.ToString () + "   pos 1");
 		relativePos = getPosFromXZAngle (angle);
-		//print (relativePos.ToString () + "   pos 2");
 		return relativePos;
 	}
 	float getXZAngle(Vector3 pos){
@@ -170,7 +172,6 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	Vector3 getPosFromXZAngle(float angle){
 		Vector3 pos = new Vector3 (Mathf.Sin (angle), 0, Mathf.Cos (angle));
 		print ("From angle  "+  angle.ToString () + " to vec" + pos.ToString ());
-		//pos = scaleToTargetDistance (pos);
 		return pos;
 	}
 	Vector3 scaleToTargetDistance(Vector3 pos){
@@ -181,20 +182,16 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	// Update level indicator
 	public void updateLevelIndicator(){
 		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
-		//print ("Update level strings");
-		//levelText.SetActive(true);
 		levelText.GetComponent<MeshRenderer>().enabled = true;
 		levelText.GetComponent<TextMesh>().text = level.ToString ();
 		levelText.GetComponent<MeshRenderer>().enabled = true;
 	}
 	public void hideLevelIndicator(){
 		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
-		//levelText.SetActive (false);
 		levelText.GetComponent<MeshRenderer>().enabled = false;
 	}
 	public void updateLevel(int lvl){
 		level = lvl;
 		updateLevelIndicator ();
 	}
-
 }
