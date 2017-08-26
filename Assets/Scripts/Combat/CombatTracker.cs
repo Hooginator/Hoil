@@ -82,21 +82,20 @@ public class CombatTracker : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		// Check if our character is moving
+		// Check if current character is moving, reposition and check for done moving
 		if (isMoving) {
 			currentPos = Vector3.MoveTowards (currentPos, moveTarget, moveSpeed);
 			actionFrom.battleAvatar.gameObject.transform.position = currentPos;
 			if (currentPos == moveTarget) {
 				isMoving = false;
-				print ("Done Moving");
-				// Turn is not over, return to battle menu
 				setToPosition (actionFrom, coords [0], coords [1]);
+				// Turn is not over after movement, return to the rest of the turn
 				continueTurn ();
 			}
 		}
 
+		// Check if we are currenntly picking a cell to target, check if highlighted selection should change, apply change
 		temppos = new int[] {0,0};
-		// Check if we are currenntly picking a cell to attack
 		if (selectingTargetLocation) {
 			if (Input.GetButtonDown ("Left")) {
 				temppos[0] -= 1;
@@ -115,21 +114,15 @@ public class CombatTracker : MonoBehaviour {
 				targetIntLocation[1] += temppos[1];
 				targetIntLocation = map.ForceIntInsideBoundaries (targetIntLocation);
 				updateCameraTarget (map.getAbovePosFromCoords(targetIntLocation[0],targetIntLocation[1]));
-				//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
 				map.selectRange (targetIntLocation, areaRange);
 			}
-			//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit>().Select ();
 			if (Input.GetButtonUp ("Submit")) {
-				// when you hit space, get the tile selected to do what we wanted
+				// Check to make sure that when you press "Submit" it will only take you through one menu selection per press
 				wasUp = true;
-				//selectingTargetLocation = false;
 			}
 			if (Input.GetButtonDown ("Submit") && wasUp) {
 				// when you hit space, get the tile selected to do what we wanted
 				coords = targetIntLocation;
-				//print ("You have selected tile " + coords[0].ToString() + "  " + coords[1].ToString());
-
-
 				// Check if we're actually in range
 				if(map.isInRange(coords[0],coords[1],selectingFromX,selectingFromZ,selectingRange)){
 					selectingTargetLocation = false;
@@ -138,26 +131,26 @@ public class CombatTracker : MonoBehaviour {
 					// Do the thing that this selection was for
 					doAction ();
 				}else{
-					print("Not in range");
+					Debug.Log("Not in range");
 				}
 			}
 		} else {
-			// Do nothing for now
+			// Do nothing for now when not selecting target location
 		}
 		// Going back menus
 		if (Input.GetButtonDown ("Cancel")) {
-			print ("Go Back!!");
+			Debug.Log ("Go Back a menu option");
 			goBackMenu ();
 			cancelWasUp = false;
 		}else if (Input.GetButtonUp ("Cancel")) {
+			// Prevent going back more than one menu per press of "Cancel"
 			cancelWasUp = true;
 		}
 	}
 	public void goBackMenu (){
-		print ("Windows: " + windowStatus + "  " + previousWindowStatus);
-		// For now every time you go back it goes right back to the start.  I will need to record the difference between selecting a target for abilities / items / move etc...
+		Debug.Log ("Going back from window " + windowStatus + " to window " + previousWindowStatus);
+		// Hierarchy of menu screens, calls different functions needed to close and reopen different menu screens.
 		switch (windowStatus) {
-
 		case "Abilities Menu":
 		case "Item Menu":
 		case "Select Character Menu":
@@ -179,15 +172,16 @@ public class CombatTracker : MonoBehaviour {
 		case "Battle Menu":
 		case "None":
 		default:
-			print ("Can't go back");
+			Debug.Log ("Can't go back a menu");
 			break;
 		}
 	}
+
+	// Camera positioning functions
 	void updateCameraTarget(Vector3 newTarget){
 		// Update where the battle camera will look to
 		battleCam.updateTarget (newTarget);
 	}
-
 	void updateCameraTarget(int x, int z){
 		// Updates where camera looks based on coords
 		Vector3 newTarget = map.getPosFromCoords (x, z);
@@ -198,33 +192,36 @@ public class CombatTracker : MonoBehaviour {
 		Vector3 newTarget = map.getPosFromCoords (pos[0], pos[1]);
 		battleCam.updateTarget (newTarget);
 	}
+
 	/********************************************************************************************/ 
 	/**************************************** Initialization ************************************/ 
 	/********************************************************************************************/
 
 	// Use this for initialization
 	void Start () {
-		isMoving = false;
-		cancelWasUp = true;
-		moveSpeed = 0.4f;
+		
+		// Get List of combatants to be used in battle
 		var gameMan = gameManager.instance;
-		// Get List of Players
 		characters = new List<CharacterClass>();
 		for (int i = 0; i < gameMan.combatants.Count; i++) {
 			print (gameMan.combatants.Count.ToString ());
 			characters.Add(gameMan.combatants [i]);
 		}
 		if (characters[0] == null) {
-			print ("Did not load any characters, ADD END BATTLE HERE");
+			Debug.Log ("Did not load any characters, ending battle with 0 EXP");
+			gameMan.EndBattle (0);
 		}
 
-		List<CharacterClass> targetsToDo = new List<CharacterClass>();
-		// Start the Fighting
+		// Start the Fighting now that we're sure there are characters
 		StartBattle ();
 	}
 
 	public void StartBattle(){
-		//print ("Battle Starting");
+		// Initialize Variables
+		isMoving = false;
+		cancelWasUp = true;
+		moveSpeed = 0.4f;
+		List<CharacterClass> targetsToDo = new List<CharacterClass>();
 		map = GameObject.Find ("Map").GetComponent<Map> ();
 		battleCam = GameObject.Find ("Camera").GetComponent<BattleCameraControls> ();
 		areaRange = 0;
@@ -232,11 +229,12 @@ public class CombatTracker : MonoBehaviour {
 		selectingTargetLocation = false;
 		windowStatus = "None";
 		previousWindowStatus = "None";
-		var gameManager = GameObject.Find ("GameManager").GetComponent<gameManager>();
+		var gameMan = gameManager.instance;
 		numCharacters = characters.Count;
 
 		sprites = new GameObject[numCharacters];
 
+		// Initialize Characters for Battle
 		for (int i = 0; i < numCharacters; i++) {
 			characters [i].SetupStats ();
 			characters [i].FullHeal ();
@@ -244,7 +242,7 @@ public class CombatTracker : MonoBehaviour {
 			sprites[i] = Instantiate(CharacterPrefabs[characters[i].BattleSprite], new Vector3 (0, 5, 5*i), Quaternion.identity);
 			characters [i].battleAvatar = sprites [i];
 			if (characters [i].team == "Player") {
-				print ("Player Detected");
+				Debug.Log ("Player Detected for Battle");
 			} else {
 				// Update level indicator above enemy head
 				//GameObject levelText = sprites[i].transform.GetChild(0).gameObject;
@@ -252,22 +250,19 @@ public class CombatTracker : MonoBehaviour {
 			}
 
 		}
-		colourPalettes = gameManager.colourPalettes;	
-		// Set initial character positions
-		setInitialPositions();
 
+		// Set some things
+		colourPalettes = gameMan.colourPalettes;
 		getTeamNames ();
-
-
-		// set general turn stuff up
-		// Start with character[0] turn
+		setInitialPositions();
 		currentTeam = characters[0].team;
 
-		// Start the Combat with Player Turn
+		// Start the Combat with character[0]'s team.
 		startTurn ();
 
 	}
 	public void getTeamNames(){
+		// determines all of the Team Names with character representation in this battle and adds them to the list 'teams'
 		teams = new List<string>();
 		string tempTeam;
 		for (int i = 0; i < numCharacters; i++) {
@@ -277,59 +272,39 @@ public class CombatTracker : MonoBehaviour {
 			}
 		}
 	}
-	public void continueTurn(){
-		// Used after movement, for player it will bring back the menu after the movement is done
-		if (currentTeam == "Player") {
-			ShowBattleMenu ();
-		} else {
-			print ("Continue enemy turn");
-			continueComputerCharacterTurn ();
-		}
-	}
 
+	// Position Management
 	public void setInitialPositions(){
-		// Set initial character positions
+		// Set initial character positions according to team
 		int tempIndex;
 		Vector3 tempPos = new Vector3(0,0,0);
 		List<int> charactersPlaced = new List<int>();
 		List<string> tempTeams = new List<string>();
 		for (int i = 0; i < numCharacters; i++) {
-			print ("Placing Character " + i.ToString () + "  " + characters [i].team);
+			Debug.Log ("Placing Character " + i.ToString () + "  " + characters [i].team);
 			if (!tempTeams.Contains (characters [i].team)) {
 				tempTeams.Add (characters [i].team);
 				charactersPlaced.Add (0);
 			}
-			// SOme kind of voodoo magic hax trick here.  FindIndex is not as straightforward as I had hoped
+			// Generalized start locations at eac edge of map for up to 4 teams.
 			tempIndex = tempTeams.FindIndex (tempTeam => tempTeam == characters [i].team);
 			switch (tempIndex) {
 			case 0:
 				setToPosition (characters [i], 4 + charactersPlaced [tempIndex], 4);
 				break;
 			case 1:
-				setToPosition (characters [i], 8, 2 + charactersPlaced [tempIndex]);
+				setToPosition (characters [i], map.NcellX - 2, 2 + charactersPlaced [tempIndex]);
 				break;
 			case 2:
 				setToPosition (characters [i], 1, 2 + charactersPlaced [tempIndex]);
 				break;
+			case 3:
+				setToPosition (characters [i], map.NcellZ - 2, 2 + charactersPlaced [tempIndex]);
+				break;
 			}
 			charactersPlaced [tempIndex] += 1;
 		}
-
-
-			// This is super poorly done but I'm too tired to fix now.  TODO TOOOODOOOOOOOOOOOOOOOOOOOOOOO
-			/*if (characters [i].team == "Player") {
-				print ("Player Placement");
-				setToPosition (characters [i], 0, i);
-			} else if(characters [i].team == "Red"){
-				print (characters [i].name.ToString()+" Placement");
-				setToPosition (characters [i], 2, i );
-			} else if(characters [i].team == "Blue"){
-				print (characters [i].name.ToString()+" Placement");
-				setToPosition (characters [i], 8, i );
-			}
-		}*/
 	}
-
 	public void setToPosition(CharacterClass charToMove, int x, int z){
 		// Moves character to the center of tile at [x,z].  Also sets that tile as occupied.
 		map.tiles[x,z].GetComponent<MapGridUnit>().isOccupied = true;
@@ -338,14 +313,12 @@ public class CombatTracker : MonoBehaviour {
 		charToMove.battleAvatar.GetComponent<BasicEnemyAnimations> ().setPos (map.getAbovePosFromCoords (x, z));
 	}
 
-
+	// Area selection Management
 	public void selectTargetLocation(int x, int z, int range){
 		// Set up the map to start looking for a map location to use whatever ability on
 		selectingTargetLocation = true;
 		wasUp = false;
 		map = GameObject.Find ("Map").GetComponent<Map> ();
-		// Default select where Player 0 is
-		//targetLocation = map.getAbovePosFromCoords(x,z);
 		targetIntLocation = new int[]{ x, z };
 		map.setInRange (x, z, range);
 		HideBattleMenu();
@@ -362,17 +335,10 @@ public class CombatTracker : MonoBehaviour {
 	}
 	public void stopSelectingTargetLocation(){
 		selectingTargetLocation = false;
-		//map = GameObject.Find ("Map").GetComponent<Map> ();
-		// Default select where Player 0 is
-		//map.deSelectRange (targetLocation, areaRange);
 		map.deSelectRange (targetIntLocation, areaRange);
-		//map.getTileFromPos (targetLocation).GetComponent<MapGridUnit> ().reColour ();
 		map.getTile (targetIntLocation).GetComponent<MapGridUnit>().reColour ();
-		//targetLocation = sprites [0].transform.position;
 		map.setOutOfRange (selectingFromX, selectingFromZ, selectingRange);
 		windowStatus = "None";
-
-
 	}
 
 
@@ -382,15 +348,13 @@ public class CombatTracker : MonoBehaviour {
 
 
 	void endCharacterTurn(){
-		//currentTurnCharacters.Remove (actionFrom);
-
+		// Reset parameters
 		map.deSelectAll();
 		actionFrom.turnTaken = true;
 		areaRange = 0;
-		print (currentTurnCharacters.ToString ());
-		print (actionFrom.name + " has ended his turn");
 		actionFrom = null;
 		actionFromLocked = false;
+		// Check next turn
 		for (int i = 0; i < currentTurnCharacters.Count; i++) {
 			if (!currentTurnCharacters [i].turnTaken) {
 				actionFrom = currentTurnCharacters [i];
@@ -400,11 +364,12 @@ public class CombatTracker : MonoBehaviour {
 		checkDead ();
 		if (checkEndBattle ()) {
 			EndBattle (experienceEarned);
-		}
-		if(actionFrom == null){
-			endTurn ();
 		} else {
-			StartCoroutine(startCharacterTurnIn (1.0f));
+			if (actionFrom == null) {
+				endTurn ();
+			} else {
+				StartCoroutine (startCharacterTurnIn (1.0f));
+			}
 		}
 	}
 
@@ -421,11 +386,17 @@ public class CombatTracker : MonoBehaviour {
 			startComputerCharacterTurn ();
 		}
 	}
-
-
+	public void continueTurn(){
+		// Used after movement, for player it will bring back the menu after the movement is done, or use an ability in the AI case
+		if (currentTeam == "Player") {
+			ShowBattleMenu ();
+		} else {
+			continueComputerCharacterTurn ();
+		}
+	}
 
 	void endTurn(){
-		print ("ACTUALLY ENDING A TURN");
+		Debug.Log ("ACTUALLY ENDING A TURN");
 		checkDead ();
 		if (checkEndBattle ()) {
 			EndBattle (experienceEarned);
@@ -435,20 +406,16 @@ public class CombatTracker : MonoBehaviour {
 			teamInt = (teamInt + 1);
 			if (teamInt == teams.Count) {
 				teamInt = 0;
-				print ("TEAMS COUNT " + teams.Count.ToString ());
+				Debug.Log ("TEAMS COUNT " + teams.Count.ToString ());
 			}
 			currentTeam = teams [teamInt];
-
 			currentTurnCharacters = null;
-			// Remove finished player from list
-			// Check for list empty to either to go next team's turn or next character's
-			// reset current character to null
 			startTurn ();
 		}
 	}
 
 	void startTurn(){
-		print ("Start of Turn");
+		Debug.Log ("Start of Turn");
 		if (!checkTeam (currentTeam)) {
 			endTurn ();
 		} else {
@@ -472,9 +439,10 @@ public class CombatTracker : MonoBehaviour {
 	}
 
 	List<CharacterClass> getCurrentTurnCharacters (){
+		// Collects a list of characters who share a team with the current turn team
 		List<CharacterClass> tempList = new List<CharacterClass>();
 		for(int i = 0;i<characters.Count;i++){
-			print ("Adding character to " + currentTeam);
+			Debug.Log ("Adding character to " + currentTeam);
 			if(characters[i].team == currentTeam){
 				tempList.Add(characters[i]);
 			}
@@ -484,7 +452,7 @@ public class CombatTracker : MonoBehaviour {
 	}
 	void startComputerTurn(){
 		// Do computer controlled turn
-		print ("General Computer Turn");
+		Debug.Log ("General Computer Turn");
 		startComputerCharacterTurn ();
 
 	}
@@ -530,7 +498,7 @@ public class CombatTracker : MonoBehaviour {
 		if (foundTarget) {
 			doAction ();
 		} else {
-			// note I only end character turn IF I didn't fgind a fireball target.  the fireball actions ends turn on its own after casting.
+			// note I only end character turn IF I didn't find a fireball target.  the fireball actions ends turn on its own after casting.
 			endCharacterTurn ();
 		}
 	}
@@ -549,12 +517,9 @@ public class CombatTracker : MonoBehaviour {
 			break;
 
 		}
-
-
 		/// default
 		return "Fireball";
 	}
-	/// END OF GENERALIZED TURN TEST
 
 	void EndBattle(float EXP){
 		// End Battle, Load up main map
@@ -567,7 +532,6 @@ public class CombatTracker : MonoBehaviour {
 		// Checks if there are any living members of teamName left alive
 		// Takes: string teamName to check if that team has any living members
 		// Returns: bool of true when team exists, false otherwise.
-
 		for (int i = 0; i < numCharacters; i++) {
 			if (!characters [i].isDead && characters [i].team == teamName) {
 				return true;
@@ -595,15 +559,6 @@ public class CombatTracker : MonoBehaviour {
 			}
 		}
 		return true;
-
-		/*if (!livingPlayer) {
-			experienceEarned = 0;
-			print ("Player Died");
-		}
-		if (!livingEnemy) {
-			print ("Enemies Died");
-		}
-		return !(livingEnemy && livingPlayer);*/
 	}
 
 	void checkDead(){
@@ -631,18 +586,15 @@ public class CombatTracker : MonoBehaviour {
 			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
 
 			List<int[]> path = map.getPath (tempOldCoords, coords, actionFrom.MP);
-			// If destination is in range
+			// If destination is in range start movement
 			if (tempIntDistance <= actionFrom.MP && path != null) {
-
-				// Immediately set position to where you chose to move to
-				//setToPosition (actionFrom, coords [0], coords [1]);
 				currentPos = actionFrom.battleAvatar.transform.position;
 				moveTarget = map.getAbovePosFromCoords(coords[0],coords[1]);
 				isMoving = true;
 				actionFrom.MP -= map.getIntDistanceFromCoords (tempOldCoords, coords);
 
 			} else {
-				print ("Insufficient MP, " + actionFrom.MP.ToString () + " of " + tempIntDistance.ToString ());
+				Debug.Log ("Insufficient MP, " + actionFrom.MP.ToString () + " of " + tempIntDistance.ToString ());
 				continueTurn ();
 			}
 			actionToDo = null;
@@ -650,7 +602,7 @@ public class CombatTracker : MonoBehaviour {
 		/************************************************ ATTACKING *****************************/
 
 		} else if (actionToDo.name == "Basic Attack") {
-			print ("Attacking Time");
+			Debug.Log ("Attacking Time");
 			string battleMessage = actionFrom.Attack (actionTo);
 			// Check if you killed the target
 			if (actionTo.checkDead ()) {
@@ -696,7 +648,7 @@ public class CombatTracker : MonoBehaviour {
 	public void killCharacter(CharacterClass toKill){
 		// Kills the given character,
 		if (characters.Contains (toKill)) {
-			print ("Killing Character on " + toKill.team);
+			Debug.Log ("Killing Character on " + toKill.team);
 			if (toKill.team != "Player") {
 				experienceEarned += toKill.baseExperienceGiven;
 			}
@@ -711,7 +663,7 @@ public class CombatTracker : MonoBehaviour {
 			characters.Remove (toKill);
 			numCharacters -= 1;
 		} else {
-			print ("Couldn't find character to kill");
+			Debug.Log ("Couldn't find character to kill");
 		}
 	}
 
@@ -734,7 +686,7 @@ public class CombatTracker : MonoBehaviour {
 		endCharacterTurn ();
 	}
 	public void PlayerItem(){
-		// Place Holderf for now
+		// Place Holder for now
 		List<CharacterClass> charsInRange= getAlliesInRange(1,1,3,"Player");
 		print (charsInRange.Count.ToString ());
 	}
@@ -742,7 +694,6 @@ public class CombatTracker : MonoBehaviour {
 		// Placeholder for now
 	}
 	public void PlayerRun(){
-	//print("Gonna load the Main Map back up... wish me luck");
 		EndBattle (0);
 	}
 	public void PlayerEndTurn(){
@@ -812,7 +763,6 @@ public class CombatTracker : MonoBehaviour {
 		// Make the Options for battle (Attack, Item...) Visible
 		var BattleMenu = GameObject.Find ("Battle Menu").GetComponent<CanvasGroup>();
 		BattleMenu.alpha = 1f;
-		//print ("Show Battle Menu");
 		BattleMenu.GetComponent<CanvasGroup>().blocksRaycasts = true;
 		BattleMenu.GetComponent<CanvasGroup>().interactable = true;
 		// Select Attack as default.
@@ -838,7 +788,6 @@ public class CombatTracker : MonoBehaviour {
 			// Make the Options for battle (Attack, Item...) Visible
 			var SelectMenu = GameObject.Find ("SelectTarget").GetComponent<CanvasGroup>();
 			SelectMenu.alpha = 1f;
-			//print ("Show Select Menu");
 			SelectMenu.GetComponent<CanvasGroup>().blocksRaycasts = true;
 			SelectMenu.GetComponent<CanvasGroup>().interactable = true;
 			// Currently all I'm using this for.
