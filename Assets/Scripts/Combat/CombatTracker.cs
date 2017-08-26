@@ -838,11 +838,11 @@ public class CombatTracker : MonoBehaviour {
 		string temp;
 		for (int i = 0; i < numCharacters; i++) {
 			temp = characters [i].printBattleStats ();
-			print (temp);
+			Debug.Log (temp);
 		}
 		for (int i = 0; i < numCharacters; i++) {
 			temp = characters [i].printBattleStats ();
-			print (temp);
+			Debug.Log (temp);
 		}
 	}
 
