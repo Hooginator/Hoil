@@ -123,7 +123,7 @@ public class Ability : ScriptableObject{
 	public bool cast(CharacterClass target){
 		// What to do damage wise for each ability
 		target.takeDamage(baseDamage + caster.Intelligence, damageType,damageDelay);
-		target.battleAvatar.GetComponent<BasicEnemyAnimations> ().recoilFromIn (target.battleAvatar.transform.position - setectedTarget,timeToLand);
+		target.battleAvatar.GetComponent<BasicEnemyAnimations> ().recoilFromIn (0.4f*(target.battleAvatar.transform.position - setectedTarget),timeToLand);
 		if (target.checkDead ()) {
 			return true;
 		}

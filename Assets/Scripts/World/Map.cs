@@ -285,7 +285,7 @@ public class Map : MonoBehaviour {
 		for (int i = 0; i < toSet.Count; i++) {
 			tempCart = cubeToCartesian (toSet [i]);
 			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
-				deSelectUnit(tempCart [0], tempCart [1]);
+				deSelectUnit(tempCart);
 			}
 		}
 	}
@@ -306,10 +306,13 @@ public class Map : MonoBehaviour {
 	public void deSelectUnit(int[] i){
 		deSelectUnit (i [0], i [1]);
 	}
+	public void resetUnit(int i, int j){
+		tiles [i, j].GetComponent<MapGridUnit> ().setOutOfRange ();
+	}
 	public void deSelectAll(){
 		for (int i = 0; i < NcellZ; i++) {
 			for (int j = 0; j < NcellX; j++) {
-				deSelectUnit (i, j);
+				resetUnit (i, j);
 			}
 		}
 	}
