@@ -67,6 +67,7 @@
      <Compile Include="Assets\Scripts\World\WorldMovementControls.cs" />
      <Compile Include="Assets\Scripts\World\WorldTracker.cs" />
      <Compile Include="Assets\Scripts\gameManager.cs" />
+     <Compile Include="Assets\Scripts\rotateo_animation.cs" />
      <Compile Include="Assets\Scripts\sceneManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
