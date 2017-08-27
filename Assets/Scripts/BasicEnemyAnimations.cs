@@ -70,7 +70,11 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		if (animationType == "normal") {
 			for (int i = 0; i < 3; i++) {
 				cubes [i].transform.RotateAround (spherePos, topOrientation, rotationSpeed * Time.deltaTime);
+				cubes [i].transform.position += new Vector3(0,0.02f*Mathf.Sin (Time.frameCount * 0.02f),0);
 			}
+			// Trying to get a floating height that varies slowly with time.  Currently not playing nice with Recoil
+
+			sphere.transform.position += new Vector3(0,0.02f*Mathf.Sin (Time.frameCount * 0.02f),0);
 		} else if (animationType == "dying") {
 			for (int i = 0; i < 3; i++) {
 				cubes [i].transform.RotateAround (spherePos, topOrientation, 3 * rotationSpeed * Time.deltaTime);
@@ -78,16 +82,16 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			}
 		} else if (animationType == "casting") {
 			for (int i = 0; i < 3; i++) {
-				cubes [i].transform.RotateAround (spherePos, topOrientation, 3 * rotationSpeed * Time.deltaTime);
+				cubes [i].transform.RotateAround (spherePos, topOrientation, 4 * rotationSpeed * Time.deltaTime);
 			}
 		}
 		if (recoiling) {
 			gameObject.transform.position += recoilSpeed;
 			// distance from where the sphere is and it is supposed to be
 			sphereDelta = Vector3.Magnitude(gameObject.transform.position - centralPos);
-			recoilSpeed *= 0.5f;
 			recoilSpeed += 0.05f*getReturningSphereSpeed (sphereDelta);
-			if (sphereDelta < 0.1f) {
+			recoilSpeed *= 0.5f;
+			if (sphereDelta < 0.2f) {
 				recoiling = false;
 				gameObject.transform.position = centralPos;
 			}
