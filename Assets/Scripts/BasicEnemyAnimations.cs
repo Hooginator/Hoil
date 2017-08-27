@@ -28,6 +28,12 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	Vector3 topOrientation;
 	Vector3 desiredTopOrientation;
 	bool topRotation;
+	bool recoiling;
+	Vector3 recoilSpeed;
+	float sphereDelta;
+	// Initial recoil direction 
+	Vector3 recoilDirection;
+	float recoilAcceleration;
 	float maxRadiansTop;
 	void Start () {
 		cubes = new GameObject[3];
@@ -42,6 +48,9 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		desiredTopOrientation = axisUp;
 		animationType = "normal";
 		topRotation = false;
+		recoiling = false;
+		recoilAcceleration = 1.2f;
+		sphereDelta = 0;
 
 		// Update display of level on the model
 		var gameMan = GameObject.Find ("GameManager");
@@ -53,18 +62,19 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			updateLevelIndicator ();
 
 		}
-		//setTopVector(new Vector3(1,-99,1));
-
 	}
 	
 	// Update is called once per frame
 	void Update () { 
-		//gameObject.transform.GetChild (0).rotation = topRotation;
 		spherePos = sphere.transform.position;
 		if (animationType == "normal") {
 			for (int i = 0; i < 3; i++) {
 				cubes [i].transform.RotateAround (spherePos, topOrientation, rotationSpeed * Time.deltaTime);
+				cubes [i].transform.position += new Vector3(0,0.02f*Mathf.Sin (Time.frameCount * 0.02f),0);
 			}
+			// Trying to get a floating height that varies slowly with time.  Currently not playing nice with Recoil
+
+			sphere.transform.position += new Vector3(0,0.02f*Mathf.Sin (Time.frameCount * 0.02f),0);
 		} else if (animationType == "dying") {
 			for (int i = 0; i < 3; i++) {
 				cubes [i].transform.RotateAround (spherePos, topOrientation, 3 * rotationSpeed * Time.deltaTime);
@@ -72,14 +82,23 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			}
 		} else if (animationType == "casting") {
 			for (int i = 0; i < 3; i++) {
-				cubes [i].transform.RotateAround (spherePos, topOrientation, 3 * rotationSpeed * Time.deltaTime);
+				cubes [i].transform.RotateAround (spherePos, topOrientation, 4 * rotationSpeed * Time.deltaTime);
+			}
+		}
+		if (recoiling) {
+			gameObject.transform.position += recoilSpeed;
+			// distance from where the sphere is and it is supposed to be
+			sphereDelta = Vector3.Magnitude(gameObject.transform.position - centralPos);
+			recoilSpeed += 0.05f*getReturningSphereSpeed (sphereDelta);
+			recoilSpeed *= 0.5f;
+			if (sphereDelta < 0.2f) {
+				recoiling = false;
+				gameObject.transform.position = centralPos;
 			}
 		}
 		if (topRotation) {
-			maxRadiansTop = 0.04f * rotationSpeed * Time.deltaTime;
-			print (maxRadiansTop.ToString () + "   " + Time.frameCount);
+			maxRadiansTop = 0.03f * rotationSpeed * Time.deltaTime;
 			if (topOrientation == desiredTopOrientation) {
-				//print ("DONE WITH ROTATINGGGGGG");
 				topRotation = false;
 			} else {
 				topOrientation = Vector3.RotateTowards (topOrientation, desiredTopOrientation, maxRadiansTop, 1);
@@ -90,17 +109,26 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		}
 
 	}
+	public void setPos(){
+		// Sets Central pos to current position.  For use after character is moved to another tile.
+		centralPos = sphere.transform.position;
+	}
+	public void setPos(Vector3 newPos){
+		// Sets Central pos to current position.  For use after character is moved to another tile.
+		centralPos = newPos;
+	}
 	public void castTowards(Vector3 target){
 		// Do cast animation towards target location
 		setTopVector(target);
 		animationType = "casting";
-		StartCoroutine(setDefaultIn(1));
+		StartCoroutine(fireIn(1,target));
 	}
 
-	IEnumerator setAnimationTypeIn(string type, float t){
+	IEnumerator fireIn(float t,Vector3 target){
 		// Gives animations a second to go off before starting next turn
 		yield return new WaitForSeconds (t);
-		animationType = type;
+		recoilFrom (-target);
+		StartCoroutine(setDefaultIn(0.5f));
 	}
 
 	IEnumerator setDefaultIn(float t){
@@ -110,20 +138,34 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		setTopVector (new Vector3 (0, 1, 0));
 	}
 
-
+	Vector3 getReturningSphereSpeed(float dist){
+		// Returns the vector pointing the sphere to where it is supposed to go that gets larget as the sphere is farther waway
+		return Vector3.Normalize(centralPos - spherePos) * dist;
+	}
 	public void setTopVector(Vector3 newTop){
 		desiredTopOrientation = newTop;
 		desiredTopOrientation.Normalize();
 		topRotation = true;
+	}
+	public void recoilFrom(Vector3 initialSpeed){
+		recoiling = true;
+		recoilSpeed = 0.2f*initialSpeed;
+	}
+	public void recoilFromIn(Vector3 initialSpeed,float t){
+		StartCoroutine(recoilIn(initialSpeed,t));
+	}
+	IEnumerator recoilIn(Vector3 initialSpeed,float t){
+		// Gives animations a second to go off before recoiling fromm effect
+		yield return new WaitForSeconds (t);
+
+		recoilFrom(initialSpeed);
 	}
 
 	Vector3 rotateClockwise(Vector3 relativePos){
 		
 		float angle = getXZAngle (relativePos);
 		angle += 0.01f;
-		//print (relativePos.ToString () + "   pos 1");
 		relativePos = getPosFromXZAngle (angle);
-		//print (relativePos.ToString () + "   pos 2");
 		return relativePos;
 	}
 	float getXZAngle(Vector3 pos){
@@ -134,7 +176,6 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	Vector3 getPosFromXZAngle(float angle){
 		Vector3 pos = new Vector3 (Mathf.Sin (angle), 0, Mathf.Cos (angle));
 		print ("From angle  "+  angle.ToString () + " to vec" + pos.ToString ());
-		//pos = scaleToTargetDistance (pos);
 		return pos;
 	}
 	Vector3 scaleToTargetDistance(Vector3 pos){
@@ -145,20 +186,16 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	// Update level indicator
 	public void updateLevelIndicator(){
 		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
-		//print ("Update level strings");
-		//levelText.SetActive(true);
 		levelText.GetComponent<MeshRenderer>().enabled = true;
 		levelText.GetComponent<TextMesh>().text = level.ToString ();
 		levelText.GetComponent<MeshRenderer>().enabled = true;
 	}
 	public void hideLevelIndicator(){
 		GameObject levelText = gameObject.transform.GetChild(0).gameObject;
-		//levelText.SetActive (false);
 		levelText.GetComponent<MeshRenderer>().enabled = false;
 	}
 	public void updateLevel(int lvl){
 		level = lvl;
 		updateLevelIndicator ();
 	}
-
 }

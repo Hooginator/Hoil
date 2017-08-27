@@ -18,6 +18,8 @@ public class Ability : ScriptableObject{
 	public string damageType;
 	public string targetingType;
 	public string targets;
+	public Vector3 setectedTarget;
+	public float timeToLand;
 	// Delay for conjuring / casting
 	public float damageDelay = 1.0f;
 	public CharacterClass caster;
@@ -40,7 +42,7 @@ public class Ability : ScriptableObject{
 		caster = casterIn;
 		switch (nameIn) {
 		case "Fireball":
-			baseRange = 6;
+			baseRange = 2;
 			AoERange = 3;
 			baseDamage = 30;
 			damageType = "Fire";
@@ -48,15 +50,15 @@ public class Ability : ScriptableObject{
 			targetingType = "Area";
 			break;
 		case "Iceball":
-			baseRange = 8;
-			AoERange = 4;
+			baseRange = 4;
+			AoERange = 7;
 			baseDamage = 20;
 			damageType = "Ice";
 			targets = "Enemy";
 			targetingType = "Area";
 			break;
 		case "Acidball":
-			baseRange = 5;
+			baseRange = 3;
 			AoERange = 2;
 			baseDamage = 40;
 			damageType = "Toxic";
@@ -93,34 +95,35 @@ public class Ability : ScriptableObject{
 		// reserved for solo animations 
 	}
 	public void doAnimation(Vector3 startPos, Vector3 stopPos, List<ColourPalette> colourPalettes){
+		setectedTarget = stopPos;
 		// Do animation at position indicated.
 		if (name == "Fireball") {
-			//GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("Basic Explosion"));
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
 			temp.transform.position = startPos;
+			timeToLand = 1.5f;
 			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[0] ,AoERange);
 			caster.battleAvatar.GetComponent<BasicEnemyAnimations> ().castTowards (stopPos - startPos);
-			//temp.GetComponent<FireBallCastAnimation> ().reColour(new Color (1, 0.5f, 0.5f, 1));
 		} else if (name == "Iceball") {
 			// recolour of fireball
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
 			temp.transform.position = startPos;
+			timeToLand = 1.5f;
 			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[1] ,AoERange);
 			caster.battleAvatar.GetComponent<BasicEnemyAnimations> ().castTowards (stopPos - startPos);
-			//temp.GetComponent<FireBallCastAnimation> ().reColour(new Color (1, 0.5f, 0.5f, 1));
 		} else if (name == "Acidball") {
 			// recolour of fireball
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
 			temp.transform.position = startPos;
+			timeToLand = 1.5f;
 			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[2] ,AoERange);
 			caster.battleAvatar.GetComponent<BasicEnemyAnimations> ().castTowards (stopPos - startPos);
-			//temp.GetComponent<FireBallCastAnimation> ().reColour(new Color (1, 0.5f, 0.5f, 1));
 		}
 	}
 
 	public bool cast(CharacterClass target){
 		// What to do damage wise for each ability
 		target.takeDamage(baseDamage + caster.Intelligence, damageType,damageDelay);
+		target.battleAvatar.GetComponent<BasicEnemyAnimations> ().recoilFromIn (0.4f*(target.battleAvatar.transform.position - setectedTarget),timeToLand);
 		if (target.checkDead ()) {
 			return true;
 		}
