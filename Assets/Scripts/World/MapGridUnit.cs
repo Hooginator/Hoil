@@ -52,8 +52,10 @@ public class MapGridUnit : MonoBehaviour {
 		resources = resourcesIn;
 		maxResources = maxResourcesIn;
 		// Change colour
-		if(uniqueResources >= 3){
-			rend.material.color = new Color((int) (resources[0]/(maxResources-reduceSaturation)),(int) (resources[1]/maxResources),0,255);
+		if (uniqueResources >= 3) {
+			rend.material.color = new Color ((int)(resources [0] / (maxResources - reduceSaturation)), (int)(resources [1] / maxResources), 0, 255);
+		} else if (uniqueResources == 2) {
+			rend.material.color = new Color ((int)(resources [0] / (maxResources - reduceSaturation)), (int)(resources [1] / maxResources), 0, 255);
 		}
 		// We will assume at first that noone is in the grid unit.
 		isOccupied = false;
