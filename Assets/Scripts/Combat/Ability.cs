@@ -20,8 +20,6 @@ public class Ability : ScriptableObject{
 	public string targets;
 	public Vector3 setectedTarget;
 	public float timeToLand;
-	// Delay for conjuring / casting
-	public float damageDelay = 1.0f;
 	public CharacterClass caster;
 
 	public void init(string nameIn, int baseRangeIn, int AoERangeIn, float baseDamageIn, string damageTypeIn,string targetingTypeIn, string targetsIn, CharacterClass casterIn){
@@ -122,7 +120,7 @@ public class Ability : ScriptableObject{
 
 	public bool cast(CharacterClass target){
 		// What to do damage wise for each ability
-		target.takeDamage(baseDamage + caster.Intelligence, damageType,damageDelay);
+		target.takeDamage(baseDamage + caster.Intelligence, damageType,timeToLand);
 		target.battleAvatar.GetComponent<BasicEnemyAnimations> ().recoilFromIn (0.4f*(target.battleAvatar.transform.position - setectedTarget),timeToLand);
 		if (target.checkDead ()) {
 			return true;
