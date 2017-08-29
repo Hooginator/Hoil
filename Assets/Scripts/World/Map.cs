@@ -87,6 +87,7 @@ public class Map : MonoBehaviour {
 				} else { // To prevent divide by zero if there's a 1xwhatever size map
 					resources = getResources (0.5f, 0.5f);
 				}
+				print (resources.ToString ());
 				// Initialize MapGridUnit with the resource values.
 				tiles[x,z].GetComponent<MapGridUnit>().Initialize(resources,uniqueResources,maxResources);
 
@@ -503,7 +504,18 @@ public class Map : MonoBehaviour {
 
 		if(gameMan.inBattle){
 			// When in battle we will take the tile colour where from where we started the battle.
-			generatedResources = gameMan.groundTileResources;
+			if (gameMan.groundTileResources != null) {
+				generatedResources = gameMan.groundTileResources;
+			} else {
+				for(int i = 0; i < uniqueResources;i++){ 
+					if(i%2 == 0){
+						generatedResources[i] = (int) 255.0f * (x + z) / 2;
+						print (generatedResources[i].ToString());
+					}else{
+						generatedResources[i] = (int) 255.0f * (2 - x - z) / 2;
+					}
+				}
+			}
 		}else{
 
 			// Gives gradient that is strong at the extreme but dies off rather quickly so we have uncontested space between teams

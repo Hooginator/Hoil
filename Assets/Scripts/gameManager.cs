@@ -164,7 +164,7 @@ public class gameManager : MonoBehaviour {
 	public void StartBattle(){
 		// Load Battle if it is the first scene loaded.  mostly for testing
 		// Get the colour of the tile the enemy was on for the battle
-		groundTileResources = new float[3]{0.5f,0.5f,0.5f};
+		groundTileResources = null;
 		playerMapPosition = worldPlayer.GetComponent<Transform>();
 		//print (playerMapPosition.position.ToString ());
 		//GameObject.Destroy (worldPlayer);
