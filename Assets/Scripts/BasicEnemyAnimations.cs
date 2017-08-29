@@ -100,12 +100,12 @@ public class BasicEnemyAnimations : MonoBehaviour {
 				desiredPositions [i].transform.position += recoilSpeed;
 			}
 			// distance from where the sphere is and it is supposed to be
-			sphereDelta = Vector3.Magnitude(gameObject.transform.position - centralPos);
+			sphereDelta = Vector3.Magnitude(desiredPositions[0].transform.position - centralPos);
 			recoilSpeed += 0.2f*getReturningSphereSpeed (sphereDelta);
 			recoilSpeed *= 0.2f;
-			if (sphereDelta < 0.5f) {
+			if (sphereDelta < 0.1f) {
 				recoiling = false;
-				gameObject.transform.position = centralPos;
+				desiredPositions[0].transform.position = centralPos;
 			}
 		}
 		if (topRotation) {
@@ -115,7 +115,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			} else {
 				topOrientation = Vector3.RotateTowards (topOrientation, desiredTopOrientation, maxRadiansTop, 1);
 				for (int i = 0; i < 3; i++) {
-					cubes [i].transform.RotateAround (spherePos, Vector3.Cross (topOrientation, desiredTopOrientation), (180 / Mathf.PI) * maxRadiansTop);
+					desiredPositions [i+1].transform.RotateAround (spherePos, Vector3.Cross (topOrientation, desiredTopOrientation), (180 / Mathf.PI) * maxRadiansTop);
 				}
 			}
 		}
@@ -163,7 +163,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 
 	Vector3 getReturningSphereSpeed(float dist){
 		// Returns the vector pointing the sphere to where it is supposed to go that gets larget as the sphere is farther waway
-		return Vector3.Normalize(centralPos - spherePos) * dist;
+		return Vector3.Normalize(centralPos - desiredPositions[0].transform.position) * dist;
 	}
 	public void setTopVector(Vector3 newTop){
 		desiredTopOrientation = newTop;
