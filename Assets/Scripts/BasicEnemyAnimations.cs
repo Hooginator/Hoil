@@ -11,32 +11,34 @@ using UnityEngine;
 /***********************************************************/
 
 public class BasicEnemyAnimations : MonoBehaviour {
-	// Central Sphere
+	// Current position management
 	public GameObject sphere;
 	public Vector3 spherePos;
-
 	public GameObject[] cubes;
-	public float[] angleXZ;
-	public float[] angleY;
+	Vector3 topOrientation;
+	float sphereDelta;
+
+	// Target position management
 	public Vector3 centralPos;
-	public float targetDistance;
+	Vector3 desiredTopOrientation;
+	public List<GameObject> desiredPositions;
+	public List<Quaternion> baseRotations;
+	public List<Vector3> basePositions;
+
+	// Constants
 	public Vector3 axisUp;
 	public float rotationSpeed;
+	float recoilAcceleration;
+	float maxRadiansTopRotation;
+
+	// Animation Management
+	public float targetDistance;
 	public string animationType;
 	public int level;
-	// Use this for initialization
-	Vector3 topOrientation;
-	Vector3 desiredTopOrientation;
 	bool topRotation;
 	bool recoiling;
-	Vector3 recoilSpeed;
-	float sphereDelta;
-	// Initial recoil direction 
+	Vector3 recoilSpeed; 
 	Vector3 recoilDirection;
-	float recoilAcceleration;
-	float maxRadiansTop;
-
-	public List<GameObject> desiredPositions;
 
 	void Start () {
 		cubes = new GameObject[3];
@@ -44,16 +46,18 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		sphere = gameObject.transform.GetChild(1).gameObject;
 		var tempTR = new GameObject();
 		desiredPositions.Add(Instantiate(tempTR,sphere.transform.position,sphere.transform.rotation));
-		//desiredPositions [0].rotation = sphere.transform.rotation;
+		basePositions.Add (new Vector3 (0, 0, 0));
+		baseRotations.Add (new Quaternion (0, 0, 0, 0));
 		for (int i = 0; i < 3; i++) {
 			cubes[i] = gameObject.transform.GetChild(i+2).gameObject;
 			desiredPositions.Add(Instantiate(tempTR,cubes[i].transform.position,cubes[i].transform.rotation));
-			//desiredPositions [i+1].position = cubes[i].transform.position;
-			//desiredPositions [i+1].rotation = cubes[i].transform.rotation;
+			basePositions.Add (cubes[i].transform.position - sphere.transform.position);
+			baseRotations.Add (cubes[i].transform.rotation);
 		}
 		targetDistance = 3;
 		axisUp = new Vector3 (0, 1, 0);
 		rotationSpeed = 100f;
+		maxRadiansTopRotation = 0.03f * rotationSpeed * Time.deltaTime;
 		topOrientation = axisUp;
 		desiredTopOrientation = axisUp;
 		animationType = "normal";
@@ -109,18 +113,29 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			}
 		}
 		if (topRotation) {
-			maxRadiansTop = 0.03f * rotationSpeed * Time.deltaTime;
 			if (topOrientation == desiredTopOrientation) {
 				topRotation = false;
 			} else {
-				topOrientation = Vector3.RotateTowards (topOrientation, desiredTopOrientation, maxRadiansTop, 1);
+				topOrientation = Vector3.RotateTowards (topOrientation, desiredTopOrientation, maxRadiansTopRotation, 1);
 				for (int i = 0; i < 3; i++) {
-					desiredPositions [i+1].transform.RotateAround (spherePos, Vector3.Cross (topOrientation, desiredTopOrientation), (180 / Mathf.PI) * maxRadiansTop);
+						desiredPositions [i+1].transform.RotateAround (spherePos, Vector3.Cross (topOrientation, desiredTopOrientation), (180 / Mathf.PI) * maxRadiansTopRotation);
 				}
 			}
 		}
 		goToDesired ();
 
+	}
+	public void kill(){
+		animationType = "dying";
+	}
+	public void resetDesired(){
+		// resets to default animation position
+		desiredPositions [0].transform.position = centralPos;
+		desiredPositions [0].transform.rotation = baseRotations[0];
+		for (int i = 0; i < 3; i++) {
+			desiredPositions[i+1].transform.position = basePositions[i+1] + centralPos;
+			desiredPositions[i+1].transform.rotation = baseRotations[i+1];
+		}
 	}
 	public void goToDesired(){
 		// resets enemy to currently desired position
@@ -137,14 +152,19 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		centralPos = sphere.transform.position;
 	}
 	public void setPos(Vector3 newPos){
-		// Sets Central pos to current position.  For use after character is moved to another tile.
+		// Sets Central pos to given position.  For use after character is moved to another tile.
+		for (int i = 0; i < desiredPositions.Count; i++) {
+			desiredPositions [i].transform.position += newPos - centralPos;
+		}
 		centralPos = newPos;
 	}
-	public void castTowards(Vector3 target){
-		// Do cast animation towards target location
+	public void castTowards(Vector3 target,float timeToCast){
+		// Do casting animation towards target location
+		// Change where the top of our unit faces to be where the target of the cast is.
 		setTopVector(target);
 		animationType = "casting";
-		StartCoroutine(fireIn(1,target));
+		// Set up what will happen once the casting animation is done and the spell is fired
+		StartCoroutine(fireIn(timeToCast,target));
 	}
 
 	IEnumerator fireIn(float t,Vector3 target){

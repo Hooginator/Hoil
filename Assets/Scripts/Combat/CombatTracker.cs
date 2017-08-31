@@ -85,7 +85,7 @@ public class CombatTracker : MonoBehaviour {
 		// Check if current character is moving, reposition and check for done moving
 		if (isMoving) {
 			currentPos = Vector3.MoveTowards (currentPos, moveTarget, moveSpeed);
-			actionFrom.battleAvatar.gameObject.transform.position = currentPos;
+			actionFrom.battleAvatar.GetComponent<BasicEnemyAnimations>().setPos(currentPos);
 			if (currentPos == moveTarget) {
 				isMoving = false;
 				setToPosition (actionFrom, coords [0], coords [1]);
@@ -348,6 +348,7 @@ public class CombatTracker : MonoBehaviour {
 
 
 	void endCharacterTurn(){
+		actionFrom.battleAvatar.GetComponent<BasicEnemyAnimations> ().resetDesired ();
 		// Reset parameters
 		map.deSelectAll();
 		actionFrom.turnTaken = true;
@@ -391,8 +392,15 @@ public class CombatTracker : MonoBehaviour {
 		if (currentTeam == "Player") {
 			ShowBattleMenu ();
 		} else {
-			continueComputerCharacterTurn ();
+			// half second delay for animations sake
+			StartCoroutine( continueComputerCharacterTurnIn (0.3f) );
 		}
+	}
+
+	IEnumerator continueComputerCharacterTurnIn(float t){
+		// Gives animations a second to go off before starting next turn
+		yield return new WaitForSeconds (t);
+		continueComputerCharacterTurn ();
 	}
 
 	void endTurn(){
@@ -410,8 +418,14 @@ public class CombatTracker : MonoBehaviour {
 			}
 			currentTeam = teams [teamInt];
 			currentTurnCharacters = null;
-			startTurn ();
+			StartCoroutine( startTurnIn (2.0f));
 		}
+	}
+
+	IEnumerator startTurnIn(float t){
+		// Gives animations a second to go off before starting next turn
+		yield return new WaitForSeconds (t);
+		startTurn ();
 	}
 
 	void startTurn(){
@@ -467,7 +481,7 @@ public class CombatTracker : MonoBehaviour {
 			doAction ();
 		} else {
 			// Do post movement part of turn
-			continueComputerCharacterTurn ();
+			continueTurn ();
 		}
 	}
 	bool getRandomTarget( int maxAttempts, int range){
@@ -653,10 +667,10 @@ public class CombatTracker : MonoBehaviour {
 				experienceEarned += toKill.baseExperienceGiven;
 			}
 			// Destroy GameObject
-			StartCoroutine (DestroyCharacter (toKill.battleAvatar, 2.2f));
+			StartCoroutine (DestroyCharacter (toKill.battleAvatar, actionToDo.timeToLand + 1.0f));
 			// Do death animation
 			if(toKill.battleAvatar != null){
-				StartCoroutine (StartDeathAnimation (toKill.battleAvatar, 0.5f));
+				StartCoroutine (StartDeathAnimation (toKill.battleAvatar, actionToDo.timeToLand));
 			}
 			//Destroy (toKill.battleAvatar);
 			// Remove enemy from list
@@ -675,7 +689,7 @@ public class CombatTracker : MonoBehaviour {
 	IEnumerator StartDeathAnimation(GameObject avatar, float t){
 		// Coroutine to let the enemy model exist for a second after it is killed.
 		yield return new WaitForSeconds(t);
-		avatar.GetComponent<BasicEnemyAnimations> ().animationType = "dying";
+		avatar.GetComponent<BasicEnemyAnimations> ().kill ();
 	}
 
 	public void PlayerAttack(int player, int badguy){

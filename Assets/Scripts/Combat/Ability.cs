@@ -20,6 +20,7 @@ public class Ability : ScriptableObject{
 	public string targets;
 	public Vector3 setectedTarget;
 	public float timeToLand;
+	public float timeToCast;
 	public CharacterClass caster;
 
 	public void init(string nameIn, int baseRangeIn, int AoERangeIn, float baseDamageIn, string damageTypeIn,string targetingTypeIn, string targetsIn, CharacterClass casterIn){
@@ -35,7 +36,7 @@ public class Ability : ScriptableObject{
 	}
 
 	public void init(string nameIn, CharacterClass casterIn){
-		// Create an ability
+		// Create an ability, this will be the ugly part that mightg be replaced with a nice DB some day
 		name = nameIn;
 		caster = casterIn;
 		switch (nameIn) {
@@ -46,6 +47,8 @@ public class Ability : ScriptableObject{
 			damageType = "Fire";
 			targets = "Enemy";
 			targetingType = "Area";
+			timeToLand = 1.5f;
+			timeToCast = 1.0f;
 			break;
 		case "Iceball":
 			baseRange = 4;
@@ -54,6 +57,8 @@ public class Ability : ScriptableObject{
 			damageType = "Ice";
 			targets = "Enemy";
 			targetingType = "Area";
+			timeToLand = 1.5f;
+			timeToCast = 1.0f;
 			break;
 		case "Acidball":
 			baseRange = 3;
@@ -62,6 +67,8 @@ public class Ability : ScriptableObject{
 			damageType = "Toxic";
 			targets = "Enemy";
 			targetingType = "Area";
+			timeToLand = 1.5f;
+			timeToCast = 1.0f;
 			break;
 		case "Sniper Attack":
 			baseRange = 20;
@@ -94,28 +101,23 @@ public class Ability : ScriptableObject{
 	}
 	public void doAnimation(Vector3 startPos, Vector3 stopPos, List<ColourPalette> colourPalettes){
 		setectedTarget = stopPos;
+		int colourPal;
 		// Do animation at position indicated.
 		if (name == "Fireball") {
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
-			temp.transform.position = startPos;
-			timeToLand = 1.5f;
 			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[0] ,AoERange);
-			caster.battleAvatar.GetComponent<BasicEnemyAnimations> ().castTowards (stopPos - startPos);
 		} else if (name == "Iceball") {
 			// recolour of fireball
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
-			temp.transform.position = startPos;
-			timeToLand = 1.5f;
 			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[1] ,AoERange);
-			caster.battleAvatar.GetComponent<BasicEnemyAnimations> ().castTowards (stopPos - startPos);
 		} else if (name == "Acidball") {
 			// recolour of fireball
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
-			temp.transform.position = startPos;
-			timeToLand = 1.5f;
 			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[2] ,AoERange);
-			caster.battleAvatar.GetComponent<BasicEnemyAnimations> ().castTowards (stopPos - startPos);
 		}
+
+		// Stuff we're doing no matter what ability it is
+		caster.battleAvatar.GetComponent<BasicEnemyAnimations> ().castTowards (stopPos - startPos, timeToCast);
 	}
 
 	public bool cast(CharacterClass target){
