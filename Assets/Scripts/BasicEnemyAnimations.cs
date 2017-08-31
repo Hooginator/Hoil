@@ -77,7 +77,10 @@ public class BasicEnemyAnimations : MonoBehaviour {
 
 		}
 	}
-	
+
+	void setInitialPositions(){
+
+	}
 	// Update is called once per frame
 	void Update () { 
 		spherePos = sphere.transform.position;
@@ -149,7 +152,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	}
 	public void setPos(){
 		// Sets Central pos to current position.  For use after character is moved to another tile.
-		centralPos = sphere.transform.position;
+		setPos (sphere.transform.position);
 	}
 	public void setPos(Vector3 newPos){
 		// Sets Central pos to given position.  For use after character is moved to another tile.

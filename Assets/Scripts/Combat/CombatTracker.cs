@@ -85,12 +85,14 @@ public class CombatTracker : MonoBehaviour {
 		// Check if current character is moving, reposition and check for done moving
 		if (isMoving) {
 			currentPos = Vector3.MoveTowards (currentPos, moveTarget, moveSpeed);
-			actionFrom.battleAvatar.GetComponent<BasicEnemyAnimations>().setPos(currentPos);
 			if (currentPos == moveTarget) {
 				isMoving = false;
 				setToPosition (actionFrom, coords [0], coords [1]);
 				// Turn is not over after movement, return to the rest of the turn
 				continueTurn ();
+			} else {
+
+				actionFrom.battleAvatar.GetComponent<BasicEnemyAnimations>().setPos(currentPos);
 			}
 		}
 
@@ -290,16 +292,16 @@ public class CombatTracker : MonoBehaviour {
 			tempIndex = tempTeams.FindIndex (tempTeam => tempTeam == characters [i].team);
 			switch (tempIndex) {
 			case 0:
-				setToPosition (characters [i], 4 + charactersPlaced [tempIndex], 4);
+				setInitialPosition (characters [i], 4 + charactersPlaced [tempIndex], 4);
 				break;
 			case 1:
-				setToPosition (characters [i], map.NcellX - 2, 2 + charactersPlaced [tempIndex]);
+				setInitialPosition (characters [i], map.NcellX - 2, 2 + charactersPlaced [tempIndex]);
 				break;
 			case 2:
-				setToPosition (characters [i], 1, 2 + charactersPlaced [tempIndex]);
+				setInitialPosition (characters [i], 1, 2 + charactersPlaced [tempIndex]);
 				break;
 			case 3:
-				setToPosition (characters [i], map.NcellZ - 2, 2 + charactersPlaced [tempIndex]);
+				setInitialPosition (characters [i], map.NcellZ - 2, 2 + charactersPlaced [tempIndex]);
 				break;
 			}
 			charactersPlaced [tempIndex] += 1;
@@ -309,10 +311,15 @@ public class CombatTracker : MonoBehaviour {
 		// Moves character to the center of tile at [x,z].  Also sets that tile as occupied.
 		map.tiles[x,z].GetComponent<MapGridUnit>().isOccupied = true;
 		charToMove.battleLocation = new int[2]{ x, z };
+		charToMove.battleAvatar.GetComponent<BasicEnemyAnimations> ().setPos (map.getAbovePosFromCoords (x, z));
+	}
+	public void setInitialPosition(CharacterClass charToMove, int x, int z){
+		// Set Position but a bit more forceful for the very first position set
+		map.tiles[x,z].GetComponent<MapGridUnit>().isOccupied = true;
+		charToMove.battleLocation = new int[2]{ x, z };
 		charToMove.battleAvatar.transform.position = map.getAbovePosFromCoords (x, z);
 		charToMove.battleAvatar.GetComponent<BasicEnemyAnimations> ().setPos (map.getAbovePosFromCoords (x, z));
 	}
-
 	// Area selection Management
 	public void selectTargetLocation(int x, int z, int range){
 		// Set up the map to start looking for a map location to use whatever ability on
@@ -390,6 +397,7 @@ public class CombatTracker : MonoBehaviour {
 	public void continueTurn(){
 		// Used after movement, for player it will bring back the menu after the movement is done, or use an ability in the AI case
 		if (currentTeam == "Player") {
+			map.deSelectAll ();
 			ShowBattleMenu ();
 		} else {
 			// half second delay for animations sake
