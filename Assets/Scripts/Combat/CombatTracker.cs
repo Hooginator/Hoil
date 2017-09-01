@@ -398,6 +398,7 @@ public class CombatTracker : MonoBehaviour {
 	}
 	public void continueTurn(){
 		// Used after movement, for player it will bring back the menu after the movement is done, or use an ability in the AI case
+		actionToDo = null;
 		if (currentTeam == "Player") {
 			map.deSelectAll ();
 			ShowBattleMenu ();
@@ -607,21 +608,22 @@ public class CombatTracker : MonoBehaviour {
 
 		if (actionToDo.name == "Move") {
 			int[] tempOldCoords = actionFrom.battleLocation;
-			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
+			//Debug.Log ("Moving start, MP: " + actionFrom.MP.ToString () + " of " + map.getIntDistanceFromCoords (tempOldCoords, coords).ToString () + " needed");
 
 			List<int[]> path = map.getPath (tempOldCoords, coords, actionFrom.MP);
+			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
+
 			// If destination is in range start movement
 			if (tempIntDistance <= actionFrom.MP && path != null) {
+				actionFrom.useMP(tempIntDistance);
 				currentPos = actionFrom.battleAvatar.transform.position;
 				moveTarget = map.getAbovePosFromCoords(coords[0],coords[1]);
 				isMoving = true;
-				actionFrom.MP -= map.getIntDistanceFromCoords (tempOldCoords, coords);
 
 			} else {
 				Debug.Log ("Insufficient MP, " + actionFrom.MP.ToString () + " of " + tempIntDistance.ToString ());
 				continueTurn ();
 			}
-			actionToDo = null;
 
 		/************************************************ ATTACKING *****************************/
 

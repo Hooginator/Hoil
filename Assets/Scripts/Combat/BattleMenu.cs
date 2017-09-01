@@ -70,7 +70,7 @@ public class BattleMenu : MonoBehaviour {
 		combat.actionToDo = temp;
 
 		int[] pos = combat.actionFrom.battleLocation;
-		int MP = combat.actionFrom.MP;
+		int MP = combat.actionFrom.getMP();
 		combat.selectTargetLocation (pos[0],pos[1],MP);
 	}
 	public void AttackTarget(int target){

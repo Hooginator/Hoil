@@ -123,12 +123,16 @@ public class Map : MonoBehaviour {
 	public int getIntDistanceFromCoords(int[] pos1, int[] pos2){
 		// Returns the integer distence between two locations.
 		/// HEX
-		return cubeDistance(cartesianToCube(pos1), cartesianToCube(pos2));
+		return getIntDistanceFromCube(cartesianToCube(pos1), cartesianToCube(pos2));
 	}
 
 	public int getIntDistanceFromCube(int[] cube1, int[] cube2){
 		// Returns the integer distence between two locations.
-		/// HEX
+		// HEX
+		print(cube1[0].ToString() + "  <cube1>  " + cube2[0].ToString());
+		print(cube1[1].ToString() + "  <cube2>  " + cube2[1].ToString());
+		print(cube1[2].ToString() + "  <cube3>  " + cube2[2].ToString());
+		print (cubeDistance (cube1, cube2).ToString ());
 		return cubeDistance(cube1, cube2);
 	}
 
@@ -306,7 +310,7 @@ public class Map : MonoBehaviour {
 		float temp1 = pos.x / offsetX;
 		float temp2 = ((offsetX * pos.x) + (offsetZ * pos.z))/Mathf.Pow(Mathf.Pow(offsetX,2)+Mathf.Pow(offsetZ,2),1);// dot product direction
 
-		print("Tile from Hex coords: " + temp1.ToString() + "  " + temp2.ToString());
+		//print("Tile from Hex coords: " + temp1.ToString() + "  " + temp2.ToString());
 
 		// UNTESTED
 
@@ -354,8 +358,9 @@ public class Map : MonoBehaviour {
 	}
 
 	public List<int[]> getPath(int[] pos1, int[]pos2, int maxDist){
+		// Not HEX :(
 		int wiggleRoom = maxDist - getIntDistanceFromCoords (pos1, pos2);
-		int[] currentPos = pos1;
+		int[] currentPos = new int[]{pos1[0],pos1[1]};
 		List<int[]> path = new List<int[]>();
 		for(int i = 0;i<maxDist;i++){
 			currentPos = moveTowards (currentPos, pos2);
@@ -372,22 +377,23 @@ public class Map : MonoBehaviour {
 
 	}
 	public int[] moveTowards(int[] pos1,int[] pos2){
+		int[] newPos = pos1;
 		int deltaX = pos1[0] - pos2[0];
 		int deltaZ = pos1[1] - pos2[1];
 		if (Mathf.Abs (deltaX) >= Mathf.Abs (deltaZ)) {
 			if (pos1 [0] > pos2 [0]) {
-				pos1 [0] -= 1;
+				newPos [0] -= 1;
 			} else if (pos1 [0] < pos2 [0]) {
-				pos1 [0] += 1;
+				newPos [0] += 1;
 			}
 		} else if (Mathf.Abs (deltaX) <= Mathf.Abs (deltaZ)) {
 			if (pos1 [1] > pos2 [1]) {
-				pos1 [1] -= 1;
+				newPos [1] -= 1;
 			} else if (pos1 [1] < pos2 [1]) {
-				pos1 [1] += 1;
+				newPos [1] += 1;
 			}
 		}
-		return pos1;
+		return newPos;
 	}
 
 
