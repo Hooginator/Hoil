@@ -85,13 +85,14 @@ public class CombatTracker : MonoBehaviour {
 		// Check if current character is moving, reposition and check for done moving
 		if (isMoving) {
 			currentPos = Vector3.MoveTowards (currentPos, moveTarget, moveSpeed);
+			map.getTileCoordsFromPos (currentPos);
 			if (currentPos == moveTarget) {
 				isMoving = false;
 				setToPosition (actionFrom, coords [0], coords [1]);
 				// Turn is not over after movement, return to the rest of the turn
 				continueTurn ();
 			} else {
-
+				//actionFrom.battleAvatar.transform.position = currentPos;
 				actionFrom.battleAvatar.GetComponent<BasicEnemyAnimations>().setPos(currentPos);
 			}
 		}
@@ -311,7 +312,8 @@ public class CombatTracker : MonoBehaviour {
 		// Moves character to the center of tile at [x,z].  Also sets that tile as occupied.
 		map.tiles[x,z].GetComponent<MapGridUnit>().isOccupied = true;
 		charToMove.battleLocation = new int[2]{ x, z };
-		charToMove.battleAvatar.GetComponent<BasicEnemyAnimations> ().setPos (map.getAbovePosFromCoords (x, z));
+		charToMove.battleAvatar.transform.position = map.getAbovePosFromCoords (x, z);
+		charToMove.battleAvatar.GetComponent<BasicEnemyAnimations> ().setPos(map.getAbovePosFromCoords (x, z));
 	}
 	public void setInitialPosition(CharacterClass charToMove, int x, int z){
 		// Set Position but a bit more forceful for the very first position set

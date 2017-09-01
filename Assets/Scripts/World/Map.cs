@@ -55,7 +55,7 @@ public class Map : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-		// Set Boundaries of the map
+		// Set Boundaries of the map in space
 		Xmin =  -0.5f*gridSize;
 		Zmin =  -0.5f*gridSize;
 		Xmax =  (NcellX-0.5001f)*gridSize;
@@ -84,7 +84,7 @@ public class Map : MonoBehaviour {
 				// Function to randomly assign resources
 				if (NcellX >= 1 && NcellZ >= 1) {
 					resources = getResources ((float)x / (NcellX - 1), (float)z / (NcellZ - 1));
-				} else { // To prevent divide by zero if there's a 1xwhatever size map
+				} else { // To prevent divide by zero if there's a [1 * whatever] size map
 					resources = getResources (0.5f, 0.5f);
 				}
 				print (resources.ToString ());
@@ -96,8 +96,6 @@ public class Map : MonoBehaviour {
 		// Apply Colour to each tile
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
-				//print (x.ToString () + "  " + NcellX.ToString ());
-				//print (z.ToString () + "  " + NcellZ.ToString ());
 				tiles [x, z].GetComponent<MapGridUnit> ().reColour ();
 			}
 		}
@@ -125,16 +123,13 @@ public class Map : MonoBehaviour {
 	public int getIntDistanceFromCoords(int[] pos1, int[] pos2){
 		// Returns the integer distence between two locations.
 		/// HEX
-		print ("WSERDFTVGYBUHNJIMK");
 		return cubeDistance(cartesianToCube(pos1), cartesianToCube(pos2));
-		//return (Mathf.Abs (pos1 [0] - pos2 [0]) + Mathf.Abs (pos1 [1] - pos2 [1]));
 	}
 
 	public int getIntDistanceFromCube(int[] cube1, int[] cube2){
 		// Returns the integer distence between two locations.
 		/// HEX
 		return cubeDistance(cube1, cube2);
-		//return (Mathf.Abs (pos1 [0] - pos2 [0]) + Mathf.Abs (pos1 [1] - pos2 [1]));
 	}
 
 	public int[] cubeToCartesian(int[] cube){
@@ -157,21 +152,20 @@ public class Map : MonoBehaviour {
 	}
 	public int cubeDistance(int[] cube1,int[] cube2){
 		// HEX
+		// Returns the integer distance between two cube positions
 		return (Mathf.Abs (cube1 [0] - cube2 [0]) + Mathf.Abs (cube1 [1] - cube2 [1]) + Mathf.Abs (cube1 [2] - cube2 [2])) / 2;
 
 	}
 	public bool isInRange(int x1, int z1, int x2, int z2, int range ){
-		// Checks if [x1,z1] is within range of [x2,z2]
-		//return (Mathf.Abs(x1-x2) + Mathf.Abs(z1-z2)) <= range;
-
 		// HEX
+		// Checks if [x1,z1] is within range of [x2,z2]
 		return (getIntDistanceFromCoords(new int[] {x1,z1},new int[] {x2,z2} ) <= range);
 
 
 	}
 	public bool isCubeInRange(int[] cube1,int[] cube2,int range){
-
-
+		// HEX
+		// Checks if two cube positions are within Range distance of each other
 		return(getIntDistanceFromCube (cube1, cube2) <= range);
 	}
 
@@ -179,22 +173,7 @@ public class Map : MonoBehaviour {
 		// HEX
 		// provides a list of tile coordinates in cube within range of cubePos
 		// Does not check on boundaries
-
-
 		List<int[]> tempList = new List<int[]> ();
-		// BRUTE FORCE, CHECK EVERYTHING
-		/*int[] tempCube;
-		for (int i = 0; i < NcellX; i++) {
-			for (int j = 0; j < NcellZ; j++) {
-				tempCube = cartesianToCube (new int[]{ i, j });
-				print ("Cart: " + i.ToString() + " " + j.ToString() + " Cube: " + tempCube[0] + " " + tempCube[1] + " " + tempCube[2] + " ");
-				if (isCubeInRange(cubePos,cartesianToCube(new int[]{i,j}),range)){
-
-					tiles [i, j].GetComponent<MapGridUnit> ().setInRange ();
-				}
-			}
-		}*/
-		// BE ELEGANT
 		for(int i = -range;i < range +1; i++){
 			for (int j = Mathf.Max (-range, -i - range); j < Mathf.Min (range, -i + range) +1; j++) {
 				tempList.Add (new int[]{i + cubePos[0],j + cubePos[1],-i-j + cubePos[2]} );
@@ -214,15 +193,6 @@ public class Map : MonoBehaviour {
 				tiles [tempCart [0], tempCart [1]].GetComponent<MapGridUnit> ().setInRange ();
 			}
 		}
-
-		/*for (int i = -range; i < range+1; i++){
-			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
-				if (isIntInBoundaries (i+x, j+z)) {
-					tiles [i+x, j+z].GetComponent<MapGridUnit> ().setInRange ();
-					//print ("HERE I AM <<<<<<<<");
-				}
-			}
-		}*/
 	}
 	public void setOutOfRange(int x, int z, int range){
 		// Will recolour the tiles within range of the position (x,z) back to the normal colour
@@ -238,28 +208,22 @@ public class Map : MonoBehaviour {
 	}
 
 	public bool isOccupied(int x,int z){
+		// Is there something on this cell that would block LoS or prevent someone from entering
 		return tiles [x, z].GetComponent<MapGridUnit> ().isOccupied;
 	}
 	public bool isOccupied(int[] x){
+		// Is there something on this cell that would block LoS or prevent someone from entering
 		return tiles [x[0], x[1]].GetComponent<MapGridUnit> ().isOccupied;
 	}
 
 	public void selectRange(Vector3 pos, int range){
+		// Setup map to select where to place attack with feedback in map colour
 		int[] posInt = getTileCoordsFromPos (pos);
-		int x = posInt [0];
-		int z = posInt [1];
-		List<int[]> toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
-		int[] tempCart;
-		for (int i = 0; i < toSet.Count; i++) {
-			tempCart = cubeToCartesian (toSet [i]);
-			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
-				selectRangeUnit(tempCart [0], tempCart [1]);
-			}
-		}
-		selectCentralUnit(x,z);
+		selectRange (posInt, range);
 	}
 
 	public void selectRange(int[] posInt, int range){
+		// Setup map to select where to place attack with feedback in map colour
 		List<int[]> toSet = getInRange (cartesianToCube (posInt),range);
 		int[] tempCart = new int[]{0,0};
 		for (int i = 0; i < toSet.Count; i++) {
@@ -271,26 +235,21 @@ public class Map : MonoBehaviour {
 		selectCentralUnit(posInt[0],posInt[1]);
 	}
 	public void selectRangeUnit(int i,int j){
+		// recolour cell to show that AoE will affect it
 		tiles [i, j].GetComponent<MapGridUnit> ().Select ();
 	}
 	public void selectCentralUnit(int i,int j){
+		// Recolour central cell you are targeting
 		tiles [i, j].GetComponent<MapGridUnit> ().centralSelect ();
 	}
 
 	public void deSelectRange(Vector3 pos, int range){
+		// Return all cells withing range of pos back to their original colours
 		int[] posInt = getTileCoordsFromPos (pos);
-		int x = posInt [0];
-		int z = posInt [1];
-		List<int[]> toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
-		int[] tempCart;
-		for (int i = 0; i < toSet.Count; i++) {
-			tempCart = cubeToCartesian (toSet [i]);
-			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
-				deSelectUnit(tempCart);
-			}
-		}
+		deSelectRange (posInt, range);
 	}
 	public void deSelectRange(int[] posInt, int range){
+		// Return all cells withing range of pos back to their original colours
 		List<int[]> toSet = getInRange (cartesianToCube (posInt),range);
 		int[] tempCart;
 		for (int i = 0; i < toSet.Count; i++) {
@@ -302,15 +261,19 @@ public class Map : MonoBehaviour {
 	}
 
 	public void deSelectUnit(int i, int j){
+		// Return individual cell to its current colour (default, in range..)
 		tiles [i, j].GetComponent<MapGridUnit> ().reColour ();
 	}
 	public void deSelectUnit(int[] i){
+		// Return individual cell to its original colour
 		deSelectUnit (i [0], i [1]);
 	}
 	public void resetUnit(int i, int j){
+		// Change cell to no longer be in range, set it to its unaltered colour.
 		tiles [i, j].GetComponent<MapGridUnit> ().setOutOfRange ();
 	}
 	public void deSelectAll(){
+		// Change all cells on the map to no longer be in range, set it to its unaltered colour. 
 		for (int i = 0; i < NcellZ; i++) {
 			for (int j = 0; j < NcellX; j++) {
 				resetUnit (i, j);
@@ -319,6 +282,7 @@ public class Map : MonoBehaviour {
 	}
 
 	public GameObject getTile(int[] posInt){
+		// Returns the tile at pos posInt in the array
 		return tiles[posInt[0],posInt[1]];
 	}
 	/********************************************************************************************/
@@ -327,12 +291,22 @@ public class Map : MonoBehaviour {
 
 	public GameObject getTileFromPos(Vector3 pos){
 		// returns the GameObject of the Tile which is under position given
-		//print("Get Tile From Pos");
 		int[] posInt = getTileCoordsFromPos(pos);
-		//print (posInt[0].ToString () + "  " + posInt[1].ToString ());
 		return tiles [posInt[0], posInt[1]];
 	}
 	public int[] getTileCoordsFromPos(Vector3 pos){
+
+
+
+
+		// HEX TIME!!
+
+		// In progress
+		// new coordinate system >_>  this is part way to cube, but I don't think extending all the way helps at all.
+		float temp1 = pos.x / offsetX;
+		float temp2 = ((offsetX * pos.x) + (offsetZ * pos.z))/Mathf.Pow(Mathf.Pow(offsetX,2)+Mathf.Pow(offsetZ,2),1);// dot product direction
+
+		print("Tile from Hex coords: " + temp1.ToString() + "  " + temp2.ToString());
 
 		// UNTESTED
 
@@ -344,6 +318,11 @@ public class Map : MonoBehaviour {
 			posInt [0] = (int)Mathf.Floor ((pos [0]+0.5f*offsetX) / offsetX);
 		}
 		return posInt;
+
+
+
+
+
 	}
 
 	public Vector3 centreInTile(Vector3 pos){

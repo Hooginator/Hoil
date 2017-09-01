@@ -30,13 +30,14 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	public float rotationSpeed;
 	float recoilAcceleration;
 	float maxRadiansTopRotation;
+	public bool recoiling;
+	Vector3 returnPos;
 
 	// Animation Management
 	public float targetDistance;
 	public string animationType;
 	public int level;
 	bool topRotation;
-	bool recoiling;
 	Vector3 recoilSpeed; 
 	Vector3 recoilDirection;
 
@@ -45,12 +46,12 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		desiredPositions = new List<GameObject> ();
 		sphere = gameObject.transform.GetChild(1).gameObject;
 		var tempTR = new GameObject();
-		desiredPositions.Add(Instantiate(tempTR,sphere.transform.position,sphere.transform.rotation));
+		desiredPositions.Add(Instantiate(tempTR,new Vector3(0,0,0),sphere.transform.rotation));
 		basePositions.Add (new Vector3 (0, 0, 0));
 		baseRotations.Add (new Quaternion (0, 0, 0, 0));
 		for (int i = 0; i < 3; i++) {
 			cubes[i] = gameObject.transform.GetChild(i+2).gameObject;
-			desiredPositions.Add(Instantiate(tempTR,cubes[i].transform.position,cubes[i].transform.rotation));
+			desiredPositions.Add(Instantiate(tempTR,cubes[i].transform.position - cubes[0].transform.position,cubes[i].transform.rotation));
 			basePositions.Add (cubes[i].transform.position - sphere.transform.position);
 			baseRotations.Add (cubes[i].transform.rotation);
 		}
@@ -62,10 +63,9 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		desiredTopOrientation = axisUp;
 		animationType = "normal";
 		topRotation = false;
-		recoiling = false;
 		recoilAcceleration = 1.2f;
 		sphereDelta = 0;
-
+		recoiling = false;
 		// Update display of level on the model
 		var gameMan = GameObject.Find ("GameManager");
 		if (gameMan.GetComponent<gameManager> ().checkInBattle()) {
@@ -86,7 +86,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		spherePos = sphere.transform.position;
 		if (animationType == "normal") {
 			for (int i = 0; i < 3; i++) {
-				desiredPositions [i+1].transform.RotateAround (spherePos, topOrientation, rotationSpeed * Time.deltaTime);
+				desiredPositions [i+1].transform.RotateAround (desiredPositions[0].transform.position, topOrientation, rotationSpeed * Time.deltaTime);
 				desiredPositions [i+1].transform.position += new Vector3(0,0.02f*Mathf.Sin (Time.frameCount * 0.02f),0);
 			}
 			// Trying to get a floating height that varies slowly with time.  Currently not playing nice with Recoil
@@ -94,25 +94,26 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			desiredPositions[0].transform.position += new Vector3(0,0.02f*Mathf.Sin (Time.frameCount * 0.02f),0);
 		} else if (animationType == "dying") {
 			for (int i = 0; i < 3; i++) {
-				desiredPositions [i+1].transform.RotateAround (spherePos, topOrientation, 3 * rotationSpeed * Time.deltaTime);
+				desiredPositions [i+1].transform.RotateAround (desiredPositions[0].transform.position, topOrientation, 3 * rotationSpeed * Time.deltaTime);
 				desiredPositions [i+1].transform.Translate(topOrientation * Mathf.Sin(0.1f*Time.frameCount) * 0.4f * rotationSpeed * Time.deltaTime);
 			}
 		} else if (animationType == "casting") {
 			for (int i = 0; i < 3; i++) {
-				desiredPositions [i+1].transform.RotateAround (spherePos, topOrientation, 4 * rotationSpeed * Time.deltaTime);
+				desiredPositions [i+1].transform.RotateAround (desiredPositions[0].transform.position, topOrientation, 4 * rotationSpeed * Time.deltaTime);
 			}
 		}
 		if (recoiling) {
-			for (int i = 0; i < 4; i++) {
-				desiredPositions [i].transform.position += recoilSpeed;
-			}
+			centralPos += recoilSpeed;
 			// distance from where the sphere is and it is supposed to be
-			sphereDelta = Vector3.Magnitude(desiredPositions[0].transform.position - centralPos);
+			sphereDelta = Vector3.Magnitude(returnPos - centralPos);
 			recoilSpeed += 0.2f*getReturningSphereSpeed (sphereDelta);
 			recoilSpeed *= 0.2f;
 			if (sphereDelta < 0.1f) {
 				recoiling = false;
-				desiredPositions[0].transform.position = centralPos;
+				// Cheating the animation for now..
+				Debug.Log("##############################################################");
+				//resetDesired ();
+				//desiredPositions[0].transform.position = centralPos;
 			}
 		}
 		if (topRotation) {
@@ -121,7 +122,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 			} else {
 				topOrientation = Vector3.RotateTowards (topOrientation, desiredTopOrientation, maxRadiansTopRotation, 1);
 				for (int i = 0; i < 3; i++) {
-						desiredPositions [i+1].transform.RotateAround (spherePos, Vector3.Cross (topOrientation, desiredTopOrientation), (180 / Mathf.PI) * maxRadiansTopRotation);
+					desiredPositions [i+1].transform.RotateAround (desiredPositions[0].transform.position, Vector3.Cross (topOrientation, desiredTopOrientation), (180 / Mathf.PI) * maxRadiansTopRotation);
 				}
 			}
 		}
@@ -133,20 +134,20 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	}
 	public void resetDesired(){
 		// resets to default animation position
-		desiredPositions [0].transform.position = centralPos;
+		desiredPositions [0].transform.position = basePositions[0];
 		desiredPositions [0].transform.rotation = baseRotations[0];
 		for (int i = 0; i < 3; i++) {
-			desiredPositions[i+1].transform.position = basePositions[i+1] + centralPos;
+			desiredPositions[i+1].transform.position = basePositions[i+1];
 			desiredPositions[i+1].transform.rotation = baseRotations[i+1];
 		}
 	}
 	public void goToDesired(){
 		// resets enemy to currently desired position
-		sphere.transform.position = desiredPositions[0].transform.position;
+		sphere.transform.position = desiredPositions[0].transform.position + centralPos;
 		sphere.transform.rotation = desiredPositions[0].transform.rotation;
 		//print (desiredPositions [0].transform.position.ToString ());
 		for (int i = 0; i < 3; i++) {
-			cubes[i].transform.position = desiredPositions[i+1].transform.position; 
+			cubes[i].transform.position = desiredPositions[i+1].transform.position + centralPos; 
 			cubes[i].transform.rotation = desiredPositions[i+1].transform.rotation; 
 			}
 	}
@@ -156,9 +157,6 @@ public class BasicEnemyAnimations : MonoBehaviour {
 	}
 	public void setPos(Vector3 newPos){
 		// Sets Central pos to given position.  For use after character is moved to another tile.
-		for (int i = 0; i < desiredPositions.Count; i++) {
-			desiredPositions [i].transform.position += newPos - centralPos;
-		}
 		centralPos = newPos;
 	}
 	public void castTowards(Vector3 target,float timeToCast){
@@ -186,7 +184,7 @@ public class BasicEnemyAnimations : MonoBehaviour {
 
 	Vector3 getReturningSphereSpeed(float dist){
 		// Returns the vector pointing the sphere to where it is supposed to go that gets larget as the sphere is farther waway
-		return Vector3.Normalize(centralPos - desiredPositions[0].transform.position) * dist;
+		return Vector3.Normalize(returnPos - centralPos) * dist;
 	}
 	public void setTopVector(Vector3 newTop){
 		desiredTopOrientation = newTop;
@@ -194,7 +192,8 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		topRotation = true;
 	}
 	public void recoilFrom(Vector3 initialSpeed){
-		recoiling = true;
+		recoiling = true; 	
+		returnPos = centralPos;
 		recoilSpeed = 0.2f*initialSpeed;
 	}
 	public void recoilFromIn(Vector3 initialSpeed,float t){
