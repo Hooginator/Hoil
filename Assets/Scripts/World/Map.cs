@@ -45,6 +45,8 @@ public class Map : MonoBehaviour {
 	float offsetX = 20*0.8660254f;
 	float offsetZ = 15;
 
+	private List<int[]> cubeDirections;
+
 	// Update is called once per frame
 	void Update () {
 	}
@@ -64,7 +66,7 @@ public class Map : MonoBehaviour {
 		// Initialize arrays
 		resources = new float[uniqueResources];
 		tiles = new GameObject[NcellX,NcellZ];
-
+		setCubeDirections ();
 		gameMan = GameObject.Find ("GameManager").GetComponent<gameManager>();
 
 		// Loop through all grid places to be used for initialization
@@ -236,15 +238,15 @@ public class Map : MonoBehaviour {
 				selectRangeUnit(tempCart [0], tempCart [1]);
 			}
 		}
-		selectCentralUnit(posInt[0],posInt[1]);
+		selectCentralUnit(posInt);
 	}
 	public void selectRangeUnit(int i,int j){
 		// recolour cell to show that AoE will affect it
 		tiles [i, j].GetComponent<MapGridUnit> ().Select ();
 	}
-	public void selectCentralUnit(int i,int j){
+	public void selectCentralUnit(int[] posIn){
 		// Recolour central cell you are targeting
-		tiles [i, j].GetComponent<MapGridUnit> ().centralSelect ();
+		tiles [posIn[0], posIn[1]].GetComponent<MapGridUnit> ().centralSelect ();
 	}
 
 	public void deSelectRange(Vector3 pos, int range){
@@ -299,34 +301,41 @@ public class Map : MonoBehaviour {
 		return tiles [posInt[0], posInt[1]];
 	}
 	public int[] getTileCoordsFromPos(Vector3 pos){
-
-
-
-
 		// HEX TIME!!
-
-		// In progress
-		// new coordinate system >_>  this is part way to cube, but I don't think extending all the way helps at all.
-		float temp1 = pos.x / offsetX;
-		float temp2 = ((offsetX * pos.x) + (offsetZ * pos.z))/Mathf.Pow(Mathf.Pow(offsetX,2)+Mathf.Pow(offsetZ,2),1);// dot product direction
-
-		//print("Tile from Hex coords: " + temp1.ToString() + "  " + temp2.ToString());
-
-		// UNTESTED
-
 		int[] posInt = new int [2];
-		posInt [1] = (int) Mathf.Floor((pos[2]-0.5f*offsetZ) / offsetZ);
-		if (posInt [1] % 2 == 0) {
-			posInt [0] = (int)Mathf.Floor ((pos [0]+0.5f*offsetX) / offsetX - 0.5f);
+		// new coordinate system >_>  this is part way to cube, but I don't think extending all the way helps at all.
+		posInt[1] = (int)(pos.z / offsetZ+0.5f);
+		// If row is odd 
+		bool rowIsOdd = posInt [1] % 2 == 1; 
+		if (rowIsOdd) {
+			posInt [0] = (int)((pos.x) / offsetX);
 		} else {
-			posInt [0] = (int)Mathf.Floor ((pos [0]+0.5f*offsetX) / offsetX);
+			posInt [0] = (int)((pos.x + 0.5*offsetX) / offsetX);
 		}
+
+		float relativeZ = (pos.z+0.5f* offsetZ - (posInt[1] * offsetZ))/offsetZ;
+		float relativeX;
+
+		if (rowIsOdd) {
+			relativeX = (pos.x - (posInt [0] - 0.5f) * offsetX)/offsetX;
+		} else {
+			relativeX = (pos.x - (posInt [0]) * offsetX)/offsetX;
+		}
+		if (relativeZ < (0.5f * relativeX) - 0.5f) {// bottom right
+			posInt [1] -= 1;
+			if (rowIsOdd) {
+				posInt [0] += 1;
+			}
+		} else if (relativeZ < (-0.5f * relativeX) - 0.5f) {// bottom left
+			posInt [1] -= 1;
+			if (!rowIsOdd) {
+				posInt [0] -= 1;
+			}
+		}
+		// for testing
+		//selectCentralUnit (posInt);
+
 		return posInt;
-
-
-
-
-
 	}
 
 	public Vector3 centreInTile(Vector3 pos){
@@ -396,7 +405,30 @@ public class Map : MonoBehaviour {
 		return newPos;
 	}
 
+	// HEX PATH FINDING
 
+	public int[] getCubeNeighbour(int[] cubeIn,int direction){
+		int[] cubeOut = addCube (cubeIn, cubeDirections [direction]);
+		return cubeOut;
+	}
+	public int[] addCube(int[] cube1, int[] cube2){
+		// adds two cube positions together
+		int[] cubeOut = new int[3];
+		for (int i = 0; i < 3; i++) {
+			cubeOut [i] = cube1 [i] + cube2 [i];
+		}
+		return cubeOut;
+	}
+	public void setCubeDirections(){
+		// setup a list of the 6 transformations I have to do to move to a neighbour
+		cubeDirections = new List<int[]>();
+		cubeDirections.Add (new int[]{ 1, -1, 0 });
+		cubeDirections.Add (new int[]{ 1, 0, -1 });
+		cubeDirections.Add (new int[]{ 0, -1, 1 });
+		cubeDirections.Add (new int[]{ 0, 1, -1 });
+		cubeDirections.Add (new int[]{ -1, 1, 0 });
+		cubeDirections.Add (new int[]{ -1, 0, 1 });
+	}
 
 	/********************************************************************************************/
 	/******************************** Boundary Management ***************************************/

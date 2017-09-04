@@ -19,7 +19,7 @@ public class ButtonManager : MonoBehaviour, ISelectHandler, IDeselectHandler, IP
 	public void OnSelect(BaseEventData eventData){
 		// Light up the square under the target you might select
 		if (CT.actionToDo != null && CT.actionToDo.targetingType == "Single") {
-			map.selectCentralUnit (pos [0], pos [1]);
+			map.selectCentralUnit (pos);
 		}
 	}
 	public void OnDeselect(BaseEventData eventData){

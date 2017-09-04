@@ -616,6 +616,7 @@ public class CombatTracker : MonoBehaviour {
 			// If destination is in range start movement
 			if (tempIntDistance <= actionFrom.MP && path != null) {
 				actionFrom.useMP(tempIntDistance);
+				map.deSelectAll ();
 				currentPos = actionFrom.battleAvatar.transform.position;
 				moveTarget = map.getAbovePosFromCoords(coords[0],coords[1]);
 				isMoving = true;
