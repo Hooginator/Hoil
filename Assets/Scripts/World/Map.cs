@@ -131,10 +131,6 @@ public class Map : MonoBehaviour {
 	public int getIntDistanceFromCube(int[] cube1, int[] cube2){
 		// Returns the integer distence between two locations.
 		// HEX
-		print(cube1[0].ToString() + "  <cube1>  " + cube2[0].ToString());
-		print(cube1[1].ToString() + "  <cube2>  " + cube2[1].ToString());
-		print(cube1[2].ToString() + "  <cube3>  " + cube2[2].ToString());
-		print (cubeDistance (cube1, cube2).ToString ());
 		return cubeDistance(cube1, cube2);
 	}
 
@@ -212,7 +208,6 @@ public class Map : MonoBehaviour {
 			}
 		}
 	}
-
 	public bool isOccupied(int x,int z){
 		// Is there something on this cell that would block LoS or prevent someone from entering
 		return tiles [x, z].GetComponent<MapGridUnit> ().isOccupied;
@@ -223,12 +218,14 @@ public class Map : MonoBehaviour {
 	}
 
 	public void selectRange(Vector3 pos, int range){
+		// HEX
 		// Setup map to select where to place attack with feedback in map colour
 		int[] posInt = getTileCoordsFromPos (pos);
 		selectRange (posInt, range);
 	}
 
 	public void selectRange(int[] posInt, int range){
+		// HEX
 		// Setup map to select where to place attack with feedback in map colour
 		List<int[]> toSet = getInRange (cartesianToCube (posInt),range);
 		int[] tempCart = new int[]{0,0};
@@ -256,6 +253,7 @@ public class Map : MonoBehaviour {
 	}
 	public void deSelectRange(int[] posInt, int range){
 		// Return all cells withing range of pos back to their original colours
+		// HEX
 		List<int[]> toSet = getInRange (cartesianToCube (posInt),range);
 		int[] tempCart;
 		for (int i = 0; i < toSet.Count; i++) {
@@ -291,17 +289,16 @@ public class Map : MonoBehaviour {
 		// Returns the tile at pos posInt in the array
 		return tiles[posInt[0],posInt[1]];
 	}
-	/********************************************************************************************/
-	/******************************** Tile Position Management **********************************/
-	/********************************************************************************************/
+
 
 	public GameObject getTileFromPos(Vector3 pos){
+		// HEX
 		// returns the GameObject of the Tile which is under position given
 		int[] posInt = getTileCoordsFromPos(pos);
 		return tiles [posInt[0], posInt[1]];
 	}
 	public int[] getTileCoordsFromPos(Vector3 pos){
-		// HEX TIME!!
+		// HEX
 		int[] posInt = new int [2];
 		// new coordinate system >_>  this is part way to cube, but I don't think extending all the way helps at all.
 		posInt[1] = (int)(pos.z / offsetZ+0.5f);
@@ -339,6 +336,7 @@ public class Map : MonoBehaviour {
 	}
 
 	public Vector3 centreInTile(Vector3 pos){
+		// HEX
 		// Centres the Vector in its current tile.
 		Vector3 temppos = getTileFromPos(pos).transform.position;
 		// Keep Height
@@ -347,7 +345,7 @@ public class Map : MonoBehaviour {
 
 	}
 	public int getIntDistance(Vector3 pos1, Vector3 pos2){ 
-
+		// HEX
 
 		// Returns the integer distence between two locations.
 		int[] posInt1 = getTileCoordsFromPos (pos1);
@@ -357,35 +355,131 @@ public class Map : MonoBehaviour {
 
 	public Vector3 getPosFromCoords(int x, int z){
 		// Returns the central position of a tile based on int inputs
+		// HEX
 		return tiles [x,z].transform.position;
 	}
 	public Vector3 getAbovePosFromCoords(int x, int z){
 		// Returns the central position of a tile based on int inputs
+		// HEX
 		Vector3 temp =  tiles [x,z].transform.position;
 		temp [1] = 5;
 		return temp;
 	}
 
+
+	/********************************************************************************************/
+	/******************************** Tile Position Management **********************************/
+	/********************************************************************************************/
+
+	public struct pathDist
+	{
+		public int[] prev;
+		public int distTraveled;
+		public int distToGo;
+		public pathDist(int[] prevIn,int distIn, int distToGoIn){
+			this.distTraveled = distIn;
+			this.prev = prevIn;
+			this.distToGo = distToGoIn;
+		}
+	}
+
 	public List<int[]> getPath(int[] pos1, int[]pos2, int maxDist){
 		// Not HEX :(
-		int wiggleRoom = maxDist - getIntDistanceFromCoords (pos1, pos2);
+
+
+
+		// HEX PATHFINDING VERSION 1
 		int[] currentPos = new int[]{pos1[0],pos1[1]};
+		Dictionary<int[], pathDist> toCheck = new Dictionary<int[], pathDist>();
+		toCheck.Add (currentPos,new pathDist(pos1,0, getIntDistanceFromCoords(pos1,pos2)));
+		Dictionary<int[], pathDist> doneCheck = new Dictionary<int[], pathDist>();
 		List<int[]> path = new List<int[]>();
-		for(int i = 0;i<maxDist;i++){
-			currentPos = moveTowards (currentPos, pos2);
-			if (isOccupied (currentPos)) {
-				Debug.Log ("Failed moving, someone in the way"+currentPos.ToString());
-				return null;
+		bool foundPath = false;
+		int maxCycles = 20;
+		int j = 0;
+		int[] tempCube;
+		int[] tempCart;
+		int currentDistTraveled;
+		int shortestDist;
+		pathDist currentDist;
+		pathDist tempPrev;
+
+		while (!foundPath) {
+			toCheck.TryGetValue (currentPos,out currentDist);
+			currentDistTraveled = currentDist.distTraveled;
+			for (int k = 0; k < 6; k++) {
+				tempCube = getCubeNeighbour (cartesianToCube (currentPos), k);
+				tempCart = cubeToCartesian (tempCube);
+				//Debug.Log ("About to test cube: "+tempCube [0].ToString () + "    " + tempCube [1].ToString () + "    " + tempCube [2].ToString ());
+				//Debug.Log ("About to test cart: "+currentPos [0].ToString () + "    " + currentPos [1].ToString ()  +"  against    " + pos2[0].ToString() + "  " + pos2[1].ToString());
+				if (toCheck.TryGetValue (tempCart,out tempPrev) || doneCheck.TryGetValue(tempCart,out tempPrev)) {
+					// Already been here, maybe check distances for shortes i
+					Debug.Log("ALready been to " + tempCart[0].ToString() +"  " + tempCart[1].ToString());
+				} else {
+					// Add new node to check
+					tempPrev = new pathDist(currentPos,currentDistTraveled+1,getIntDistanceFromCoords (tempCart, pos2));
+					toCheck.Add (tempCart, tempPrev);
+				}
+				//Debug.Log("Path Finding checked cell:   " + tempCart[0].ToString() + "   " + tempCart[1].ToString());
 			}
-			path.Add (currentPos);
-			if (currentPos == pos2) {
-				break;
+			shortestDist = 1000000;
+			// Change currentPos to shortest distance left to check
+			foreach (var tempPathDist in toCheck) {
+				if (tempPathDist.Value.distTraveled + tempPathDist.Value.distToGo < shortestDist && isAvailable(tempPathDist.Key)) {
+					//Debug.Log ("For some reason NEVER HAPPENING!!!!!!!!!!!!!!!!!!!!!#%^*%@&!^^^^^^^^^^^^^^^^^^^^^%#^&$@#^&$(*&#@^(");
+					shortestDist = tempPathDist.Value.distTraveled + tempPathDist.Value.distToGo;
+					currentPos = tempPathDist.Key;
+				}
+			}
+
+			if (toCheck.TryGetValue (currentPos, out currentDist)) {
+				Debug.Log ("Done this round, currentPos: " + currentPos[0].ToString() + "   " + currentPos[1].ToString());
+				Debug.Log ("Done this round, currentPos: " + pos2[0].ToString() + "   " + pos2[1].ToString());
+				doneCheck.Add (currentPos, currentDist);
+				toCheck.Remove (currentPos);
+				if (currentPos[0] == pos2[0] && currentPos[1] == pos2[1] ) {
+					// Found the end!!!!
+					path.Add(currentPos);
+					j = 0;
+					while (!foundPath) {
+						if (currentPos [0] == pos1 [0] && currentPos [1] == pos1 [1]) {
+							foundPath = true;
+							break;
+						}
+						if (doneCheck.TryGetValue (currentPos, out currentDist)) {
+							// all good
+							currentPos = currentDist.prev;
+						} else {
+							Debug.Log (" Could not find currentPos in our list of checked places");
+						}
+						Debug.Log ("Adding point " + currentPos [0].ToString () + "  " + currentPos [1].ToString () + "  to path");
+						path.Add (currentPos);
+
+
+						j++;
+						if (j > maxCycles) {
+							foundPath = true;
+							Debug.Log ("Could not find path back fast enough");
+						}
+					}
+				}
+			} else {
+				Debug.Log ("Path not found");
+			}
+
+
+
+			j++;
+			if (j > maxCycles) {
+				foundPath = true;
+				Debug.Log ("Could not find path fast enough");
 			}
 		}
 		return path;
 
 	}
 	public int[] moveTowards(int[] pos1,int[] pos2){
+		// not HEX
 		int[] newPos = pos1;
 		int deltaX = pos1[0] - pos2[0];
 		int deltaZ = pos1[1] - pos2[1];
@@ -403,9 +497,9 @@ public class Map : MonoBehaviour {
 			}
 		}
 		return newPos;
+
 	}
 
-	// HEX PATH FINDING
 
 	public int[] getCubeNeighbour(int[] cubeIn,int direction){
 		int[] cubeOut = addCube (cubeIn, cubeDirections [direction]);
@@ -443,6 +537,16 @@ public class Map : MonoBehaviour {
 		return !(x < 0 || x > NcellX-1 || z < 0 || z > NcellZ-1);
 	}
 
+	public bool isIntInBoundaries(int[] x){
+		// Checks if the Int combo is beyond the map tiles
+		return !(x[0] < 0 || x[0] > NcellX-1 || x[1] < 0 || x[1] > NcellZ-1);
+	}
+	public bool isAvailable(int[] x){
+		if(isIntInBoundaries(x)){
+			return !isOccupied (x);
+		}
+		return false;
+	}
 	public Vector3 ForceInsideBoundaries(Vector3 pos){
 		// takes a vector and places it barely within the borders if it is outside.
 		//print("Force "+pos.ToString()+ " inside " + Xmax.ToString()+" "+Xmin.ToString());
