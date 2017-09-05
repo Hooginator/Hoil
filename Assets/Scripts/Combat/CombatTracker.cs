@@ -75,6 +75,7 @@ public class CombatTracker : MonoBehaviour {
 	public bool actionFromLocked;
 
 	public List<ColourPalette> colourPalettes = new List<ColourPalette>();
+	public List<int[]> path;
 
 	/********************************************************************************************/ 
 	/**************************************** Upkeep ********************************************/ 
@@ -87,10 +88,15 @@ public class CombatTracker : MonoBehaviour {
 			currentPos = Vector3.MoveTowards (currentPos, moveTarget, moveSpeed);
 			map.getTileCoordsFromPos (currentPos);
 			if (currentPos == moveTarget) {
-				isMoving = false;
-				setToPosition (actionFrom, coords [0], coords [1]);
-				// Turn is not over after movement, return to the rest of the turn
-				continueTurn ();
+				path.RemoveAt (path.Count-1);
+				if (path.Count > 0) {
+					moveTarget = map.getAbovePosFromCoords( path [path.Count - 1]);
+				} else {
+					isMoving = false;
+					setToPosition (actionFrom, coords [0], coords [1]);
+					// Turn is not over after movement, return to the rest of the turn
+					continueTurn ();
+				}
 			} else {
 				//actionFrom.battleAvatar.transform.position = currentPos;
 				actionFrom.battleAvatar.GetComponent<BasicEnemyAnimations>().setPos(currentPos);
@@ -610,7 +616,7 @@ public class CombatTracker : MonoBehaviour {
 			int[] tempOldCoords = actionFrom.battleLocation;
 			//Debug.Log ("Moving start, MP: " + actionFrom.MP.ToString () + " of " + map.getIntDistanceFromCoords (tempOldCoords, coords).ToString () + " needed");
 			int distMoved;
-			List<int[]> path = map.getPath (tempOldCoords, coords, actionFrom.MP, out distMoved);
+			path = map.getPath (tempOldCoords, coords, actionFrom.MP, out distMoved);
 			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
 
 			// If destination is in range start movement
@@ -619,7 +625,7 @@ public class CombatTracker : MonoBehaviour {
 				map.deSelectAll ();
 				map.getTile (tempOldCoords).GetComponent<MapGridUnit> ().isOccupied = false;
 				currentPos = actionFrom.battleAvatar.transform.position;
-				moveTarget = map.getAbovePosFromCoords(coords[0],coords[1]);
+				moveTarget = map.getAbovePosFromCoords( path [path.Count - 1]);
 				isMoving = true;
 
 			} else {

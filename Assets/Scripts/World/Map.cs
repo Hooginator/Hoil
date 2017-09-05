@@ -361,7 +361,12 @@ public class Map : MonoBehaviour {
 	public Vector3 getAbovePosFromCoords(int x, int z){
 		// Returns the central position of a tile based on int inputs
 		// HEX
-		Vector3 temp =  tiles [x,z].transform.position;
+		return getAbovePosFromCoords(new int[]{x,z});
+	}
+	public Vector3 getAbovePosFromCoords(int[] x){
+		// Returns the central position of a tile based on int inputs
+		// HEX
+		Vector3 temp =  tiles [x[0],x[1]].transform.position;
 		temp [1] = 5;
 		return temp;
 	}
