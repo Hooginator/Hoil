@@ -426,7 +426,7 @@ public class Map : MonoBehaviour {
 			shortestDist = 1000000;
 			// Change currentPos to shortest distance left to check
 			foreach (var tempPathDist in toCheck) {
-				if (tempPathDist.Value.distTraveled + tempPathDist.Value.distToGo < shortestDist && isAvailable(tempPathDist.Key)) {
+				if (tempPathDist.Value.distTraveled + tempPathDist.Value.distToGo < shortestDist && isAvailable(tempPathDist.Key) && tempPathDist.Value.distTraveled < maxDist+1) {
 					//Debug.Log ("For some reason NEVER HAPPENING!!!!!!!!!!!!!!!!!!!!!#%^*%@&!^^^^^^^^^^^^^^^^^^^^^%#^&$@#^&$(*&#@^(");
 					shortestDist = tempPathDist.Value.distTraveled + tempPathDist.Value.distToGo;
 					currentPos = tempPathDist.Key;

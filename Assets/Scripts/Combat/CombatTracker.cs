@@ -617,6 +617,7 @@ public class CombatTracker : MonoBehaviour {
 			if ( path != null) {
 				actionFrom.useMP(distMoved);
 				map.deSelectAll ();
+				map.getTile (tempOldCoords).GetComponent<MapGridUnit> ().isOccupied = false;
 				currentPos = actionFrom.battleAvatar.transform.position;
 				moveTarget = map.getAbovePosFromCoords(coords[0],coords[1]);
 				isMoving = true;
