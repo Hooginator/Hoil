@@ -377,13 +377,13 @@ public class Map : MonoBehaviour {
 		public int distTraveled;
 		public int distToGo;
 		public pathDist(int[] prevIn,int distIn, int distToGoIn){
-			this.distTraveled = distIn;
 			this.prev = prevIn;
+			this.distTraveled = distIn;
 			this.distToGo = distToGoIn;
 		}
 	}
 
-	public List<int[]> getPath(int[] pos1, int[]pos2, int maxDist){
+	public List<int[]> getPath(int[] pos1, int[]pos2, int maxDist, out int distMoved){
 		// Not HEX :(
 
 
@@ -401,6 +401,7 @@ public class Map : MonoBehaviour {
 		int[] tempCart;
 		int currentDistTraveled;
 		int shortestDist;
+		distMoved = 0;
 		pathDist currentDist;
 		pathDist tempPrev;
 
@@ -434,12 +435,13 @@ public class Map : MonoBehaviour {
 
 			if (toCheck.TryGetValue (currentPos, out currentDist)) {
 				Debug.Log ("Done this round, currentPos: " + currentPos[0].ToString() + "   " + currentPos[1].ToString());
-				Debug.Log ("Done this round, currentPos: " + pos2[0].ToString() + "   " + pos2[1].ToString());
+				Debug.Log ("Done this round, targetPos: " + pos2[0].ToString() + "   " + pos2[1].ToString());
 				doneCheck.Add (currentPos, currentDist);
 				toCheck.Remove (currentPos);
 				if (currentPos[0] == pos2[0] && currentPos[1] == pos2[1] ) {
 					// Found the end!!!!
 					path.Add(currentPos);
+					distMoved = 1;
 					j = 0;
 					while (!foundPath) {
 						if (currentPos [0] == pos1 [0] && currentPos [1] == pos1 [1]) {
@@ -449,6 +451,7 @@ public class Map : MonoBehaviour {
 						if (doneCheck.TryGetValue (currentPos, out currentDist)) {
 							// all good
 							currentPos = currentDist.prev;
+							distMoved += 1;
 						} else {
 							Debug.Log (" Could not find currentPos in our list of checked places");
 						}

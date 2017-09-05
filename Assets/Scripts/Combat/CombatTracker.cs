@@ -609,13 +609,13 @@ public class CombatTracker : MonoBehaviour {
 		if (actionToDo.name == "Move") {
 			int[] tempOldCoords = actionFrom.battleLocation;
 			//Debug.Log ("Moving start, MP: " + actionFrom.MP.ToString () + " of " + map.getIntDistanceFromCoords (tempOldCoords, coords).ToString () + " needed");
-
-			List<int[]> path = map.getPath (tempOldCoords, coords, actionFrom.MP);
+			int distMoved;
+			List<int[]> path = map.getPath (tempOldCoords, coords, actionFrom.MP, out distMoved);
 			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
 
 			// If destination is in range start movement
-			if (tempIntDistance <= actionFrom.MP && path != null) {
-				actionFrom.useMP(tempIntDistance);
+			if ( path != null) {
+				actionFrom.useMP(distMoved);
 				map.deSelectAll ();
 				currentPos = actionFrom.battleAvatar.transform.position;
 				moveTarget = map.getAbovePosFromCoords(coords[0],coords[1]);
