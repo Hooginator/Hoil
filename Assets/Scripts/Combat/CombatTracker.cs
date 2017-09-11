@@ -348,6 +348,21 @@ public class CombatTracker : MonoBehaviour {
 		int z = actionFrom.battleLocation [1];
 		selectTargetLocation (x, z, range);
 	}
+	public void selectTargetUnoccupiedLocation(int x, int z, int range){
+		// Only highlights unoccupied cells. and will check range around objects later.
+		// Set up the map to start looking for a map location to use whatever ability on
+		selectingTargetLocation = true;
+		wasUp = false;
+		map = GameObject.Find ("Map").GetComponent<Map> ();
+		targetIntLocation = new int[]{ x, z };
+		map.setInMovementRange (x,z, range);
+		HideBattleMenu();
+		selectingFromX = x;
+		selectingFromZ = z;
+		selectingRange = range;
+		windowStatus = "Selecting Location";
+
+	}
 	public void stopSelectingTargetLocation(){
 		selectingTargetLocation = false;
 		map.deSelectRange (targetIntLocation, areaRange);

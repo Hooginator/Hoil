@@ -71,7 +71,7 @@ public class BattleMenu : MonoBehaviour {
 
 		int[] pos = combat.actionFrom.battleLocation;
 		int MP = combat.actionFrom.getMP();
-		combat.selectTargetLocation (pos[0],pos[1],MP);
+		combat.selectTargetUnoccupiedLocation (pos[0],pos[1],MP);
 	}
 	public void AttackTarget(int target){
 		//print ("Attacking Target: " + target.ToString ());

@@ -184,6 +184,47 @@ public class Map : MonoBehaviour {
 		return tempList;
 	}
 
+	public List<int[]> getInMovementRange(int[] cubePos, int range){
+		// HEX
+		// provides a list of tile coordinates in cube within walking range of cubePos
+		// Does not check on boundaries
+		List<int[]> tempList = new List<int[]> ();
+		int distTravelled;
+		int[] tempCube;
+		int[] tempCart;
+		for(int i = -range;i < range +1; i++){
+			for (int j = Mathf.Max (-range, -i - range); j < Mathf.Min (range, -i + range) +1; j++) {
+				tempCube = new int[]{ i + cubePos [0], j + cubePos [1], -i - j + cubePos [2]};
+				tempCart = cubeToCartesian (tempCube);
+				if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+					if (!isOccupied (tempCart)) {
+						if (getPath (cubeToCartesian (cubePos), tempCart, range, out distTravelled) != null) {
+
+							tempList.Add (new int[]{ i + cubePos [0], j + cubePos [1], -i - j + cubePos [2] });
+						}
+					}
+				}
+			}
+		}
+		return tempList;
+	}
+	public void setInMovementRange(int[] cubePos, int range){
+		// Will recolour the tiles within walking range of the CUBE position to the "In range" colour
+		// HEX
+		List<int[]> toSet = getInMovementRange (cubePos,range);
+		int[] tempCart;
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				tiles [tempCart [0], tempCart [1]].GetComponent<MapGridUnit> ().setInRange ();
+			}
+		}
+	}
+	public void setInMovementRange(int x, int z, int range){
+		int[] tempCube = cartesianToCube (new int[]{ x, z });
+		setInMovementRange (tempCube, range);
+	}
+
 	public void setInRange(int x, int z, int range){
 		// Will recolour the tiles within range of the position (x,z) to the "In range" colour
 		// HEX
@@ -389,10 +430,6 @@ public class Map : MonoBehaviour {
 	}
 
 	public List<int[]> getPath(int[] pos1, int[]pos2, int maxDist, out int distMoved){
-		// Not HEX :(
-
-
-
 		// HEX PATHFINDING VERSION 1
 		int[] currentPos = new int[]{pos1[0],pos1[1]};
 		Dictionary<int[], pathDist> toCheck = new Dictionary<int[], pathDist>();
