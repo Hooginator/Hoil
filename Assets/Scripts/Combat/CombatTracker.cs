@@ -708,6 +708,7 @@ public class CombatTracker : MonoBehaviour {
 				StartCoroutine (StartDeathAnimation (toKill.battleAvatar, actionToDo.timeToLand));
 			}
 			//Destroy (toKill.battleAvatar);
+			map.setUnOccupied(toKill.battleLocation);
 			// Remove enemy from list
 			characters.Remove (toKill);
 			numCharacters -= 1;
