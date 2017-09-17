@@ -186,10 +186,58 @@ public class Map : MonoBehaviour {
 
 	public List<int[]> getInMovementRange(int[] cubePos, int range){
 		// HEX
-		// provides a list of tile coordinates in cube within walking range of cubePos
-		// Does not check on boundaries
+		// WAYYYYYYYYYYYYYYYYYYYYYY TOO SLOW RIGHT NOW, *FIXED!!*
+		// Grabs all neighbours of toDoList (starting at cubePos) and adds them to the finalList for returning
+		// AND adds to the toDoList for the next pass.  passes are done until we have reached range
+
+		List<int[]> finalList = new List<int[]> ();
 		List<int[]> tempList = new List<int[]> ();
-		int distTravelled;
+		List<int[]> toDoList = new List<int[]> ();
+		toDoList.Add(cubePos);
+		pathDist tempPathDist;
+		int[] currentTile;
+		bool done = false;
+		int movementCount = 0;
+		while (!done) {
+			// check if we're out of MP
+			if (movementCount >= range) {
+				done = true;
+				break;
+			}
+			// check if there are no more paths available
+			if(toDoList.Count == 0){
+				done = true;
+				break;
+			}
+			// get nearest neighbours
+			for (int j = 0; j < toDoList.Count; j++) {
+				tempList.AddRange(getInRange (toDoList[j], 1));
+			}
+			toDoList = new List<int[]> ();
+			for (int i = 0; i < tempList.Count; i++) {
+				currentTile = tempList [i];
+				// Check on Map boundaries
+				if (isIntInBoundaries (cubeToCartesian (currentTile))) {
+					// Check on Occupied status of tile
+					if (!isOccupied (cubeToCartesian (currentTile)) ) {
+						// NOTE: I used to have checks in here to ensure there were no duplicates but that performed very poorly
+						// That being the case we will have duplicates in our list.  Might be worth sorting that out once at the end of the function.
+						finalList.Add (currentTile);
+						toDoList.Add (currentTile);
+					}
+				}
+			}
+
+			movementCount++;
+			if (movementCount > 40) {
+				Debug.Log ("Took too long looking for movement range");
+				break;
+			}
+		}
+
+
+		// Old SLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOWWWW HEX method
+/*		int distTravelled;
 		int[] tempCube;
 		int[] tempCart;
 		for(int i = -range;i < range +1; i++){
@@ -198,15 +246,15 @@ public class Map : MonoBehaviour {
 				tempCart = cubeToCartesian (tempCube);
 				if (isIntInBoundaries(tempCart [0], tempCart [1])) {
 					if (!isOccupied (tempCart)) {
-						if (getPath (cubeToCartesian (cubePos), tempCart, range, out distTravelled) != null) {
+						if (getPath (cubeToCartesian (cubePos), tempCart, range, out distTravelled) != null && distTravelled <= range) {
 
 							tempList.Add (new int[]{ i + cubePos [0], j + cubePos [1], -i - j + cubePos [2] });
 						}
 					}
 				}
 			}
-		}
-		return tempList;
+		}*/
+		return finalList;
 	}
 	public void setInMovementRange(int[] cubePos, int range){
 		// Will recolour the tiles within walking range of the CUBE position to the "In range" colour
@@ -419,6 +467,7 @@ public class Map : MonoBehaviour {
 
 	public struct pathDist
 	{
+		// structure used to determine the optimal path between points
 		public int[] prev;
 		public int distTraveled;
 		public int distToGo;
