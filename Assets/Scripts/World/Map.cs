@@ -305,7 +305,13 @@ public class Map : MonoBehaviour {
 		// Is there something on this cell that would block LoS or prevent someone from entering
 		return tiles [x[0], x[1]].GetComponent<MapGridUnit> ().isOccupied;
 	}
+	public void setOccupied(int[] x){
+		tiles [x[0], x[1]].GetComponent<MapGridUnit> ().isOccupied = true;
+	}
 
+	public void setUnOccupied(int[] x){
+		tiles [x[0], x[1]].GetComponent<MapGridUnit> ().isOccupied = false;
+	}
 	public void selectRange(Vector3 pos, int range){
 		// HEX
 		// Setup map to select where to place attack with feedback in map colour
@@ -532,7 +538,7 @@ public class Map : MonoBehaviour {
 				if (currentPos[0] == pos2[0] && currentPos[1] == pos2[1] ) {
 					// Found the end!!!!
 					path.Add(currentPos);
-					distMoved = 1;
+					distMoved = 0;
 					j = 0;
 					while (!foundPath) {
 						if (currentPos [0] == pos1 [0] && currentPos [1] == pos1 [1]) {
