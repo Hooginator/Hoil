@@ -186,8 +186,16 @@ public class Map : MonoBehaviour {
 	public List<int[]> getOpposingNeighbours(int[] cubePos, int[] source){
 		// Returns the list of neighbours that are in the opposite direction as source.
 		// WAYYYYYYYYYYYYYYYYYYY Ineffidient  AND doesn't even do it right!
+		// Maybe start with everything and remove blocked squares
 		List<int[]> tempList = new List<int[]> ();
 		int[] relativePos = new int[3];
+
+
+
+
+
+
+
 		int dist = getIntDistanceFromCube (cubePos, source);
 		for (int i = 0; i < 3; i++) {
 			relativePos [i] = source [i] - cubePos [i];
@@ -288,7 +296,47 @@ public class Map : MonoBehaviour {
 		return toSet;
 	}
 
+	bool isLineOfSightBlocked(int[] pos1, int[] pos2, List<int[]> blockers){
+		// MISSSING LINK!!!!!
+		for (int i = 0; i < blockers.Count; i++) {
+			if (isLineOfSightBlocked (pos1, pos2, blockers [i])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool isLineOfSightBlocked(int[] pos1, int[] pos2, int[] blockers){
+		// individual chaeck for if a LOS is blocked
+		return false;
+	}
+
 	public List<int[]> getInLineOfSight(int[] cubePos, int range){
+
+		// new crack at it
+
+		List<int[]> tempList = getInRange (cubePos, range);
+		List<int[]> finalList = new List<int[]> ();
+		List<int[]> blockers = new List<int[]> ();
+
+		for (int i = 0; i < tempList.Count; i++) {
+			if (isLineOfSightBlocked (tempList [i], cubePos, blockers)) {
+				// Do nothing
+			} else {
+				finalList.Add (tempList [i]);
+				if(isIntInBoundaries(tempList[i]) && isOccupied(tempList[i])){
+					blockers.Add(tempList[i]);
+				}
+			}
+		}
+
+
+
+
+		/*
+
+
+
 
 		List<int[]> finalList = new List<int[]> ();
 		List<int[]> tempList = new List<int[]> ();
@@ -337,7 +385,7 @@ public class Map : MonoBehaviour {
 				Debug.Log ("Took too long looking for movement range");
 				break;
 			}
-		}
+		}*/
 
 		return finalList;
 
