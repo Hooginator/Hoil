@@ -22,6 +22,7 @@ public class Ability : ScriptableObject{
 	public float timeToLand;
 	public float timeToCast;
 	public CharacterClass caster;
+	public string rangeType;
 
 	public void init(string nameIn, int baseRangeIn, int AoERangeIn, float baseDamageIn, string damageTypeIn,string targetingTypeIn, string targetsIn, CharacterClass casterIn){
 		// Create an ability
@@ -49,6 +50,7 @@ public class Ability : ScriptableObject{
 			targetingType = "Area";
 			timeToLand = 1.5f;
 			timeToCast = 1.0f;
+			rangeType = "LOS";
 			break;
 		case "Iceball":
 			baseRange = 4;
@@ -59,6 +61,7 @@ public class Ability : ScriptableObject{
 			targetingType = "Area";
 			timeToLand = 1.5f;
 			timeToCast = 1.0f;
+			rangeType = "LOS";
 			break;
 		case "Acidball":
 			baseRange = 3;
@@ -69,6 +72,7 @@ public class Ability : ScriptableObject{
 			targetingType = "Area";
 			timeToLand = 1.5f;
 			timeToCast = 1.0f;
+			rangeType = "LOS";
 			break;
 		case "Sniper Attack":
 			baseRange = 20;
@@ -77,6 +81,7 @@ public class Ability : ScriptableObject{
 			damageType = "Pierce";
 			targets = "Enemy";
 			targetingType = "Single";
+			rangeType = "LOS";
 			break;
 		case "Healing":
 			baseRange = 3;
@@ -85,6 +90,7 @@ public class Ability : ScriptableObject{
 			damageType = "Heal";
 			targets = "Ally";
 			targetingType = "Area";
+			rangeType = "LOS";
 			break;
 		case "Basic Attack":
 			baseRange = 1;
@@ -93,6 +99,7 @@ public class Ability : ScriptableObject{
 			damageType = "Normal";
 			targets = "Enemy";
 			targetingType = "Single";
+			rangeType = "LOS";
 			break;
 		}
 	}

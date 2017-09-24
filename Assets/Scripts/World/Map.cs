@@ -183,6 +183,134 @@ public class Map : MonoBehaviour {
 		}
 		return tempList;
 	}
+	public List<int[]> getOpposingNeighbours(int[] cubePos, int[] source){
+		// Returns the list of neighbours that are in the opposite direction as source.
+		List<int[]> tempList = new List<int[]> ();
+		int[] relativePos = new int[3];
+		for (int i = 0; i < 3; i++) {
+			relativePos [i] = source [i] - cubePos [i];
+		}
+		// Take care of the 6 perfect diagonals first
+		if (relativePos [0] == 0) {
+			if (relativePos [1] > 0) {
+				tempList.Add (new int[]{ cubePos [0], cubePos [1] - 1, cubePos [2] + 1 });
+			} else {
+				tempList.Add (new int[]{ cubePos [0], cubePos [1] + 1, cubePos [2] - 1 });
+			}
+		} else if (relativePos [1] == 0) {
+			if (relativePos [0] > 0) {
+				tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1], cubePos [2] + 1 });
+			} else {
+				tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1], cubePos [2] - 1 });
+			}
+		} else if (relativePos [2] == 0) {
+			if (relativePos [1] > 0) {
+				tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1] - 1, cubePos [2] });
+			} else {
+				tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1] + 1, cubePos [2] });
+			}
+			// with no zeros we're not on a straight line and so will unlock 2 tiles opposite
+		} else {
+			if (relativePos [0] > 0) {
+				if (relativePos [1] > 0) {
+					tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1], cubePos [2] + 1 });
+					tempList.Add (new int[]{ cubePos [0], cubePos [1] - 1, cubePos [2] + 1 });
+				} else {
+					if (relativePos [2] > 0) {
+						tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1] + 1, cubePos [2] });
+						tempList.Add (new int[]{ cubePos [0], cubePos [1] + 1, cubePos [2] - 1 });
+					}
+				}
+			} else {
+				if (relativePos [1] < 0) {
+					tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1], cubePos [2] - 1 });
+					tempList.Add (new int[]{ cubePos [0], cubePos [1] + 1, cubePos [2] - 1 });
+				} else {
+					if (relativePos [2] > 0) {
+						tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1] , cubePos [2] - 1 });
+						tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1] - 1, cubePos [2] });
+					}
+				}
+
+			}
+		}
+		if (tempList.Count == 0) {
+			Debug.Log ("No neighbours for pos:  " + cubePos [0].ToString () + "  " + cubePos [1].ToString () + "  " + cubePos [2].ToString () + "  "
+			+ "     from:   " + source [0].ToString () + "  " + source [1].ToString () + "  " + source [2].ToString ());
+		} else {
+			Debug.Log ("Found opposing neighbours!");
+
+		}
+		return tempList;
+	}
+
+	public List<int[]> setInLineOfSight(int[] cubePos, int range){
+		List<int[]> toSet = getInLineOfSight (cubePos,range);
+		int[] tempCart;
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				tiles [tempCart [0], tempCart [1]].GetComponent<MapGridUnit> ().setInRange ();
+			}
+		}
+		return toSet;
+	}
+
+	public List<int[]> getInLineOfSight(int[] cubePos, int range){
+
+		List<int[]> finalList = new List<int[]> ();
+		List<int[]> tempList = new List<int[]> ();
+		List<int[]> toDoList = new List<int[]> ();
+		toDoList.Add(cubePos);
+		pathDist tempPathDist;
+		int[] currentTile;
+		bool done = false;
+		int movementCount = 0;
+		while (!done) {
+			// check if we're out of MP
+			if (movementCount >= range) {
+				done = true;
+				break;
+			}
+			// check if there are no more paths available
+			if(toDoList.Count == 0){
+				done = true;
+				break;
+			}
+			// get nearest neighbours
+			if (movementCount == 0) {
+				tempList.AddRange (getInRange (cubePos, 1));
+			} else {
+				for (int j = 0; j < toDoList.Count; j++) {
+					tempList.AddRange (	getOpposingNeighbours (toDoList [j], cubePos));
+				}
+			}
+			toDoList = new List<int[]> ();
+			for (int i = 0; i < tempList.Count; i++) {
+				currentTile = tempList [i];
+				// Check on Map boundaries
+				if (isIntInBoundaries (cubeToCartesian (currentTile))) {
+					// Check on Occupied status of tile
+					if (!isOccupied (cubeToCartesian (currentTile)) ) {
+						// NOTE: I used to have checks in here to ensure there were no duplicates but that performed very poorly
+						// That being the case we will have duplicates in our list.  Might be worth sorting that out once at the end of the function.
+						finalList.Add (currentTile);
+						toDoList.Add (currentTile);
+					}
+				}
+			}
+
+			movementCount++;
+			if (movementCount > 40) {
+				Debug.Log ("Took too long looking for movement range");
+				break;
+			}
+		}
+
+		return finalList;
+
+
+	}
 
 	public List<int[]> getInMovementRange(int[] cubePos, int range){
 		// HEX
@@ -234,26 +362,7 @@ public class Map : MonoBehaviour {
 				break;
 			}
 		}
-
-
-		// Old SLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOWWWW HEX method
-/*		int distTravelled;
-		int[] tempCube;
-		int[] tempCart;
-		for(int i = -range;i < range +1; i++){
-			for (int j = Mathf.Max (-range, -i - range); j < Mathf.Min (range, -i + range) +1; j++) {
-				tempCube = new int[]{ i + cubePos [0], j + cubePos [1], -i - j + cubePos [2]};
-				tempCart = cubeToCartesian (tempCube);
-				if (isIntInBoundaries(tempCart [0], tempCart [1])) {
-					if (!isOccupied (tempCart)) {
-						if (getPath (cubeToCartesian (cubePos), tempCart, range, out distTravelled) != null && distTravelled <= range) {
-
-							tempList.Add (new int[]{ i + cubePos [0], j + cubePos [1], -i - j + cubePos [2] });
-						}
-					}
-				}
-			}
-		}*/
+			
 		return finalList;
 	}
 	public void setInMovementRange(int[] cubePos, int range){
@@ -273,10 +382,15 @@ public class Map : MonoBehaviour {
 		setInMovementRange (tempCube, range);
 	}
 
-	public void setInRange(int x, int z, int range){
+	public void setInRange(int x, int z, int range, string rangeType){
 		// Will recolour the tiles within range of the position (x,z) to the "In range" colour
 		// HEX
-		List<int[]> toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
+		List<int[]> toSet;
+		if (rangeType == "LOS") {
+			toSet = getInLineOfSight (cartesianToCube (new int[]{ x, z }),range);
+		} else {
+			toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
+		}
 		int[] tempCart;
 		for (int i = 0; i < toSet.Count; i++) {
 			tempCart = cubeToCartesian (toSet [i]);

@@ -137,30 +137,12 @@ public class SelectTarget : MonoBehaviour {
 		// I might replace the choosing method to a dictionary  or something
 		if (ability.targetingType == "Area") {
 			combat.areaRange = ability.AoERange;
-			combat.selectTargetLocation (ability.baseRange);
+			combat.selectTargetLocation (ability.baseRange, ability.rangeType);
 		} else if (ability.targetingType == "Single") {
 			combat.ShowSelectMenu (combat.getEnemiesInRange (ability.baseRange, "Player"));
 		}
 		combat.selectingRange = ability.baseRange;
 
-		// Old way, delete later
-		/*if (ability.name == "Fireball") {
-			rangeBase = 4;
-			combat.areaRange = 3;
-			combat.selectTargetLocation (rangeBase);
-		}else if(ability.name == "Sniper Attack"){
-			// Change to individual target
-			rangeBase = 8;
-
-			combat.ShowSelectMenu (combat.getEnemiesInRange (rangeBase, "Player"));
-			combat.areaRange = 1;
-		}else if(ability.name == "Heal Self"){
-			// Change select method to individual ally, or just fuck it
-			rangeBase = 0;
-			combat.selectTargetLocation (rangeBase);
-		}*/
-		//rangeBase = ability.baseRange;
-		//combat.selectTargetLocation (rangeBase);
 	}
 
 }

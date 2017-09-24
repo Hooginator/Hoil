@@ -329,26 +329,26 @@ public class CombatTracker : MonoBehaviour {
 		charToMove.battleAvatar.GetComponent<BasicEnemyAnimations> ().setPos (map.getAbovePosFromCoords (x, z));
 	}
 	// Area selection Management
-	public void selectTargetLocation(int x, int z, int range){
+	public void selectTargetLocation(int x, int z, int range, string rangeType){
 		// Set up the map to start looking for a map location to use whatever ability on
 		selectingTargetLocation = true;
 		wasUp = false;
 		map = GameObject.Find ("Map").GetComponent<Map> ();
 		targetIntLocation = new int[]{ x, z };
-		map.setInRange (x, z, range);
+		map.setInRange (x, z, range, rangeType);
 		HideBattleMenu();
 		selectingFromX = x;
 		selectingFromZ = z;
 		selectingRange = range;
 		windowStatus = "Selecting Location";
 	}
-	public void selectTargetLocation(int range){
+	public void selectTargetLocation(int range, string rangeType){
 		// Assume we are selecting from where the curent actor is
 		int x = actionFrom.battleLocation [0];
 		int z = actionFrom.battleLocation [1];
-		selectTargetLocation (x, z, range);
+		selectTargetLocation (x, z, range, rangeType);
 	}
-	public void selectTargetUnoccupiedLocation(int x, int z, int range){
+	public void selectTargetMovableLocation(int x, int z, int range){
 		// Only highlights unoccupied cells. and will check range around objects later.
 		// Set up the map to start looking for a map location to use whatever ability on
 		selectingTargetLocation = true;
