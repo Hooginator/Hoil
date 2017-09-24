@@ -185,8 +185,10 @@ public class Map : MonoBehaviour {
 	}
 	public List<int[]> getOpposingNeighbours(int[] cubePos, int[] source){
 		// Returns the list of neighbours that are in the opposite direction as source.
+		// WAYYYYYYYYYYYYYYYYYYY Ineffidient  AND doesn't even do it right!
 		List<int[]> tempList = new List<int[]> ();
 		int[] relativePos = new int[3];
+		int dist = getIntDistanceFromCube (cubePos, source);
 		for (int i = 0; i < 3; i++) {
 			relativePos [i] = source [i] - cubePos [i];
 		}
@@ -197,18 +199,48 @@ public class Map : MonoBehaviour {
 			} else {
 				tempList.Add (new int[]{ cubePos [0], cubePos [1] + 1, cubePos [2] - 1 });
 			}
+			/*if (dist < 2) {
+				// short range, add more.
+				if (relativePos [1] > 0) {
+					tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1], cubePos [2] + 1 });
+					tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1] - 1, cubePos [2] });
+				} else {
+					tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1]+1, cubePos [2] });
+					tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1], cubePos [2] -1 });
+				}
+			}*/
 		} else if (relativePos [1] == 0) {
 			if (relativePos [0] > 0) {
 				tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1], cubePos [2] + 1 });
 			} else {
 				tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1], cubePos [2] - 1 });
 			}
+			/*if (dist < 2) {
+				// short range, add more.
+				if (relativePos [0] > 0) {
+					tempList.Add (new int[]{ cubePos [0]-1, cubePos [1]+1, cubePos [2] });
+					tempList.Add (new int[]{ cubePos [0], cubePos [1]-1, cubePos [2]+1});
+				} else {
+					tempList.Add (new int[]{ cubePos [0], cubePos [1]+1, cubePos [2] - 1 });
+					tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1] - 1, cubePos [2] });
+				}
+			}*/
 		} else if (relativePos [2] == 0) {
 			if (relativePos [1] > 0) {
 				tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1] - 1, cubePos [2] });
 			} else {
 				tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1] + 1, cubePos [2] });
 			}
+			/*if (dist < 2) {
+				// short range, add more.
+				if (relativePos [1] > 0) {
+					tempList.Add (new int[]{ cubePos [0]+1, cubePos [1], cubePos [2] - 1 });
+					tempList.Add (new int[]{ cubePos [0], cubePos [1]-1, cubePos [2] +1});
+				} else {
+					tempList.Add (new int[]{ cubePos [0], cubePos [1]+1, cubePos [2] - 1 });
+					tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1], cubePos [2] + 1 });
+				}
+			}*/
 			// with no zeros we're not on a straight line and so will unlock 2 tiles opposite
 		} else {
 			if (relativePos [0] > 0) {
