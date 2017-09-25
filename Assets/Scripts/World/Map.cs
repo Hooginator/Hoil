@@ -299,6 +299,7 @@ public class Map : MonoBehaviour {
 	bool isLineOfSightBlocked(int[] pos1, int[] pos2, List<int[]> blockers){
 		// MISSSING LINK!!!!!
 		for (int i = 0; i < blockers.Count; i++) {
+			print (blockers [i][0] + "   " + blockers [i][1] + "    " + blockers [i][2]);
 			if (isLineOfSightBlocked (pos1, pos2, blockers [i])) {
 				return true;
 			}
@@ -308,7 +309,13 @@ public class Map : MonoBehaviour {
 
 	bool isLineOfSightBlocked(int[] pos1, int[] pos2, int[] blocker){
 		// individual chaeck for if a LOS is blocked
-		if (Mathf.Abs( getAngle (cubeToCartesian( pos1), cubeToCartesian(pos2)) - getAngle (cubeToCartesian(pos1), cubeToCartesian(blocker)) ) < 0.1f) {
+		if (blocker == null) {
+			print ("NULLLLLLLLLLLLLLLLLLLLLLLLLLLLLL");
+		}
+		float angle1 = getAngle (cubeToCartesian( pos1), cubeToCartesian(pos2));
+		float angle2 = getAngle (cubeToCartesian( pos1), cubeToCartesian(blocker));
+		print ("Angle 1:  " + angle1.ToString () + "  Angle 2:  " + angle2.ToString ());
+		if (Mathf.Abs( angle1 - angle2 ) < 0.1f) {
 			return true;
 		}
 		return false;
@@ -319,9 +326,14 @@ public class Map : MonoBehaviour {
 		Vector3 tempPOS2 = getPosFromCoords(pos2);
 		float DIST = Vector3.Distance(tempPOS2, tempPOS1);
 		float XPOS = tempPOS2 [0] - tempPOS1 [0]; 
+		float ZPOS = tempPOS2 [1] - tempPOS1 [1]; 
 		float angle = 0;
-		if (DIST != 0) {
-			angle = Mathf.Acos (XPOS / DIST);
+		if (DIST >  0.1) {
+			if (ZPOS > 0) {
+				angle = 2 * Mathf.PI - Mathf.Acos (XPOS / DIST);
+			} else {
+				angle = Mathf.Acos (XPOS / DIST);
+			}
 		}
 		return angle;
 	}
@@ -335,12 +347,16 @@ public class Map : MonoBehaviour {
 		List<int[]> blockers = new List<int[]> ();
 
 		for (int i = 0; i < tempList.Count; i++) {
-			if(isIntInBoundaries(tempList[i])){
+			if(isIntInBoundaries(cubeToCartesian(tempList[i]))){
+				Debug.Log ("Checking LOS for:  " + cubePos [0] + "  " + cubePos [1] + "  " + cubePos [2]);// + "      " + blockers[0].ToString());// + "  " + blockers[1] + "  " + blockers[2]);
+				Debug.Log ("Checking LOS for:  " + tempList [i] [0] + "  " + tempList [i] [1] + "  " + tempList [i] [2]);// + "      " + blockers[0].ToString());// + "  " + blockers[1] + "  " + blockers[2]);
 				if (isLineOfSightBlocked (cubePos, tempList [i], blockers)) {
 					// Do nothing
+					print("Line of sight blocked for tile:  " + tempList[i][0] + "  " + tempList[i][1] + "  " + tempList[i][2]);
 				} else {
+					print ("Adding to finalList:    " + tempList [i] [0] + "   " + tempList [i] [1] + "   " + tempList [i] [2]);
 					finalList.Add (tempList [i]);
-					if(isIntInBoundaries(tempList[i]) && isOccupied(tempList[i])){
+					if(isIntInBoundaries(cubeToCartesian( tempList[i])) && isOccupied(cubeToCartesian(tempList[i]))){
 						blockers.Add(tempList[i]);
 					}
 				}
@@ -850,7 +866,7 @@ public class Map : MonoBehaviour {
 	}
 	public bool isIntInBoundaries(int x, int z){
 		// Checks if the Int combo is beyond the map tiles
-		return !(x < 0 || x > NcellX-1 || z < 0 || z > NcellZ-1);
+		return isIntInBoundaries(new int[]{x,z});
 	}
 
 	public bool isIntInBoundaries(int[] x){

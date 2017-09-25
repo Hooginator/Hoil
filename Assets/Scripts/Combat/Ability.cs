@@ -53,7 +53,7 @@ public class Ability : ScriptableObject{
 			rangeType = "LOS";
 			break;
 		case "Iceball":
-			baseRange = 8;
+			baseRange = 3;
 			AoERange = 7;
 			baseDamage = 20;
 			damageType = "Ice";
