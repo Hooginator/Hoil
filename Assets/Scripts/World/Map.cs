@@ -306,9 +306,24 @@ public class Map : MonoBehaviour {
 		return false;
 	}
 
-	bool isLineOfSightBlocked(int[] pos1, int[] pos2, int[] blockers){
+	bool isLineOfSightBlocked(int[] pos1, int[] pos2, int[] blocker){
 		// individual chaeck for if a LOS is blocked
+		if (Mathf.Abs( getAngle (cubeToCartesian( pos1), cubeToCartesian(pos2)) - getAngle (cubeToCartesian(pos1), cubeToCartesian(blocker)) ) < 0.1f) {
+			return true;
+		}
 		return false;
+	}
+	float getAngle(int[] pos1, int[] pos2){
+		//returns the gAngle created beetween possitions
+		Vector3 tempPOS1 = getPosFromCoords(pos1);
+		Vector3 tempPOS2 = getPosFromCoords(pos2);
+		float DIST = Vector3.Distance(tempPOS2, tempPOS1);
+		float XPOS = tempPOS2 [0] - tempPOS1 [0]; 
+		float angle = 0;
+		if (DIST != 0) {
+			angle = Mathf.Acos (XPOS / DIST);
+		}
+		return angle;
 	}
 
 	public List<int[]> getInLineOfSight(int[] cubePos, int range){
@@ -320,12 +335,14 @@ public class Map : MonoBehaviour {
 		List<int[]> blockers = new List<int[]> ();
 
 		for (int i = 0; i < tempList.Count; i++) {
-			if (isLineOfSightBlocked (tempList [i], cubePos, blockers)) {
-				// Do nothing
-			} else {
-				finalList.Add (tempList [i]);
-				if(isIntInBoundaries(tempList[i]) && isOccupied(tempList[i])){
-					blockers.Add(tempList[i]);
+			if(isIntInBoundaries(tempList[i])){
+				if (isLineOfSightBlocked (cubePos, tempList [i], blockers)) {
+					// Do nothing
+				} else {
+					finalList.Add (tempList [i]);
+					if(isIntInBoundaries(tempList[i]) && isOccupied(tempList[i])){
+						blockers.Add(tempList[i]);
+					}
 				}
 			}
 		}
@@ -640,6 +657,11 @@ public class Map : MonoBehaviour {
 		int[] posInt1 = getTileCoordsFromPos (pos1);
 		int[] posInt2 = getTileCoordsFromPos (pos2);
 		return getIntDistanceFromCoords(posInt1,posInt2);
+	}
+
+	public Vector3 getPosFromCoords(int[] x){
+
+		return tiles [x[0],x[1]].transform.position;
 	}
 
 	public Vector3 getPosFromCoords(int x, int z){
