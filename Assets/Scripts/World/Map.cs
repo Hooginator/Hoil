@@ -183,6 +183,11 @@ public class Map : MonoBehaviour {
 		}
 		return tempList;
 	}
+
+
+	/*********************  START OF LINE OF SIGHT / FIELD OF VIEW MESS *****************************************/
+
+
 	public List<int[]> getOpposingNeighbours(int[] cubePos, int[] source){
 		// Returns the list of neighbours that are in the opposite direction as source.
 		// WAYYYYYYYYYYYYYYYYYYY Ineffidient  AND doesn't even do it right!
@@ -285,7 +290,7 @@ public class Map : MonoBehaviour {
 	}
 
 	public List<int[]> setInLineOfSight(int[] cubePos, int range){
-		List<int[]> toSet = getInLineOfSight (cubePos,range);
+		List<int[]> toSet = getInFieldOfView (cubePos,range);
 		int[] tempCart;
 		for (int i = 0; i < toSet.Count; i++) {
 			tempCart = cubeToCartesian (toSet [i]);
@@ -321,7 +326,7 @@ public class Map : MonoBehaviour {
 		return false;
 	}
 	float getAngle(int[] pos1, int[] pos2){
-		//returns the gAngle created beetween possitions
+		//returns the Angle created beetween possitions
 		Vector3 tempPOS1 = getPosFromCoords(pos1);
 		Vector3 tempPOS2 = getPosFromCoords(pos2);
 		float DIST = Vector3.Distance(tempPOS2, tempPOS1);
@@ -338,92 +343,140 @@ public class Map : MonoBehaviour {
 		return angle;
 	}
 
-	public List<int[]> getInLineOfSight(int[] cubePos, int range){
+	// WORKING FIELD OF VIEW ATTEMPS V1 AFTER THIS, ANYTHING ABOVE IS EXPERIMENTAL
 
-		// new crack at it
 
-		List<int[]> tempList = getInRange (cubePos, range);
-		List<int[]> finalList = new List<int[]> ();
-		List<int[]> blockers = new List<int[]> ();
+	public List<int[]> getBlockers(int[] cubePos, int range){
+		// Finds all cells that are occupied (block LOS) in range
+		List<int[]> tempList = new List<int[]> ();
+		List<int[]> blockerList = new List<int[]> ();
+		int[] currentTile;
+
+		tempList = getInRange (cubePos, range);
 
 		for (int i = 0; i < tempList.Count; i++) {
-			if(isIntInBoundaries(cubeToCartesian(tempList[i]))){
-				Debug.Log ("Checking LOS for:  " + cubePos [0] + "  " + cubePos [1] + "  " + cubePos [2]);// + "      " + blockers[0].ToString());// + "  " + blockers[1] + "  " + blockers[2]);
-				Debug.Log ("Checking LOS for:  " + tempList [i] [0] + "  " + tempList [i] [1] + "  " + tempList [i] [2]);// + "      " + blockers[0].ToString());// + "  " + blockers[1] + "  " + blockers[2]);
-				if (isLineOfSightBlocked (cubePos, tempList [i], blockers)) {
-					// Do nothing
-					print("Line of sight blocked for tile:  " + tempList[i][0] + "  " + tempList[i][1] + "  " + tempList[i][2]);
-				} else {
-					print ("Adding to finalList:    " + tempList [i] [0] + "   " + tempList [i] [1] + "   " + tempList [i] [2]);
-					finalList.Add (tempList [i]);
-					if(isIntInBoundaries(cubeToCartesian( tempList[i])) && isOccupied(cubeToCartesian(tempList[i]))){
-						blockers.Add(tempList[i]);
+			currentTile = tempList [i];
+			// Check on Map boundaries
+			if (isIntInBoundaries (cubeToCartesian (currentTile))) {
+				// Check on Occupied status of tile
+				if (isOccupied (cubeToCartesian (currentTile))) {
+					if (getIntDistanceFromCube( cubePos, currentTile) > 0) {
+						blockerList.Add (currentTile);
+						Debug.Log (" Blocker detected: " + currentTile [0].ToString () + "  " + currentTile [1].ToString () + "  " + currentTile [2].ToString ());
+						Debug.Log (" Current detected: " + cubePos [0].ToString () + "  " + cubePos [1].ToString () + "  " + cubePos [2].ToString ());
+					} else {
+						Debug.Log ("Not going to include caster as blocking person");
 					}
 				}
 			}
 		}
+		return blockerList;
+	}
+	public List<int[]> getBlocked(int[] cubePos, int[] blocker, int range){
+		// Returns the cells in range that have their LOS blocked by blocker
+		/* Using Cube Directions */
+		/* 0 = {1, -1, 0}  */
+		/* 1 = {1, 0, -1}  */
+		/* 2 = {0, -1, 1}  */
+		/* 3 = {0, 1, -1}  */
+		/* 4 = {-1, 1, 0}  */
+		/* 5 = {-1, 0, 1}  */
+		int[] relativeblocker = new int[]{blocker[0] - cubePos[0],blocker[1] - cubePos[1],blocker[2] - cubePos[2]};
+		int dist = getIntDistanceFromCube (cubePos, blocker);
+		List<int> directions = new List<int> ();
+		List<int[]> finalList = new List<int[]> ();
+		List<int[]> toDoList = new List<int[]> ();
+		List<int[]> tempList = new List<int[]> ();
+
+		// Straight lines will leave a straight line of blocked sight.
+		if (relativeblocker [0] == 0) {
+			if (relativeblocker [1] > 0) {
+				directions.Add (3);
+			} else {
+				directions.Add (2);
+			}
+		}else if (relativeblocker [1] == 0) {
+			if (relativeblocker [0] > 0) {
+				directions.Add (1);
+			} else {
+				directions.Add (5);
+			}
+		}else if (relativeblocker [2] == 0) {
+			if (relativeblocker [1] > 0) {
+				directions.Add (4);
+			} else {
+				directions.Add (0);
+			}
+		}
+
+		tempList.Add (blocker);
+		for (int i = dist; i < range; i++) {
+			for (int k = 0; k < tempList.Count; k++) {
+				toDoList.Add (getCubeNeighbour (tempList [k], directions[0]));
+			}
+			for (int j = 0; j < toDoList.Count; j++) {
+				finalList.Add (toDoList [j]);
+				tempList.Add (toDoList [j]);
+			}
+		}
+
+		return finalList;
+	}
+
+
+	public List<int[]> getInFieldOfView(int[] cubePos, int range){
+		// VERSION 1 WORKS!!!!!!!!!!!!!!!!!!!!!!! 
+		// Currently only takes away field of view for things along the axes in CUBE coordinate system.
+		// ie only straight lines, but it WORKS!
+		List<int[]> blockers = getBlockers (cubePos, range);
+		List<int[]> tempList = new List<int[]>();
+		List<int[]> finalList = new List<int[]>();
+		for (int i = 0; i < blockers.Count; i++) {
+			tempList.AddRange (getBlocked (cubePos, blockers [i], range));
+		}
+		finalList = getInRange (cubePos, range);
+		for (int i = 0; i < tempList.Count; i++) {
+			finalList.RemoveAll (t => t [0] == tempList[i][0] && t [1] == tempList[i][1] && t [2] == tempList[i][2]);
+		}
+
 
 
 
 
 		/*
 
-
-
-
 		List<int[]> finalList = new List<int[]> ();
 		List<int[]> tempList = new List<int[]> ();
-		List<int[]> toDoList = new List<int[]> ();
-		toDoList.Add(cubePos);
+		List<int[]> blockerList = new List<int[]> ();
 		pathDist tempPathDist;
 		int[] currentTile;
 		bool done = false;
 		int movementCount = 0;
-		while (!done) {
-			// check if we're out of MP
-			if (movementCount >= range) {
-				done = true;
-				break;
-			}
-			// check if there are no more paths available
-			if(toDoList.Count == 0){
-				done = true;
-				break;
-			}
-			// get nearest neighbours
-			if (movementCount == 0) {
-				tempList.AddRange (getInRange (cubePos, 1));
-			} else {
-				for (int j = 0; j < toDoList.Count; j++) {
-					tempList.AddRange (	getOpposingNeighbours (toDoList [j], cubePos));
-				}
-			}
-			toDoList = new List<int[]> ();
-			for (int i = 0; i < tempList.Count; i++) {
-				currentTile = tempList [i];
-				// Check on Map boundaries
-				if (isIntInBoundaries (cubeToCartesian (currentTile))) {
-					// Check on Occupied status of tile
-					if (!isOccupied (cubeToCartesian (currentTile)) ) {
-						// NOTE: I used to have checks in here to ensure there were no duplicates but that performed very poorly
-						// That being the case we will have duplicates in our list.  Might be worth sorting that out once at the end of the function.
-						finalList.Add (currentTile);
-						toDoList.Add (currentTile);
-					}
-				}
-			}
 
-			movementCount++;
-			if (movementCount > 40) {
-				Debug.Log ("Took too long looking for movement range");
-				break;
+		tempList = getInRange (cubePos, range);
+
+		for (int i = 0; i < tempList.Count; i++) {
+			currentTile = tempList [i];
+			// Check on Map boundaries
+			if (isIntInBoundaries (cubeToCartesian (currentTile))) {
+				// Check on Occupied status of tile
+				if (!isOccupied (cubeToCartesian (currentTile))) {
+				} else {
+					blockerList.Add (currentTile);
+				}
+
+				if (currentTile [2] - cubePos[2] >= currentTile [1] - cubePos[1]) {
+					finalList.Add (currentTile);
+				}
 			}
 		}*/
-
+		// does nothing now
 		return finalList;
-
-
 	}
+
+
+
+	/*********************  END OF LINE OF SIGHT / FIELD OF VIEW MESS *****************************************/
 
 	public List<int[]> getInMovementRange(int[] cubePos, int range){
 		// HEX
@@ -500,7 +553,7 @@ public class Map : MonoBehaviour {
 		// HEX
 		List<int[]> toSet;
 		if (rangeType == "LOS") {
-			toSet = getInLineOfSight (cartesianToCube (new int[]{ x, z }),range);
+			toSet = getInFieldOfView (cartesianToCube (new int[]{ x, z }),range);
 		} else {
 			toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
 		}
