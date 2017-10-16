@@ -383,36 +383,73 @@ public class Map : MonoBehaviour {
 		/* 5 = {-1, 0, 1}  */
 		int[] relativeblocker = new int[]{blocker[0] - cubePos[0],blocker[1] - cubePos[1],blocker[2] - cubePos[2]};
 		int dist = getIntDistanceFromCube (cubePos, blocker);
-		List<int> directions = new List<int> ();
+		List<int[]> directions = new List<int[]> ();
+		// Directions has 3 parts, the direction, the time between mvoes in this direction and current time
 		List<int[]> finalList = new List<int[]> ();
 		List<int[]> toDoList = new List<int[]> ();
 		List<int[]> tempList = new List<int[]> ();
+		float distmultiplier = 1f;
 
 		// Straight lines will leave a straight line of blocked sight.
 		if (relativeblocker [0] == 0) {
 			if (relativeblocker [1] > 0) {
-				directions.Add (3);
+				directions.Add (new int[]{3,0,0});
+				directions.Add (new int[]{1,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{4,(int)distmultiplier*dist,0});
 			} else {
-				directions.Add (2);
+				directions.Add (new int[]{2,0,0});
+				directions.Add (new int[]{0,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{5,(int)distmultiplier*dist,0});
 			}
-		}else if (relativeblocker [1] == 0) {
+		} else if (relativeblocker [1] == 0) {
 			if (relativeblocker [0] > 0) {
-				directions.Add (1);
+				directions.Add (new int[]{1,0,0});
+				directions.Add (new int[]{3,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{0,(int)distmultiplier*dist,0});
 			} else {
-				directions.Add (5);
+				directions.Add (new int[]{5,0,0});
+				directions.Add (new int[]{2,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{4,(int)distmultiplier*dist,0});
 			}
-		}else if (relativeblocker [2] == 0) {
+		} else if (relativeblocker [2] == 0) {
 			if (relativeblocker [1] > 0) {
-				directions.Add (4);
+				directions.Add (new int[]{4,0,0});
+				directions.Add (new int[]{3,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{5,(int)distmultiplier*dist,0});
 			} else {
-				directions.Add (0);
+				directions.Add (new int[]{0,0,0});
+				directions.Add (new int[]{1,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{2,(int)distmultiplier*dist,0});
+			}
+		} else {
+			// Not straight lines
+			if (relativeblocker [0] > 0 && relativeblocker [1] > 0) {
+				Debug.Log ("Quad 1 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+			} else if (relativeblocker [0] < 0 && relativeblocker [1] > 0) {
+				Debug.Log ("Quad 2 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+			} else if (relativeblocker [0] > 0 && relativeblocker [1] < 0) {
+				Debug.Log ("Quad 3 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+			} else if (relativeblocker [0] < 0 && relativeblocker [1] < 0) {
+				Debug.Log ("Quad 4 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
 			}
 		}
 
 		tempList.Add (blocker);
 		for (int i = dist; i < range; i++) {
-			for (int k = 0; k < tempList.Count; k++) {
-				toDoList.Add (getCubeNeighbour (tempList [k], directions[0]));
+			if (directions.Count != 0) {
+				for (int g = 0; g < directions.Count; g++) {
+					directions [g] [2] = directions [g] [1];
+				}
+				for (int k = 0; k < tempList.Count; k++) {
+					for (int j = 0; j < directions.Count; j++) {
+						if (directions [j] [2] <= 0) {
+							toDoList.Add (getCubeNeighbour (tempList [k], directions [j] [0]));
+							directions [j] [2] = directions [j] [1];
+						} else {
+							directions [j] [2] -= 1;
+						}
+					}
+				}
 			}
 			for (int j = 0; j < toDoList.Count; j++) {
 				finalList.Add (toDoList [j]);
@@ -439,44 +476,12 @@ public class Map : MonoBehaviour {
 			finalList.RemoveAll (t => t [0] == tempList[i][0] && t [1] == tempList[i][1] && t [2] == tempList[i][2]);
 		}
 
-
-
-
-
-		/*
-
-		List<int[]> finalList = new List<int[]> ();
-		List<int[]> tempList = new List<int[]> ();
-		List<int[]> blockerList = new List<int[]> ();
-		pathDist tempPathDist;
-		int[] currentTile;
-		bool done = false;
-		int movementCount = 0;
-
-		tempList = getInRange (cubePos, range);
-
-		for (int i = 0; i < tempList.Count; i++) {
-			currentTile = tempList [i];
-			// Check on Map boundaries
-			if (isIntInBoundaries (cubeToCartesian (currentTile))) {
-				// Check on Occupied status of tile
-				if (!isOccupied (cubeToCartesian (currentTile))) {
-				} else {
-					blockerList.Add (currentTile);
-				}
-
-				if (currentTile [2] - cubePos[2] >= currentTile [1] - cubePos[1]) {
-					finalList.Add (currentTile);
-				}
-			}
-		}*/
-		// does nothing now
 		return finalList;
 	}
 
 
 
-	/*********************  END OF LINE OF SIGHT / FIELD OF VIEW MESS *****************************************/
+	/*********************  END OF LINE OF SIGHT / FIELD OF VIEW WORKING MESS **********************************/
 
 	public List<int[]> getInMovementRange(int[] cubePos, int range){
 		// HEX
@@ -619,6 +624,8 @@ public class Map : MonoBehaviour {
 	public void selectCentralUnit(int[] posIn){
 		// Recolour central cell you are targeting
 		tiles [posIn[0], posIn[1]].GetComponent<MapGridUnit> ().centralSelect ();
+		int[] tempCube = cartesianToCube (posIn);
+		Debug.Log ("Central Selecting Cube Pos: " + tempCube [0] + "   " + tempCube [1] + "   " + tempCube [2] + " ,   Cartesian Pos: " + posIn[0] + "   "+ posIn[1]);
 	}
 
 	public void deSelectRange(Vector3 pos, int range){

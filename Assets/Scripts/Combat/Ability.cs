@@ -42,7 +42,7 @@ public class Ability : ScriptableObject{
 		caster = casterIn;
 		switch (nameIn) {
 		case "Fireball":
-			baseRange = 2;
+			baseRange = 8;
 			AoERange = 3;
 			baseDamage = 30;
 			damageType = "Fire";
