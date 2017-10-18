@@ -388,7 +388,7 @@ public class Map : MonoBehaviour {
 		List<int[]> finalList = new List<int[]> ();
 		List<int[]> toDoList = new List<int[]> ();
 		List<int[]> tempList = new List<int[]> ();
-		float distmultiplier = 1f;
+		float distmultiplier = 1.1f;
 
 		// Straight lines will leave a straight line of blocked sight.
 		if (relativeblocker [0] == 0) {
@@ -435,28 +435,31 @@ public class Map : MonoBehaviour {
 		}
 
 		tempList.Add (blocker);
-		for (int i = dist; i < range; i++) {
-			if (directions.Count != 0) {
-				for (int g = 0; g < directions.Count; g++) {
-					directions [g] [2] = directions [g] [1];
-				}
-				for (int k = 0; k < tempList.Count; k++) {
-					for (int j = 0; j < directions.Count; j++) {
-						if (directions [j] [2] <= 0) {
+
+		if (directions.Count != 0) {
+			for (int g = 0; g < directions.Count; g++) {
+				directions [g] [2] = directions [g] [1];
+			}
+			for (int i = dist; i < range; i++) {
+				toDoList = new List<int[]> ();
+				for (int j = 0; j < directions.Count; j++) {
+					if (directions [j] [2] <= 0) {
+						for (int k = 0; k < tempList.Count; k++) {
 							toDoList.Add (getCubeNeighbour (tempList [k], directions [j] [0]));
-							directions [j] [2] = directions [j] [1];
-						} else {
-							directions [j] [2] -= 1;
 						}
+						directions [j] [2] = directions [j] [1];
+					} else {
+						directions [j] [2] -= 1;
+						Debug.Log ("HEJRGSDHJFDSJHFGFYAJYUTUTYUTY  " + directions [j] [0].ToString() + "   "  + directions [j] [1].ToString() + "   "  + directions [j] [2].ToString() );
 					}
 				}
-			}
-			for (int j = 0; j < toDoList.Count; j++) {
-				finalList.Add (toDoList [j]);
-				tempList.Add (toDoList [j]);
+				tempList = new List<int[]> ();
+				for (int j = 0; j < toDoList.Count; j++) {
+					finalList.Add (toDoList [j]);
+					tempList.Add (toDoList [j]);
+				}
 			}
 		}
-
 		return finalList;
 	}
 
