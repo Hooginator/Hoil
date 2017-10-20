@@ -381,6 +381,7 @@ public class Map : MonoBehaviour {
 		/* 3 = {0, 1, -1}  */
 		/* 4 = {-1, 1, 0}  */
 		/* 5 = {-1, 0, 1}  */
+		/* 2 OPPOSE 3 , 1 OPPOSE 5 , 0 OPPOSE 4*/
 		int[] relativeblocker = new int[]{blocker[0] - cubePos[0],blocker[1] - cubePos[1],blocker[2] - cubePos[2]};
 		int dist = getIntDistanceFromCube (cubePos, blocker);
 		List<int[]> directions = new List<int[]> ();
@@ -389,57 +390,82 @@ public class Map : MonoBehaviour {
 		List<int[]> toDoList = new List<int[]> ();
 		List<int[]> tempList = new List<int[]> ();
 		float distmultiplier = 1.1f;
+		int d = (int) (dist * distmultiplier);
 
 		// Straight lines will leave a straight line of blocked sight.
 		if (relativeblocker [0] == 0) {
 			if (relativeblocker [1] > 0) {
 				directions.Add (new int[]{3,0,0});
-				directions.Add (new int[]{1,(int)distmultiplier*dist,0});
-				directions.Add (new int[]{4,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{1,d,d});
+				directions.Add (new int[]{4,d,d});
 			} else {
 				directions.Add (new int[]{2,0,0});
-				directions.Add (new int[]{0,(int)distmultiplier*dist,0});
-				directions.Add (new int[]{5,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{0,d,d});
+				directions.Add (new int[]{5,d,d});
 			}
 		} else if (relativeblocker [1] == 0) {
 			if (relativeblocker [0] > 0) {
 				directions.Add (new int[]{1,0,0});
-				directions.Add (new int[]{3,(int)distmultiplier*dist,0});
-				directions.Add (new int[]{0,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{3,d,d});
+				directions.Add (new int[]{0,d,d});
 			} else {
 				directions.Add (new int[]{5,0,0});
-				directions.Add (new int[]{2,(int)distmultiplier*dist,0});
-				directions.Add (new int[]{4,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{2,d,d});
+				directions.Add (new int[]{4,d,d});
 			}
 		} else if (relativeblocker [2] == 0) {
 			if (relativeblocker [1] > 0) {
 				directions.Add (new int[]{4,0,0});
-				directions.Add (new int[]{3,(int)distmultiplier*dist,0});
-				directions.Add (new int[]{5,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{3,d,d});
+				directions.Add (new int[]{5,d,d});
 			} else {
 				directions.Add (new int[]{0,0,0});
-				directions.Add (new int[]{1,(int)distmultiplier*dist,0});
-				directions.Add (new int[]{2,(int)distmultiplier*dist,0});
+				directions.Add (new int[]{1,d,d});
+				directions.Add (new int[]{2,d,d});
 			}
 		} else {
 			// Not straight lines
-			if (relativeblocker [0] > 0 && relativeblocker [1] > 0) {
-				Debug.Log ("Quad 1 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
-			} else if (relativeblocker [0] < 0 && relativeblocker [1] > 0) {
-				Debug.Log ("Quad 2 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
-			} else if (relativeblocker [0] > 0 && relativeblocker [1] < 0) {
-				Debug.Log ("Quad 3 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
-			} else if (relativeblocker [0] < 0 && relativeblocker [1] < 0) {
-				Debug.Log ("Quad 4 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
-			}
+			if (relativeblocker [0] > 0 && relativeblocker [1] > 0 && relativeblocker [2] > 0) {
+				// Impossible?
+				Debug.Log ("Hex 1, should be impossible " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+			} else if(relativeblocker [0] < 0 && relativeblocker [1] > 0 && relativeblocker [2] > 0) {
+				Debug.Log ("Hex 2 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{4,(int)distmultiplier*Mathf.Abs(cubePos[2])/Mathf.Abs(cubePos[1]),0});
+				directions.Add (new int[]{5,(int)distmultiplier*Mathf.Abs(cubePos[1])/Mathf.Abs(cubePos[2]),0});
+			} else if(relativeblocker [0] > 0 && relativeblocker [1] < 0 && relativeblocker [2] > 0) {
+				Debug.Log ("Hex 3 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{0,(int)distmultiplier*Mathf.Abs(cubePos[2])/Mathf.Abs(cubePos[0]),0});
+				directions.Add (new int[]{2,(int)distmultiplier*Mathf.Abs(cubePos[0])/Mathf.Abs(cubePos[2]),0});
+			} else if(relativeblocker [0] < 0 && relativeblocker [1] < 0 && relativeblocker [2] > 0) {
+				Debug.Log ("Hex 4 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{2,(int)distmultiplier*Mathf.Abs(cubePos[0])/Mathf.Abs(cubePos[2]),0});
+				directions.Add (new int[]{5,(int)distmultiplier*Mathf.Abs(cubePos[2])/Mathf.Abs(cubePos[0]),0});
+			} else if(relativeblocker [0] > 0 && relativeblocker [1] > 0 && relativeblocker [2] < 0) {
+				Debug.Log ("Hex 5 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{1,(int)distmultiplier*Mathf.Abs(cubePos[1])/Mathf.Abs(cubePos[0]),0});
+				directions.Add (new int[]{3,(int)distmultiplier*Mathf.Abs(cubePos[0])/Mathf.Abs(cubePos[1]),0});
+			} else if(relativeblocker [0] < 0 && relativeblocker [1] > 0 && relativeblocker [2] < 0) {
+				Debug.Log ("Hex 6 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{3,(int)distmultiplier*Mathf.Abs(cubePos[0])/Mathf.Abs(cubePos[2]),0});
+				directions.Add (new int[]{4,(int)distmultiplier*Mathf.Abs(cubePos[2])/Mathf.Abs(cubePos[0]),0});
+			} else if(relativeblocker [0] > 0 && relativeblocker [1] < 0 && relativeblocker [2] < 0) {
+				Debug.Log ("Hex 7 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{0,(int)distmultiplier*Mathf.Abs(cubePos[2])/Mathf.Abs(cubePos[1]),0});
+				directions.Add (new int[]{1,(int)distmultiplier*Mathf.Abs(cubePos[1])/Mathf.Abs(cubePos[2]),0});
+			} else if(relativeblocker [0] < 0 && relativeblocker [1] < 0 && relativeblocker [2] < 0) {
+				// Impossible?
+				Debug.Log ("Hex 8, should be impossible " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+			} 
+
+
 		}
 
 		tempList.Add (blocker);
 
 		if (directions.Count != 0) {
-			for (int g = 0; g < directions.Count; g++) {
+			/*for (int g = 0; g < directions.Count; g++) {
 				directions [g] [2] = directions [g] [1];
-			}
+			}*/
 			for (int i = dist; i < range; i++) {
 				toDoList = new List<int[]> ();
 				for (int j = 0; j < directions.Count; j++) {
