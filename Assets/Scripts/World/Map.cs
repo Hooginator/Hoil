@@ -710,6 +710,7 @@ public class Map : MonoBehaviour {
 	}
 	public int[] getTileCoordsFromPos(Vector3 pos){
 		// HEX
+		// Here I will have to change things for rotating the map 90 degrees
 		int[] posInt = new int [2];
 		// new coordinate system >_>  this is part way to cube, but I don't think extending all the way helps at all.
 		posInt[1] = (int)(pos.z / offsetZ+0.5f);
@@ -970,7 +971,6 @@ public class Map : MonoBehaviour {
 	}
 	public Vector3 ForceInsideBoundaries(Vector3 pos){
 		// takes a vector and places it barely within the borders if it is outside.
-		//print("Force "+pos.ToString()+ " inside " + Xmax.ToString()+" "+Xmin.ToString());
 		if (pos [0] < Xmin) {
 			pos [0] = Xmin;
 		} else if (pos [0] > Xmax) {
@@ -1036,14 +1036,6 @@ public class Map : MonoBehaviour {
 		// Takes two floats in between 0 and 1, numerically showing how far across the map this is.
 		// Called once the MAP is loaded to generate default resources for a certain spot.
 		float[] generatedResources = new float[uniqueResources];
-
-		// RNG WAY I'M LEAVING OUT FOR NOW
-		/*for (int i = 0; i < uniqueResources; i++) {
-
-			int randomNumber = random.Next(0, maxResources);
-			generatedResources [i] = randomNumber;
-		}*/
-
 		if(gameMan.inBattle){
 			// When in battle we will take the tile colour where from where we started the battle.
 			if (gameMan.groundTileResources != null) {

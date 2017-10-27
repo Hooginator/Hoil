@@ -145,7 +145,6 @@ public class BasicEnemyAnimations : MonoBehaviour {
 		// resets enemy to currently desired position
 		sphere.transform.position = desiredPositions[0].transform.position + centralPos;
 		sphere.transform.rotation = desiredPositions[0].transform.rotation;
-		//print (desiredPositions [0].transform.position.ToString ());
 		for (int i = 0; i < 3; i++) {
 			cubes[i].transform.position = desiredPositions[i+1].transform.position + centralPos; 
 			cubes[i].transform.rotation = desiredPositions[i+1].transform.rotation; 
