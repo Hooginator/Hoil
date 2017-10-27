@@ -41,7 +41,7 @@ public class SelectTarget : MonoBehaviour {
 		battlemenu = battlemenu.GetComponent<BattleMenu>();
 	}
 	public void CreateAttackOptions(int nCharacters, List<CharacterClass> targets){//, List<CharacterClass> targets){
-		// Creates basic attack target options for the battle menu.  Will read each character fed in range and add their name as an option.
+		// Creates single target attack target options for the battle menu.  Will read each character fed in range and add their name as an option.
 		int targetNumber = 0;
 		for (int i = 0; i < nCharacters; i++) {
 			if (!targets [i].isDead) {
@@ -71,7 +71,6 @@ public class SelectTarget : MonoBehaviour {
 				option [targetNumber].GetComponent<ButtonManager> ().pos = targets[i].battleLocation;
 
 				// Stamp Collecting
-				//print (option [i].transform.position.ToString () + "   " + i.ToString () + "    " + option.Count.ToString ());
 				temp = null;
 				targetNumber++;
 			}
@@ -94,7 +93,6 @@ public class SelectTarget : MonoBehaviour {
 			// Reposition Buttons
 			Vector3 pos = temp.transform.position;
 			pos [1] -= i * 30;
-			//print (pos [1].ToString ());
 			temp.transform.position = pos;
 
 			// Add button to the list of options

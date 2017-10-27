@@ -15,11 +15,7 @@ public class BattleMenu : MonoBehaviour {
 	public Button Special;
 	public Button Item;
 	public Button Run;
-
 	public CombatTracker combat;
-
-
-
 
 	/********************************************************************************************/ 
 	/**************************************** Initialization ************************************/ 
@@ -59,11 +55,9 @@ public class BattleMenu : MonoBehaviour {
 		} else {
 			Debug.Log ("NOONE IN MELEE RANGE");
 		}
-		//combat.PlayerAttack(0,0);
 	}	
 	public void MovePress(){
 		// When you hit that move button
-		// print ("MOOOVE");
 		combat.HideBattleMenu ();
 		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
 		temp.init ("Move", combat.actionFrom);
@@ -75,17 +69,15 @@ public class BattleMenu : MonoBehaviour {
 	}
 	public void AttackTarget(int target){
 		//print ("Attacking Target: " + target.ToString ());
+		// Basig attack will be moved into what is currently special / ability use.  That will be the new attack button
 		combat.HideSelectMenu ();
 		combat.PlayerAttack(0,target);
 	}
 	public void ItemPress(){
 		// When you hit the Item Button
-		//print ("Item");
 		combat.PlayerItem ();
 	}
 	public void EndTurnPress(){
-		// When you hit the Item Button
-		//print ("Item");
 		combat.PlayerEndTurn ();
 	}
 	public void SpecialPress(){
@@ -93,12 +85,10 @@ public class BattleMenu : MonoBehaviour {
 		combat.ShowAbilitiesMenu ();
 		//combat.selectTargetLocation (1,1,3);
 		// WHen you hit the Special Button
-		//print ("Special");
 		combat.PlayerSpecial ();
 	}
 	public void RunPress(){
 		// When you hit the Run button
-		//print ("Run");
 		combat.PlayerRun ();
 	}
 }

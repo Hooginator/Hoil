@@ -24,16 +24,20 @@ public class Ability : ScriptableObject{
 	public CharacterClass caster;
 	public string rangeType;
 
-	public void init(string nameIn, int baseRangeIn, int AoERangeIn, float baseDamageIn, string damageTypeIn,string targetingTypeIn, string targetsIn, CharacterClass casterIn){
-		// Create an ability
-		name = nameIn;
-		baseRange = baseRangeIn;
-		AoERange = AoERangeIn;
-		baseDamage = baseDamageIn;
+	public void init(string nameIn, int baseRangeIn, int AoERangeIn, float baseDamageIn, string damageTypeIn,
+		string targetingTypeIn, string targetsIn, CharacterClass casterIn, float timeToCastIn, float timeToLandIn, string rangeTypeIn){
+
+		name = nameIn; // For case switch
+		baseRange = baseRangeIn; // Max distance you can cast away from caster
+		AoERange = AoERangeIn; // max distance from centre of cast that someone will be hit
+		baseDamage = baseDamageIn; 
 		damageType = damageTypeIn;
-		targetingType = targetingTypeIn;
-		targets = targetsIn;
+		targetingType = targetingTypeIn; // area, single target..
+		targets = targetsIn; // allies only, all flying characterrs...
 		caster = casterIn;
+		timeToCast = timeToCastIn;
+		timeToLand = timeToLandIn;
+		rangeType = rangeTypeIn; // Line of sight, all in range...
 	}
 
 	public void init(string nameIn, CharacterClass casterIn){
@@ -42,64 +46,22 @@ public class Ability : ScriptableObject{
 		caster = casterIn;
 		switch (nameIn) {
 		case "Fireball":
-			baseRange = 8;
-			AoERange = 3;
-			baseDamage = 30;
-			damageType = "Fire";
-			targets = "Enemy";
-			targetingType = "Area";
-			timeToLand = 1.5f;
-			timeToCast = 1.0f;
-			rangeType = "LOS";
+			init (nameIn, 8, 3, 30, "Fire", "Area", "Enemy", casterIn, 1.0f, 0.5f, "LOS"); 
 			break;
 		case "Iceball":
-			baseRange = 3;
-			AoERange = 7;
-			baseDamage = 20;
-			damageType = "Ice";
-			targets = "Enemy";
-			targetingType = "Area";
-			timeToLand = 1.5f;
-			timeToCast = 1.0f;
-			rangeType = "LOS";
+			init (nameIn, 5, 5, 20, "Ice", "Area", "Enemy", casterIn, 1.0f, 0.5f, "LOS"); 
 			break;
 		case "Acidball":
-			baseRange = 3;
-			AoERange = 2;
-			baseDamage = 40;
-			damageType = "Toxic";
-			targets = "Enemy";
-			targetingType = "Area";
-			timeToLand = 1.5f;
-			timeToCast = 1.0f;
-			rangeType = "LOS";
+			init (nameIn, 7, 2, 30, "Toxic", "Area", "Enemy", casterIn, 1.0f, 0.5f, "LOS"); 
 			break;
 		case "Sniper Attack":
-			baseRange = 20;
-			AoERange = 0;
-			baseDamage = 80;
-			damageType = "Pierce";
-			targets = "Enemy";
-			targetingType = "Single";
-			rangeType = "LOS";
+			init (nameIn, 8, 3, 30, "Pierce", "Single", "Enemy", casterIn, 1.0f, 0.1f, "LOS"); 
 			break;
 		case "Healing":
-			baseRange = 3;
-			AoERange = 2;
-			baseDamage = -20;
-			damageType = "Heal";
-			targets = "Ally";
-			targetingType = "Area";
-			rangeType = "LOS";
+			init (nameIn, 4, 2, -30, "Heal", "Area", "Ally", casterIn, 1.0f, 0.1f, "LOS"); 
 			break;
 		case "Basic Attack":
-			baseRange = 1;
-			AoERange = 0;
-			baseDamage = 20;
-			damageType = "Normal";
-			targets = "Enemy";
-			targetingType = "Single";
-			rangeType = "LOS";
+			init (nameIn, 0, 0, 20, "Normal", "Single", "Enemy", casterIn, 0.4f, 0.1f, "LOS"); 
 			break;
 		}
 	}
@@ -112,15 +74,15 @@ public class Ability : ScriptableObject{
 		// Do animation at position indicated.
 		if (name == "Fireball") {
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
-			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[0] ,AoERange);
+			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[0] ,AoERange,timeToCast, timeToLand);
 		} else if (name == "Iceball") {
 			// recolour of fireball
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
-			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[1] ,AoERange);
+			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[1] ,AoERange,timeToCast, timeToLand);
 		} else if (name == "Acidball") {
 			// recolour of fireball
 			GameObject temp = (GameObject)GameObject.Instantiate (Resources.Load ("FireBallCastAnimation"));
-			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[2] ,AoERange);
+			temp.GetComponent<FireBallCastAnimation> ().init (startPos,stopPos, colourPalettes[2] ,AoERange,timeToCast, timeToLand);
 		}
 
 		// Stuff we're doing no matter what ability it is
@@ -129,8 +91,8 @@ public class Ability : ScriptableObject{
 
 	public bool cast(CharacterClass target){
 		// What to do damage wise for each ability
-		target.takeDamage(baseDamage + caster.Intelligence, damageType,timeToLand);
-		target.battleAvatar.GetComponent<BasicEnemyAnimations> ().recoilFromIn (0.4f*(target.battleAvatar.transform.position - setectedTarget),timeToLand);
+		target.takeDamage(baseDamage + caster.Intelligence, damageType,timeToLand + timeToCast);
+		target.battleAvatar.GetComponent<BasicEnemyAnimations> ().recoilFromIn (0.4f*(target.battleAvatar.transform.position - setectedTarget),timeToLand + timeToCast);
 		if (target.checkDead ()) {
 			return true;
 		}

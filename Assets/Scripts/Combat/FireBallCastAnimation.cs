@@ -26,7 +26,7 @@ public class FireBallCastAnimation : MonoBehaviour {
 	void Start () {
 		TR = this.transform;
 	}
-	public void init(Vector3 startPos, Vector3 stopPos, ColourPalette colourPalette,int size){
+	public void init(Vector3 startPos, Vector3 stopPos, ColourPalette colourPalette,int size,float timeToCast,float timeToLand){
 		TR = this.transform;
 		casterPos = startPos;
 		stop = stopPos;
@@ -37,11 +37,9 @@ public class FireBallCastAnimation : MonoBehaviour {
 		currentStage = "Conjuring";
 		t = 0;
 		travelDistance = Vector3.Distance (startPos, stopPos);
-		castFrames = 60;
-		travelFrames = 30;
-		castTime = castFrames * Time.deltaTime;
-		travelTime = travelFrames * Time.deltaTime;
-		distPerFrame = travelDistance / travelFrames;
+		castFrames = (int) (timeToCast / Time.deltaTime);
+		travelFrames = (int) (timeToLand / Time.deltaTime);
+		distPerFrame = travelDistance  * Time.deltaTime / timeToLand;
 		//reColour(new Color(1,1,0));
 
 		// Loop through all parts of the animation and change their starting time based on the calculated travel time
@@ -56,20 +54,20 @@ public class FireBallCastAnimation : MonoBehaviour {
 			if (tempTR.CompareTag ("aura")) {
 				// Must stop particle system animation to change duration
 				tempPS.Stop ();
-				temp.duration = castTime;
+				temp.duration = timeToCast;
 				tempPS.Play ();
 				temp.startColor = colourPalette.getColour (auraCount);
 				auraCount++;
 			} else if (tempTR.CompareTag ("travel")) {
 				tempPS.Stop ();
-				temp.startDelay = castTime;
-				temp.duration = travelTime;
+				temp.startDelay = timeToCast;
+				temp.duration = timeToLand;
 				tempPS.Play ();
 				temp.startColor = colourPalette.getColour (travelCount);
 				travelCount++;
 			} else if (tempTR.CompareTag ("landing")) {
 				tempPS.Stop ();
-				temp.startDelay = castTime + travelTime;
+				temp.startDelay = timeToCast + timeToLand;
 				float oldSpeed = temp.startSpeed.constant;
 				// Adjust explosion radius
 				temp.startSpeed = oldSpeed * Mathf.Pow( size,1.2f);
@@ -78,33 +76,23 @@ public class FireBallCastAnimation : MonoBehaviour {
 				landingCount++;
 			}
 		}
-		// Rotation
-		//aura1 = TR.FindChild("Aura1");
-		//aura2 = TR.FindChild("Aura2");
-		//var temp1 = aura1.GetComponent<ParticleSystem> ().main;
-		//temp1.duration = castTime;
-		//var temp2 = aura1.GetComponent<ParticleSystem> ().main;
-		//temp2.duration = castTime;
-		//rotationSpeed = 100.2f;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		t++;
 		if (currentStage == "Conjuring") {
-			// Do conjuring animation
+			// Do conjuring animation, no movement
 			if (t > castFrames) {
+				// Done Conjuring
 				currentStage = "Traveling";
 				currentPos = conjuringPos;
 			}
-			// Rotation attempt..
-			//aura1.Rotate (Vector3.up, rotationSpeed);
-			//aura1.Rotate (Vector3.up, -rotationSpeed);
 		}else if (currentStage == "Traveling") {
+			// Move
 			currentPos = Vector3.MoveTowards(currentPos, stop, distPerFrame);
-
-
 			if (t > castFrames + travelFrames) {
+				// Done Traveling
 				currentStage = "Landing";
 
 			}
@@ -121,7 +109,4 @@ public class FireBallCastAnimation : MonoBehaviour {
 			i++;
 		}
 	}
-
-
-
 }

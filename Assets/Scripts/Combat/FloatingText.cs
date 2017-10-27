@@ -9,33 +9,39 @@ using UnityEngine;
 /***********************************************************/
 
 public class FloatingText : MonoBehaviour {
-	// Information onf what the text will look like
+	// Information on what the text will look like
 	public int damage;
 	public string text;
 	public string damageType;
 	public Color textColor;
 	public Vector3 position;
-	public int totalTime = 100;
-	public float movespeed = 0.03f;
+	public int totalTime;
+	public int halfTime;
+	public float movespeed;
 	// Time the text has existed for
 	private int t;
 
 	// Use this for initialization
 	void Start () {
-		
+		totalTime = 60;
+		halfTime = totalTime / 15;
+		movespeed = 0.5f;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		// Timekeeping
 		t++;
+		if (t > halfTime) {
+			movespeed = 0;
+			// no longer want this to activate
+			halfTime = totalTime + 1;
+		}
 		// 5 second hard maximum ATM
 		if (t > totalTime) {
 			destroyText ();
 		}
 		gameObject.transform.position += new Vector3 (0, movespeed, movespeed);
-		//gameObject.transform.parent = null;
-		//gameObject.transform.lossyScale += new Vector3(0.1f,0.1f,0.1f);
 	}
 	void destroyText(){
 		Destroy (this.gameObject);
@@ -57,7 +63,7 @@ public class FloatingText : MonoBehaviour {
 		updateText ();
 	}
 	public void setSize (){
-		gameObject.GetComponent<TextMesh> ().fontSize = 16 + damage / 10;
+		gameObject.GetComponent<TextMesh> ().fontSize = 18 + damage / 10;
 	}
 	public void setPosition(Transform TR){
 		position = TR.position;
