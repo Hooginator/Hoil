@@ -37,7 +37,6 @@ public class CombatTracker : MonoBehaviour {
 	public string previousWindowStatus;
 
 	public Map map;
-	public int[] temppos;
 	// Number of turns that have gone by, so I can kill the infinite loops witha  failsafe
 	private int nTurns = 0;
 
@@ -104,24 +103,44 @@ public class CombatTracker : MonoBehaviour {
 		}
 
 		// Check if we are currenntly picking a cell to target, check if highlighted selection should change, apply change
-		temppos = new int[] {0,0};
 		if (selectingTargetLocation) {
-			if (Input.GetButtonDown ("Left")) {
-				temppos[0] -= 1;
-			}else if (Input.GetButtonDown ("Right")) {
-				temppos[0] += 1;
+			int[] temppos = new int[] {0,0,0};
+			if (Input.GetButtonDown ("q")) {
+				temppos[0] += map.cubeDirections [3][0];
+				temppos[1] += map.cubeDirections [3][1];
+				temppos[2] += map.cubeDirections [3][2];
+			}else if (Input.GetButtonDown ("d")) {
+				temppos[0] += map.cubeDirections [2][0];
+				temppos[1] += map.cubeDirections [2][1];
+				temppos[2] += map.cubeDirections [2][2];
 			}	
-			if (Input.GetButtonDown ("Down")) {
-				temppos[1] -= 1;
-			}else if (Input.GetButtonDown ("Up")) {
-				temppos[1] += 1;
+			if (Input.GetButtonDown ("w")) {
+				temppos[0] += map.cubeDirections [4][0];
+				temppos[1] += map.cubeDirections [4][1];
+				temppos[2] += map.cubeDirections [4][2];
+			}else if (Input.GetButtonDown ("s")) {
+				temppos[0] += map.cubeDirections [0][0];
+				temppos[1] += map.cubeDirections [0][1];
+				temppos[2] += map.cubeDirections [0][2];
+			}	
+			if (Input.GetButtonDown ("e")) {
+				temppos[0] += map.cubeDirections [5][0];
+				temppos[1] += map.cubeDirections [5][1];
+				temppos[2] += map.cubeDirections [5][2];
+			}else if (Input.GetButtonDown ("a")) {
+				temppos[0] += map.cubeDirections [1][0];
+				temppos[1] += map.cubeDirections [1][1];
+				temppos[2] += map.cubeDirections [1][2];
 			}
-			if(temppos != new int[] {0,0}){
+			if(temppos != new int[] {0,0,0}){
+				int[] cubePos = map.cartesianToCube (targetIntLocation);
+				cubePos [0] += temppos [0];
+				cubePos [1] += temppos [1];
+				cubePos [2] += temppos [2];
+				int[] cartPos = map.cubeToCartesian (cubePos);
 				map.deSelectRange (targetIntLocation, areaRange);
 				map.getTile (targetIntLocation).GetComponent<MapGridUnit>().reColour ();
-				targetIntLocation[0] += temppos[0];
-				targetIntLocation[1] += temppos[1];
-				targetIntLocation = map.ForceIntInsideBoundaries (targetIntLocation);
+				targetIntLocation = map.ForceIntInsideBoundaries (cartPos);
 				updateCameraTarget (map.getAbovePosFromCoords(targetIntLocation[0],targetIntLocation[1]));
 				map.selectRange (targetIntLocation, areaRange);
 			}

@@ -33,7 +33,6 @@ public class BattleCameraControls : MonoBehaviour {
 		// Compares Camera position with the spot initialX and initialZ away from the Player .  Based on where the camera is with respect to this desired position a force will be applied.
 		if (manualCamera) {
 			input = new Vector3 (Input.GetAxis ("Cam_Down") - Input.GetAxis ("Cam_Up"), Input.GetAxis("Cam_Zoom_Out") - Input.GetAxis("Cam_Zoom_In"), Input.GetAxis ("Cam_Right") - Input.GetAxis ("Cam_Left"));
-			Debug.Log ("Manual camera control   " + input[0].ToString());
 		} else {
 			
 			if (targetPos [0] + Idealpos [0] > Campos [0] + bufferx) {

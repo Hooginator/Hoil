@@ -45,7 +45,7 @@ public class Map : MonoBehaviour {
 	float offsetX = 20*0.8660254f;
 	float offsetZ = 15;
 
-	private List<int[]> cubeDirections;
+	public List<int[]> cubeDirections;
 
 	// Update is called once per frame
 	void Update () {
