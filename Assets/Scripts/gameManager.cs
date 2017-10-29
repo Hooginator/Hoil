@@ -74,14 +74,15 @@ public class gameManager : MonoBehaviour {
 			teams = new  List<GameObject> ();
 
 			// Add Main CharacterPlayer character
-			CharacterClass temp = new CharacterClass ();
+
+			CharacterClass temp = ScriptableObject.CreateInstance<CharacterClass> ();
 			// Initialize stats to level 40 so we can beat level 15 generated badguy easily
 			temp.Initialize ("Main Character", 40, 0, "Player");
 			playerCharacters.Add (temp);
 			//currentPlayerCharacters += 1;
 
 			// Add second player character
-			CharacterClass temp2 = new CharacterClass ();
+			CharacterClass temp2 =  ScriptableObject.CreateInstance<CharacterClass> ();
 			temp2.Initialize ("Secondary Character", 25, 0, "Player");
 			playerCharacters.Add (temp2);
 
@@ -163,12 +164,12 @@ public class gameManager : MonoBehaviour {
 		// Add Starting AI Computer opponents
 		int maxRed = 4;
 		for (int i = 0; i < maxRed; i++) {
-			combatants.Add (new CharacterClass ());
+			combatants.Add ( ScriptableObject.CreateInstance<CharacterClass> ());
 			combatants [i+currentPlayerCharacters].Initialize ("Red Enemy " + i.ToString (), 15, 1, "Red");
 		}
 		int maxBlue = 4;
 		for (int i = maxRed; i < maxRed + maxBlue; i++) {
-			combatants.Add (new CharacterClass ());
+			combatants.Add ( ScriptableObject.CreateInstance<CharacterClass> ());
 			combatants [i+currentPlayerCharacters].Initialize ("Blue Enemy " + i.ToString (), 15, 2, "Blue");
 		}
 		inBattle = true;
