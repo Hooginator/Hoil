@@ -301,6 +301,18 @@ public class Map : MonoBehaviour {
 		return toSet;
 	}
 
+	public List<int[]> selectInLineOfSight(int[] cubePos, int range){
+		List<int[]> toSet = getInFieldOfView (cubePos,range);
+		int[] tempCart;
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				tiles [tempCart [0], tempCart [1]].GetComponent<MapGridUnit> ().Select ();
+			}
+		}
+		return toSet;
+	}
+
 	bool isLineOfSightBlocked(int[] pos1, int[] pos2, List<int[]> blockers){
 		// MISSSING LINK!!!!!
 		for (int i = 0; i < blockers.Count; i++) {
@@ -430,28 +442,28 @@ public class Map : MonoBehaviour {
 				Debug.Log ("Hex 1, should be impossible " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
 			} else if(relativeblocker [0] < 0 && relativeblocker [1] > 0 && relativeblocker [2] > 0) {
 				Debug.Log ("Hex 2 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
-				directions.Add (new int[]{4,(int)distmultiplier*Mathf.Abs(cubePos[2])/Mathf.Abs(cubePos[1]),0});
-				directions.Add (new int[]{5,(int)distmultiplier*Mathf.Abs(cubePos[1])/Mathf.Abs(cubePos[2]),0});
+				directions.Add (new int[]{4,(int)distmultiplier*Mathf.Abs(relativeblocker[2])/Mathf.Abs(relativeblocker[1]),0});
+				directions.Add (new int[]{5,(int)distmultiplier*Mathf.Abs(relativeblocker[1])/Mathf.Abs(relativeblocker[2]),0});
 			} else if(relativeblocker [0] > 0 && relativeblocker [1] < 0 && relativeblocker [2] > 0) {
 				Debug.Log ("Hex 3 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
-				directions.Add (new int[]{0,(int)distmultiplier*Mathf.Abs(cubePos[2])/Mathf.Abs(cubePos[0]),0});
-				directions.Add (new int[]{2,(int)distmultiplier*Mathf.Abs(cubePos[0])/Mathf.Abs(cubePos[2]),0});
+				directions.Add (new int[]{0,(int)distmultiplier*Mathf.Abs(relativeblocker[2])/Mathf.Abs(relativeblocker[0]),0});
+				directions.Add (new int[]{2,(int)distmultiplier*Mathf.Abs(relativeblocker[0])/Mathf.Abs(relativeblocker[2]),0});
 			} else if(relativeblocker [0] < 0 && relativeblocker [1] < 0 && relativeblocker [2] > 0) {
 				Debug.Log ("Hex 4 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
-				directions.Add (new int[]{2,(int)distmultiplier*Mathf.Abs(cubePos[0])/Mathf.Abs(cubePos[2]),0});
-				directions.Add (new int[]{5,(int)distmultiplier*Mathf.Abs(cubePos[2])/Mathf.Abs(cubePos[0]),0});
+				directions.Add (new int[]{2,(int)distmultiplier*Mathf.Abs(relativeblocker[0])/Mathf.Abs(relativeblocker[2]),0});
+				directions.Add (new int[]{5,(int)distmultiplier*Mathf.Abs(relativeblocker[2])/Mathf.Abs(relativeblocker[0]),0});
 			} else if(relativeblocker [0] > 0 && relativeblocker [1] > 0 && relativeblocker [2] < 0) {
 				Debug.Log ("Hex 5 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
-				directions.Add (new int[]{1,(int)distmultiplier*Mathf.Abs(cubePos[1])/Mathf.Abs(cubePos[0]),0});
-				directions.Add (new int[]{3,(int)distmultiplier*Mathf.Abs(cubePos[0])/Mathf.Abs(cubePos[1]),0});
+				directions.Add (new int[]{1,(int)distmultiplier*Mathf.Abs(relativeblocker[1])/Mathf.Abs(relativeblocker[0]),0});
+				directions.Add (new int[]{3,(int)distmultiplier*Mathf.Abs(relativeblocker[0])/Mathf.Abs(relativeblocker[1]),0});
 			} else if(relativeblocker [0] < 0 && relativeblocker [1] > 0 && relativeblocker [2] < 0) {
 				Debug.Log ("Hex 6 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
-				directions.Add (new int[]{3,(int)distmultiplier*Mathf.Abs(cubePos[0])/Mathf.Abs(cubePos[2]),0});
-				directions.Add (new int[]{4,(int)distmultiplier*Mathf.Abs(cubePos[2])/Mathf.Abs(cubePos[0]),0});
+				directions.Add (new int[]{3,(int)distmultiplier*Mathf.Abs(relativeblocker[0])/Mathf.Abs(relativeblocker[2]),0});
+				directions.Add (new int[]{4,(int)distmultiplier*Mathf.Abs(relativeblocker[2])/Mathf.Abs(relativeblocker[0]),0});
 			} else if(relativeblocker [0] > 0 && relativeblocker [1] < 0 && relativeblocker [2] < 0) {
 				Debug.Log ("Hex 7 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
-				directions.Add (new int[]{0,(int)distmultiplier*Mathf.Abs(cubePos[2])/Mathf.Abs(cubePos[1]),0});
-				directions.Add (new int[]{1,(int)distmultiplier*Mathf.Abs(cubePos[1])/Mathf.Abs(cubePos[2]),0});
+				directions.Add (new int[]{0,(int)distmultiplier*Mathf.Abs(relativeblocker[2])/Mathf.Abs(relativeblocker[1]),0});
+				directions.Add (new int[]{1,(int)distmultiplier*Mathf.Abs(relativeblocker[1])/Mathf.Abs(relativeblocker[2]),0});
 			} else if(relativeblocker [0] < 0 && relativeblocker [1] < 0 && relativeblocker [2] < 0) {
 				// Impossible?
 				Debug.Log ("Hex 8, should be impossible " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
@@ -626,17 +638,23 @@ public class Map : MonoBehaviour {
 	public void setUnOccupied(int[] x){
 		tiles [x[0], x[1]].GetComponent<MapGridUnit> ().isOccupied = false;
 	}
-	public void selectRange(Vector3 pos, int range){
+	public void selectRange(Vector3 pos, int range, string rangeType){
 		// HEX
 		// Setup map to select where to place attack with feedback in map colour
 		int[] posInt = getTileCoordsFromPos (pos);
-		selectRange (posInt, range);
+		selectRange (posInt, range, rangeType);
 	}
 
-	public void selectRange(int[] posInt, int range){
+	public void selectRange(int[] posInt, int range, string rangeType){
 		// HEX
 		// Setup map to select where to place attack with feedback in map colour
-		List<int[]> toSet = getInRange (cartesianToCube (posInt),range);
+
+		List<int[]> toSet;
+		if (rangeType == "LOS") {
+			toSet = getInFieldOfView (cartesianToCube (posInt),range);
+		} else {
+			toSet = getInRange (cartesianToCube (posInt),range);
+		}
 		int[] tempCart = new int[]{0,0};
 		for (int i = 0; i < toSet.Count; i++) {
 			tempCart = cubeToCartesian (toSet [i]);

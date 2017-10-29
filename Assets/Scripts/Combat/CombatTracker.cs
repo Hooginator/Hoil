@@ -142,7 +142,7 @@ public class CombatTracker : MonoBehaviour {
 				map.getTile (targetIntLocation).GetComponent<MapGridUnit>().reColour ();
 				targetIntLocation = map.ForceIntInsideBoundaries (cartPos);
 				updateCameraTarget (map.getAbovePosFromCoords(targetIntLocation[0],targetIntLocation[1]));
-				map.selectRange (targetIntLocation, areaRange);
+				map.selectRange (targetIntLocation, areaRange, "LOS");// Currently LOS for testing
 			}
 			if (Input.GetButtonUp ("Submit")) {
 				// Check to make sure that when you press "Submit" it will only take you through one menu selection per press
