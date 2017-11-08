@@ -165,6 +165,9 @@ public class Map : MonoBehaviour {
 
 
 	}
+	public bool isUnitInRange(int[] x){
+		return tiles [x [0], x [1]].GetComponent<MapGridUnit> ().isUnitInRange ();
+	}
 	public bool isCubeInRange(int[] cube1,int[] cube2,int range){
 		// HEX
 		// Checks if two cube positions are within Range distance of each other

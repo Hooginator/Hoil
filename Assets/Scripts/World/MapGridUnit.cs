@@ -89,6 +89,9 @@ public class MapGridUnit : MonoBehaviour {
 		inRangeColoured = true;
 		reColour ();
 	}
+	public bool isUnitInRange (){
+		return inRangeColoured;
+	}
 	public void setOutOfRange(){
 		// Will set the tile to colour itself sback to normal
 		inRangeColoured = false;

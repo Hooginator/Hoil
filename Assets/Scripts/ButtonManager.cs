@@ -11,6 +11,7 @@ public class ButtonManager : MonoBehaviour, ISelectHandler, IDeselectHandler, IP
 	void Awake(){
 		map = GameObject.Find ("Map").GetComponent<Map> ();
 		CT = GameObject.Find ("Battle Menu").GetComponent<CombatTracker> ();
+		pos = null;
 	}
 
 	public void OnPointerEnter(PointerEventData eventData){
@@ -23,7 +24,7 @@ public class ButtonManager : MonoBehaviour, ISelectHandler, IDeselectHandler, IP
 		}
 	}
 	public void OnDeselect(BaseEventData eventData){
-		if (CT.actionToDo != null) {
+		if (CT.actionToDo != null && pos != null) {
 			map.deSelectUnit (pos [0], pos [1]);
 		}
 	}

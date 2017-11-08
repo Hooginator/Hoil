@@ -152,7 +152,7 @@ public class CombatTracker : MonoBehaviour {
 				// when you hit space, get the tile selected to do what we wanted
 				coords = targetIntLocation;
 				// Check if we're actually in range
-				if(map.isInRange(coords[0],coords[1],selectingFromX,selectingFromZ,selectingRange)){
+				if(map.isUnitInRange(coords)){
 					selectingTargetLocation = false;
 					// Remove max range indicators
 					stopSelectingTargetLocation ();
@@ -178,6 +178,7 @@ public class CombatTracker : MonoBehaviour {
 	public void goBackMenu (){
 		Debug.Log ("Going back from window " + windowStatus + " to window " + previousWindowStatus);
 		// Hierarchy of menu screens, calls different functions needed to close and reopen different menu screens.
+		map.deSelectAll();
 		switch (windowStatus) {
 		case "Abilities Menu":
 		case "Item Menu":
