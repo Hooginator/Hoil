@@ -12,7 +12,7 @@ using UnityEngine.UI;
 public class BattleMenu : MonoBehaviour {
 	// Options for Player Combat Main Menu
 	public Button Attack;
-	public Button Special;
+	//public Button Special;
 	public Button Item;
 	public Button Run;
 	public CombatTracker combat;
@@ -25,7 +25,7 @@ public class BattleMenu : MonoBehaviour {
 	void Start () {
 		// Initialize the Buttons
 		Attack = Attack.GetComponent<Button> ();
-		Special = Special.GetComponent<Button> ();
+		//Special = Special.GetComponent<Button> ();
 		Item = Item.GetComponent<Button> ();
 		Run = Run.GetComponent<Button> ();
 		// Get the instance of Combat Tracker to switch turns and stuff
@@ -37,25 +37,6 @@ public class BattleMenu : MonoBehaviour {
 	/********************************************************************************************/
 
 
-	public void AttackPress(){
-		// When you hit that attack button
-		//print ("ATTACKKKKK");
-		combat.HideBattleMenu ();
-		//combat.CreateSelectOptions ();
-
-		Ability temp = ScriptableObject.CreateInstance ("Ability") as Ability;
-		temp.init ("Basic Attack", combat.actionFrom);
-		combat.actionToDo = temp;
-
-
-		List<CharacterClass> tempChars = combat.getEnemiesInRange (1, "Player");
-		if (tempChars != null) {
-			combat.HideBattleMenu ();
-			combat.ShowSelectMenu (tempChars);
-		} else {
-			Debug.Log ("NOONE IN MELEE RANGE");
-		}
-	}	
 	public void MovePress(){
 		// When you hit that move button
 		combat.HideBattleMenu ();
@@ -80,7 +61,7 @@ public class BattleMenu : MonoBehaviour {
 	public void EndTurnPress(){
 		combat.PlayerEndTurn ();
 	}
-	public void SpecialPress(){
+	public void AttackPress(){
 		combat.HideBattleMenu ();
 		combat.ShowAbilitiesMenu ();
 		//combat.selectTargetLocation (1,1,3);

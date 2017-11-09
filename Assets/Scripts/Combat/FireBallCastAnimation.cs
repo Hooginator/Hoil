@@ -15,7 +15,7 @@ public class FireBallCastAnimation : MonoBehaviour {
 	int castFrames;
 	float castTime;
 	float travelTime;
-	float distPerFrame;
+	float speed;
 	int areaSize;
 	Vector3 currentPos;
 	Vector3 casterPos;
@@ -32,14 +32,16 @@ public class FireBallCastAnimation : MonoBehaviour {
 		stop = stopPos;
 		conjuringPos = Vector3.MoveTowards (casterPos, stopPos, 0.5f);
 		areaSize = size;
-		currentPos = startPos; 
+		currentPos = conjuringPos; 
 		TR.position = currentPos;
 		currentStage = "Conjuring";
 		t = 0;
 		travelDistance = Vector3.Distance (startPos, stopPos);
-		castFrames = (int) (timeToCast / Time.deltaTime);
-		travelFrames = (int) (timeToLand / Time.deltaTime);
-		distPerFrame = travelDistance  * Time.deltaTime / timeToLand;
+		//Debug.Log (" TRAVEL DISTANCE" + travelDistance.ToString ());
+		castFrames = (int) (timeToCast *60);// hardcoded average fps :D
+		travelFrames = (int) (timeToLand*60);
+		//Debug.Log ("Cast frames: " +  Time.deltaTime.ToString () + "   Travel Frames: " + travelFrames.ToString ());
+		speed = travelDistance  / timeToLand;
 		//reColour(new Color(1,1,0));
 
 		// Loop through all parts of the animation and change their starting time based on the calculated travel time
@@ -90,11 +92,11 @@ public class FireBallCastAnimation : MonoBehaviour {
 			}
 		}else if (currentStage == "Traveling") {
 			// Move
-			currentPos = Vector3.MoveTowards(currentPos, stop, distPerFrame);
+			currentPos = Vector3.MoveTowards(currentPos, stop, speed * Time.deltaTime);
 			if (t > castFrames + travelFrames) {
 				// Done Traveling
 				currentStage = "Landing";
-
+				currentPos = stop;
 			}
 		}
 		TR.position = currentPos;

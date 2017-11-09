@@ -46,13 +46,13 @@ public class Ability : ScriptableObject{
 		caster = casterIn;
 		switch (nameIn) {
 		case "Fireball":
-			init (nameIn, 8, 4, 40, "Fire", "Area", "Enemy", casterIn, 1.0f, 0.5f, "LOS"); 
+			init (nameIn, 8, 4, 40, "Fire", "Area", "Enemy", casterIn, 1.0f, 1.0f, "LOS"); 
 			break;
 		case "Iceball":
-			init (nameIn, 7, 7, 20, "Ice", "Area", "Enemy", casterIn, 1.0f, 0.5f, "LOS"); 
+			init (nameIn, 7, 7, 20, "Ice", "Area", "Enemy", casterIn, 1.0f, 1.0f, "LOS"); 
 			break;
 		case "Acidball":
-			init (nameIn, 7, 2, 30, "Toxic", "Area", "Enemy", casterIn, 1.0f, 0.5f, "LOS"); 
+			init (nameIn, 7, 2, 30, "Toxic", "Area", "Enemy", casterIn, 1.0f, 1.0f, "LOS"); 
 			break;
 		case "Sniper Attack":
 			init (nameIn, 8, 3, 30, "Pierce", "Single", "Enemy", casterIn, 1.0f, 0.1f, "LOS"); 

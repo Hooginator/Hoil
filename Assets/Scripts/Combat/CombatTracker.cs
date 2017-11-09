@@ -686,7 +686,7 @@ public class CombatTracker : MonoBehaviour {
 		} else if (actionToDo != null){
 
 			actionToDo.doAnimation (actionFrom.battleAvatar.transform.position,  map.getAbovePosFromCoords (coords [0], coords [1]),colourPalettes);
-
+			Debug.Log (" aboveposfrom coords  " + map.getAbovePosFromCoords (coords [0], coords [1]).ToString ());
 			if (actionToDo.targetingType == "Single") {
 				if (actionToDo.cast (actionTo)) {
 					killCharacter (actionTo);
