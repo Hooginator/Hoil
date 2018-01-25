@@ -45,6 +45,8 @@ public class Map : MonoBehaviour {
 	float offsetX = 20*0.8660254f;
 	float offsetZ = 15;
 
+	public List<int[]> cubeDirections;
+
 	// Update is called once per frame
 	void Update () {
 	}
@@ -55,7 +57,7 @@ public class Map : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-		// Set Boundaries of the map
+		// Set Boundaries of the map in space
 		Xmin =  -0.5f*gridSize;
 		Zmin =  -0.5f*gridSize;
 		Xmax =  (NcellX-0.5001f)*gridSize;
@@ -64,7 +66,7 @@ public class Map : MonoBehaviour {
 		// Initialize arrays
 		resources = new float[uniqueResources];
 		tiles = new GameObject[NcellX,NcellZ];
-
+		setCubeDirections ();
 		gameMan = GameObject.Find ("GameManager").GetComponent<gameManager>();
 
 		// Loop through all grid places to be used for initialization
@@ -84,7 +86,7 @@ public class Map : MonoBehaviour {
 				// Function to randomly assign resources
 				if (NcellX >= 1 && NcellZ >= 1) {
 					resources = getResources ((float)x / (NcellX - 1), (float)z / (NcellZ - 1));
-				} else { // To prevent divide by zero if there's a 1xwhatever size map
+				} else { // To prevent divide by zero if there's a [1 * whatever] size map
 					resources = getResources (0.5f, 0.5f);
 				}
 				print (resources.ToString ());
@@ -96,8 +98,6 @@ public class Map : MonoBehaviour {
 		// Apply Colour to each tile
 		for (int z = 0; z < NcellZ; z++) {
 			for (int x = 0; x < NcellX; x++) {
-				//print (x.ToString () + "  " + NcellX.ToString ());
-				//print (z.ToString () + "  " + NcellZ.ToString ());
 				tiles [x, z].GetComponent<MapGridUnit> ().reColour ();
 			}
 		}
@@ -125,16 +125,13 @@ public class Map : MonoBehaviour {
 	public int getIntDistanceFromCoords(int[] pos1, int[] pos2){
 		// Returns the integer distence between two locations.
 		/// HEX
-		print ("WSERDFTVGYBUHNJIMK");
-		return cubeDistance(cartesianToCube(pos1), cartesianToCube(pos2));
-		//return (Mathf.Abs (pos1 [0] - pos2 [0]) + Mathf.Abs (pos1 [1] - pos2 [1]));
+		return getIntDistanceFromCube(cartesianToCube(pos1), cartesianToCube(pos2));
 	}
 
 	public int getIntDistanceFromCube(int[] cube1, int[] cube2){
 		// Returns the integer distence between two locations.
-		/// HEX
+		// HEX
 		return cubeDistance(cube1, cube2);
-		//return (Mathf.Abs (pos1 [0] - pos2 [0]) + Mathf.Abs (pos1 [1] - pos2 [1]));
 	}
 
 	public int[] cubeToCartesian(int[] cube){
@@ -157,21 +154,23 @@ public class Map : MonoBehaviour {
 	}
 	public int cubeDistance(int[] cube1,int[] cube2){
 		// HEX
+		// Returns the integer distance between two cube positions
 		return (Mathf.Abs (cube1 [0] - cube2 [0]) + Mathf.Abs (cube1 [1] - cube2 [1]) + Mathf.Abs (cube1 [2] - cube2 [2])) / 2;
 
 	}
 	public bool isInRange(int x1, int z1, int x2, int z2, int range ){
-		// Checks if [x1,z1] is within range of [x2,z2]
-		//return (Mathf.Abs(x1-x2) + Mathf.Abs(z1-z2)) <= range;
-
 		// HEX
+		// Checks if [x1,z1] is within range of [x2,z2]
 		return (getIntDistanceFromCoords(new int[] {x1,z1},new int[] {x2,z2} ) <= range);
 
 
 	}
+	public bool isUnitInRange(int[] x){
+		return tiles [x [0], x [1]].GetComponent<MapGridUnit> ().isUnitInRange ();
+	}
 	public bool isCubeInRange(int[] cube1,int[] cube2,int range){
-
-
+		// HEX
+		// Checks if two cube positions are within Range distance of each other
 		return(getIntDistanceFromCube (cube1, cube2) <= range);
 	}
 
@@ -179,22 +178,7 @@ public class Map : MonoBehaviour {
 		// HEX
 		// provides a list of tile coordinates in cube within range of cubePos
 		// Does not check on boundaries
-
-
 		List<int[]> tempList = new List<int[]> ();
-		// BRUTE FORCE, CHECK EVERYTHING
-		/*int[] tempCube;
-		for (int i = 0; i < NcellX; i++) {
-			for (int j = 0; j < NcellZ; j++) {
-				tempCube = cartesianToCube (new int[]{ i, j });
-				print ("Cart: " + i.ToString() + " " + j.ToString() + " Cube: " + tempCube[0] + " " + tempCube[1] + " " + tempCube[2] + " ");
-				if (isCubeInRange(cubePos,cartesianToCube(new int[]{i,j}),range)){
-
-					tiles [i, j].GetComponent<MapGridUnit> ().setInRange ();
-				}
-			}
-		}*/
-		// BE ELEGANT
 		for(int i = -range;i < range +1; i++){
 			for (int j = Mathf.Max (-range, -i - range); j < Mathf.Min (range, -i + range) +1; j++) {
 				tempList.Add (new int[]{i + cubePos[0],j + cubePos[1],-i-j + cubePos[2]} );
@@ -203,10 +187,113 @@ public class Map : MonoBehaviour {
 		return tempList;
 	}
 
-	public void setInRange(int x, int z, int range){
-		// Will recolour the tiles within range of the position (x,z) to the "In range" colour
-		// HEX
-		List<int[]> toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
+
+	/*********************  START OF LINE OF SIGHT / FIELD OF VIEW MESS *****************************************/
+
+
+	public List<int[]> getOpposingNeighbours(int[] cubePos, int[] source){
+		// Returns the list of neighbours that are in the opposite direction as source.
+		// WAYYYYYYYYYYYYYYYYYYY Ineffidient  AND doesn't even do it right!
+		// Maybe start with everything and remove blocked squares
+		List<int[]> tempList = new List<int[]> ();
+		int[] relativePos = new int[3];
+
+
+
+
+
+
+
+		int dist = getIntDistanceFromCube (cubePos, source);
+		for (int i = 0; i < 3; i++) {
+			relativePos [i] = source [i] - cubePos [i];
+		}
+		// Take care of the 6 perfect diagonals first
+		if (relativePos [0] == 0) {
+			if (relativePos [1] > 0) {
+				tempList.Add (new int[]{ cubePos [0], cubePos [1] - 1, cubePos [2] + 1 });
+			} else {
+				tempList.Add (new int[]{ cubePos [0], cubePos [1] + 1, cubePos [2] - 1 });
+			}
+			/*if (dist < 2) {
+				// short range, add more.
+				if (relativePos [1] > 0) {
+					tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1], cubePos [2] + 1 });
+					tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1] - 1, cubePos [2] });
+				} else {
+					tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1]+1, cubePos [2] });
+					tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1], cubePos [2] -1 });
+				}
+			}*/
+		} else if (relativePos [1] == 0) {
+			if (relativePos [0] > 0) {
+				tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1], cubePos [2] + 1 });
+			} else {
+				tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1], cubePos [2] - 1 });
+			}
+			/*if (dist < 2) {
+				// short range, add more.
+				if (relativePos [0] > 0) {
+					tempList.Add (new int[]{ cubePos [0]-1, cubePos [1]+1, cubePos [2] });
+					tempList.Add (new int[]{ cubePos [0], cubePos [1]-1, cubePos [2]+1});
+				} else {
+					tempList.Add (new int[]{ cubePos [0], cubePos [1]+1, cubePos [2] - 1 });
+					tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1] - 1, cubePos [2] });
+				}
+			}*/
+		} else if (relativePos [2] == 0) {
+			if (relativePos [1] > 0) {
+				tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1] - 1, cubePos [2] });
+			} else {
+				tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1] + 1, cubePos [2] });
+			}
+			/*if (dist < 2) {
+				// short range, add more.
+				if (relativePos [1] > 0) {
+					tempList.Add (new int[]{ cubePos [0]+1, cubePos [1], cubePos [2] - 1 });
+					tempList.Add (new int[]{ cubePos [0], cubePos [1]-1, cubePos [2] +1});
+				} else {
+					tempList.Add (new int[]{ cubePos [0], cubePos [1]+1, cubePos [2] - 1 });
+					tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1], cubePos [2] + 1 });
+				}
+			}*/
+			// with no zeros we're not on a straight line and so will unlock 2 tiles opposite
+		} else {
+			if (relativePos [0] > 0) {
+				if (relativePos [1] > 0) {
+					tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1], cubePos [2] + 1 });
+					tempList.Add (new int[]{ cubePos [0], cubePos [1] - 1, cubePos [2] + 1 });
+				} else {
+					if (relativePos [2] > 0) {
+						tempList.Add (new int[]{ cubePos [0] - 1, cubePos [1] + 1, cubePos [2] });
+						tempList.Add (new int[]{ cubePos [0], cubePos [1] + 1, cubePos [2] - 1 });
+					}
+				}
+			} else {
+				if (relativePos [1] < 0) {
+					tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1], cubePos [2] - 1 });
+					tempList.Add (new int[]{ cubePos [0], cubePos [1] + 1, cubePos [2] - 1 });
+				} else {
+					if (relativePos [2] > 0) {
+						tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1] , cubePos [2] - 1 });
+						tempList.Add (new int[]{ cubePos [0] + 1, cubePos [1] - 1, cubePos [2] });
+					}
+				}
+
+			}
+		}
+		if (tempList.Count == 0) {
+			Debug.Log ("No neighbours for pos:  " + cubePos [0].ToString () + "  " + cubePos [1].ToString () + "  " + cubePos [2].ToString () + "  "
+			+ "     from:   " + source [0].ToString () + "  " + source [1].ToString () + "  " + source [2].ToString ());
+		} else {
+			Debug.Log ("Found opposing neighbours!");
+
+		}
+		return tempList;
+	}
+
+	public List<int[]> setInLineOfSight(int[] cubePos, int range){
+		List<int[]> toSet = getInFieldOfView (cubePos,range);
 		int[] tempCart;
 		for (int i = 0; i < toSet.Count; i++) {
 			tempCart = cubeToCartesian (toSet [i]);
@@ -214,15 +301,318 @@ public class Map : MonoBehaviour {
 				tiles [tempCart [0], tempCart [1]].GetComponent<MapGridUnit> ().setInRange ();
 			}
 		}
+		return toSet;
+	}
 
-		/*for (int i = -range; i < range+1; i++){
-			for (int j = - (range - Mathf.Abs (i)); j < (range - Mathf.Abs (i)) + 1; j++) {
-				if (isIntInBoundaries (i+x, j+z)) {
-					tiles [i+x, j+z].GetComponent<MapGridUnit> ().setInRange ();
-					//print ("HERE I AM <<<<<<<<");
+	public List<int[]> selectInLineOfSight(int[] cubePos, int range){
+		List<int[]> toSet = getInFieldOfView (cubePos,range);
+		int[] tempCart;
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				tiles [tempCart [0], tempCart [1]].GetComponent<MapGridUnit> ().Select ();
+			}
+		}
+		return toSet;
+	}
+
+	bool isLineOfSightBlocked(int[] pos1, int[] pos2, List<int[]> blockers){
+		// MISSSING LINK!!!!!
+		for (int i = 0; i < blockers.Count; i++) {
+			print (blockers [i][0] + "   " + blockers [i][1] + "    " + blockers [i][2]);
+			if (isLineOfSightBlocked (pos1, pos2, blockers [i])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool isLineOfSightBlocked(int[] pos1, int[] pos2, int[] blocker){
+		// individual chaeck for if a LOS is blocked
+		if (blocker == null) {
+			print ("NULLLLLLLLLLLLLLLLLLLLLLLLLLLLLL");
+		}
+		float angle1 = getAngle (cubeToCartesian( pos1), cubeToCartesian(pos2));
+		float angle2 = getAngle (cubeToCartesian( pos1), cubeToCartesian(blocker));
+		print ("Angle 1:  " + angle1.ToString () + "  Angle 2:  " + angle2.ToString ());
+		if (Mathf.Abs( angle1 - angle2 ) < 0.1f) {
+			return true;
+		}
+		return false;
+	}
+	float getAngle(int[] pos1, int[] pos2){
+		//returns the Angle created beetween possitions
+		Vector3 tempPOS1 = getPosFromCoords(pos1);
+		Vector3 tempPOS2 = getPosFromCoords(pos2);
+		float DIST = Vector3.Distance(tempPOS2, tempPOS1);
+		float XPOS = tempPOS2 [0] - tempPOS1 [0]; 
+		float ZPOS = tempPOS2 [1] - tempPOS1 [1]; 
+		float angle = 0;
+		if (DIST >  0.1) {
+			if (ZPOS > 0) {
+				angle = 2 * Mathf.PI - Mathf.Acos (XPOS / DIST);
+			} else {
+				angle = Mathf.Acos (XPOS / DIST);
+			}
+		}
+		return angle;
+	}
+
+	// WORKING FIELD OF VIEW ATTEMPS V1 AFTER THIS, ANYTHING ABOVE IS EXPERIMENTAL
+
+
+	public List<int[]> getBlockers(int[] cubePos, int range){
+		// Finds all cells that are occupied (block LOS) in range
+		List<int[]> tempList = new List<int[]> ();
+		List<int[]> blockerList = new List<int[]> ();
+		int[] currentTile;
+
+		tempList = getInRange (cubePos, range);
+
+		for (int i = 0; i < tempList.Count; i++) {
+			currentTile = tempList [i];
+			// Check on Map boundaries
+			if (isIntInBoundaries (cubeToCartesian (currentTile))) {
+				// Check on Occupied status of tile
+				if (isOccupied (cubeToCartesian (currentTile))) {
+					if (getIntDistanceFromCube( cubePos, currentTile) > 0) {
+						blockerList.Add (currentTile);
+						Debug.Log (" Blocker detected: " + currentTile [0].ToString () + "  " + currentTile [1].ToString () + "  " + currentTile [2].ToString ());
+						Debug.Log (" Current detected: " + cubePos [0].ToString () + "  " + cubePos [1].ToString () + "  " + cubePos [2].ToString ());
+					} else {
+						Debug.Log ("Not going to include caster as blocking person");
+					}
 				}
 			}
-		}*/
+		}
+		return blockerList;
+	}
+	public List<int[]> getBlocked(int[] cubePos, int[] blocker, int range){
+		// Returns the cells in range that have their LOS blocked by blocker
+		/* Using Cube Directions */
+		/* 0 = {1, -1, 0}  */
+		/* 1 = {1, 0, -1}  */
+		/* 2 = {0, -1, 1}  */
+		/* 3 = {0, 1, -1}  */
+		/* 4 = {-1, 1, 0}  */
+		/* 5 = {-1, 0, 1}  */
+		/* 2 OPPOSE 3 , 1 OPPOSE 5 , 0 OPPOSE 4*/
+		int[] relativeblocker = new int[]{blocker[0] - cubePos[0],blocker[1] - cubePos[1],blocker[2] - cubePos[2]};
+		int dist = getIntDistanceFromCube (cubePos, blocker);
+		List<int[]> directions = new List<int[]> ();
+		// Directions has 3 parts, the direction, the time between mvoes in this direction and current time
+		List<int[]> finalList = new List<int[]> ();
+		List<int[]> toDoList = new List<int[]> ();
+		List<int[]> tempList = new List<int[]> ();
+		float distmultiplier = 1.1f;
+		int d = (int) (dist * distmultiplier);
+
+		// Straight lines will leave a straight line of blocked sight.
+		if (relativeblocker [0] == 0) {
+			if (relativeblocker [1] > 0) {
+				directions.Add (new int[]{3,0,0});
+				directions.Add (new int[]{1,d,d});
+				directions.Add (new int[]{4,d,d});
+			} else {
+				directions.Add (new int[]{2,0,0});
+				directions.Add (new int[]{0,d,d});
+				directions.Add (new int[]{5,d,d});
+			}
+		} else if (relativeblocker [1] == 0) {
+			if (relativeblocker [0] > 0) {
+				directions.Add (new int[]{1,0,0});
+				directions.Add (new int[]{3,d,d});
+				directions.Add (new int[]{0,d,d});
+			} else {
+				directions.Add (new int[]{5,0,0});
+				directions.Add (new int[]{2,d,d});
+				directions.Add (new int[]{4,d,d});
+			}
+		} else if (relativeblocker [2] == 0) {
+			if (relativeblocker [1] > 0) {
+				directions.Add (new int[]{4,0,0});
+				directions.Add (new int[]{3,d,d});
+				directions.Add (new int[]{5,d,d});
+			} else {
+				directions.Add (new int[]{0,0,0});
+				directions.Add (new int[]{1,d,d});
+				directions.Add (new int[]{2,d,d});
+			}
+		} else {
+			// Not straight lines
+			if (relativeblocker [0] > 0 && relativeblocker [1] > 0 && relativeblocker [2] > 0) {
+				// Impossible?
+				Debug.Log ("Hex 1, should be impossible " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+			} else if(relativeblocker [0] < 0 && relativeblocker [1] > 0 && relativeblocker [2] > 0) {
+				Debug.Log ("Hex 2 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{4,(int)distmultiplier*Mathf.Abs(relativeblocker[2])/Mathf.Abs(relativeblocker[1]),0});
+				directions.Add (new int[]{5,(int)distmultiplier*Mathf.Abs(relativeblocker[1])/Mathf.Abs(relativeblocker[2]),0});
+			} else if(relativeblocker [0] > 0 && relativeblocker [1] < 0 && relativeblocker [2] > 0) {
+				Debug.Log ("Hex 3 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{0,(int)distmultiplier*Mathf.Abs(relativeblocker[2])/Mathf.Abs(relativeblocker[0]),0});
+				directions.Add (new int[]{2,(int)distmultiplier*Mathf.Abs(relativeblocker[0])/Mathf.Abs(relativeblocker[2]),0});
+			} else if(relativeblocker [0] < 0 && relativeblocker [1] < 0 && relativeblocker [2] > 0) {
+				Debug.Log ("Hex 4 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{2,(int)distmultiplier*Mathf.Abs(relativeblocker[0])/Mathf.Abs(relativeblocker[2]),0});
+				directions.Add (new int[]{5,(int)distmultiplier*Mathf.Abs(relativeblocker[2])/Mathf.Abs(relativeblocker[0]),0});
+			} else if(relativeblocker [0] > 0 && relativeblocker [1] > 0 && relativeblocker [2] < 0) {
+				Debug.Log ("Hex 5 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{1,(int)distmultiplier*Mathf.Abs(relativeblocker[1])/Mathf.Abs(relativeblocker[0]),0});
+				directions.Add (new int[]{3,(int)distmultiplier*Mathf.Abs(relativeblocker[0])/Mathf.Abs(relativeblocker[1]),0});
+			} else if(relativeblocker [0] < 0 && relativeblocker [1] > 0 && relativeblocker [2] < 0) {
+				Debug.Log ("Hex 6 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{3,(int)distmultiplier*Mathf.Abs(relativeblocker[0])/Mathf.Abs(relativeblocker[2]),0});
+				directions.Add (new int[]{4,(int)distmultiplier*Mathf.Abs(relativeblocker[2])/Mathf.Abs(relativeblocker[0]),0});
+			} else if(relativeblocker [0] > 0 && relativeblocker [1] < 0 && relativeblocker [2] < 0) {
+				Debug.Log ("Hex 7 " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+				directions.Add (new int[]{0,(int)distmultiplier*Mathf.Abs(relativeblocker[2])/Mathf.Abs(relativeblocker[1]),0});
+				directions.Add (new int[]{1,(int)distmultiplier*Mathf.Abs(relativeblocker[1])/Mathf.Abs(relativeblocker[2]),0});
+			} else if(relativeblocker [0] < 0 && relativeblocker [1] < 0 && relativeblocker [2] < 0) {
+				// Impossible?
+				Debug.Log ("Hex 8, should be impossible " + relativeblocker [0].ToString() + "  " + relativeblocker [1].ToString());
+			} 
+
+
+		}
+
+		tempList.Add (blocker);
+
+		if (directions.Count != 0) {
+			/*for (int g = 0; g < directions.Count; g++) {
+				directions [g] [2] = directions [g] [1];
+			}*/
+			for (int i = dist; i < range; i++) {
+				toDoList = new List<int[]> ();
+				for (int j = 0; j < directions.Count; j++) {
+					if (directions [j] [2] <= 0) {
+						for (int k = 0; k < tempList.Count; k++) {
+							toDoList.Add (getCubeNeighbour (tempList [k], directions [j] [0]));
+						}
+						directions [j] [2] = directions [j] [1];
+					} else {
+						directions [j] [2] -= 1;
+						Debug.Log ("HEJRGSDHJFDSJHFGFYAJYUTUTYUTY  " + directions [j] [0].ToString() + "   "  + directions [j] [1].ToString() + "   "  + directions [j] [2].ToString() );
+					}
+				}
+				tempList = new List<int[]> ();
+				for (int j = 0; j < toDoList.Count; j++) {
+					finalList.Add (toDoList [j]);
+					tempList.Add (toDoList [j]);
+				}
+			}
+		}
+		return finalList;
+	}
+
+
+	public List<int[]> getInFieldOfView(int[] cubePos, int range){
+		// VERSION 1 WORKS!!!!!!!!!!!!!!!!!!!!!!! 
+		// Currently only takes away field of view for things along the axes in CUBE coordinate system.
+		// ie only straight lines, but it WORKS!
+		List<int[]> blockers = getBlockers (cubePos, range);
+		List<int[]> tempList = new List<int[]>();
+		List<int[]> finalList = new List<int[]>();
+		for (int i = 0; i < blockers.Count; i++) {
+			tempList.AddRange (getBlocked (cubePos, blockers [i], range));
+		}
+		finalList = getInRange (cubePos, range);
+		for (int i = 0; i < tempList.Count; i++) {
+			finalList.RemoveAll (t => t [0] == tempList[i][0] && t [1] == tempList[i][1] && t [2] == tempList[i][2]);
+		}
+
+		return finalList;
+	}
+
+
+
+	/*********************  END OF LINE OF SIGHT / FIELD OF VIEW WORKING MESS **********************************/
+
+	public List<int[]> getInMovementRange(int[] cubePos, int range){
+		// HEX
+		// WAYYYYYYYYYYYYYYYYYYYYYY TOO SLOW RIGHT NOW, *FIXED!!*
+		// Grabs all neighbours of toDoList (starting at cubePos) and adds them to the finalList for returning
+		// AND adds to the toDoList for the next pass.  passes are done until we have reached range
+
+		List<int[]> finalList = new List<int[]> ();
+		List<int[]> tempList = new List<int[]> ();
+		List<int[]> toDoList = new List<int[]> ();
+		toDoList.Add(cubePos);
+		pathDist tempPathDist;
+		int[] currentTile;
+		bool done = false;
+		int movementCount = 0;
+		while (!done) {
+			// check if we're out of MP
+			if (movementCount >= range) {
+				done = true;
+				break;
+			}
+			// check if there are no more paths available
+			if(toDoList.Count == 0){
+				done = true;
+				break;
+			}
+			// get nearest neighbours
+			for (int j = 0; j < toDoList.Count; j++) {
+				tempList.AddRange(getInRange (toDoList[j], 1));
+			}
+			toDoList = new List<int[]> ();
+			for (int i = 0; i < tempList.Count; i++) {
+				currentTile = tempList [i];
+				// Check on Map boundaries
+				if (isIntInBoundaries (cubeToCartesian (currentTile))) {
+					// Check on Occupied status of tile
+					if (!isOccupied (cubeToCartesian (currentTile)) ) {
+						// NOTE: I used to have checks in here to ensure there were no duplicates but that performed very poorly
+						// That being the case we will have duplicates in our list.  Might be worth sorting that out once at the end of the function.
+						finalList.Add (currentTile);
+						toDoList.Add (currentTile);
+					}
+				}
+			}
+
+			movementCount++;
+			if (movementCount > 40) {
+				Debug.Log ("Took too long looking for movement range");
+				break;
+			}
+		}
+			
+		return finalList;
+	}
+	public void setInMovementRange(int[] cubePos, int range){
+		// Will recolour the tiles within walking range of the CUBE position to the "In range" colour
+		// HEX
+		List<int[]> toSet = getInMovementRange (cubePos,range);
+		int[] tempCart;
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				tiles [tempCart [0], tempCart [1]].GetComponent<MapGridUnit> ().setInRange ();
+			}
+		}
+	}
+	public void setInMovementRange(int x, int z, int range){
+		int[] tempCube = cartesianToCube (new int[]{ x, z });
+		setInMovementRange (tempCube, range);
+	}
+
+	public void setInRange(int x, int z, int range, string rangeType){
+		// Will recolour the tiles within range of the position (x,z) to the "In range" colour
+		// HEX
+		List<int[]> toSet;
+		if (rangeType == "LOS") {
+			toSet = getInFieldOfView (cartesianToCube (new int[]{ x, z }),range);
+		} else {
+			toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
+		}
+		int[] tempCart;
+		for (int i = 0; i < toSet.Count; i++) {
+			tempCart = cubeToCartesian (toSet [i]);
+			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
+				tiles [tempCart [0], tempCart [1]].GetComponent<MapGridUnit> ().setInRange ();
+			}
+		}
 	}
 	public void setOutOfRange(int x, int z, int range){
 		// Will recolour the tiles within range of the position (x,z) back to the normal colour
@@ -236,31 +626,38 @@ public class Map : MonoBehaviour {
 			}
 		}
 	}
-
 	public bool isOccupied(int x,int z){
+		// Is there something on this cell that would block LoS or prevent someone from entering
 		return tiles [x, z].GetComponent<MapGridUnit> ().isOccupied;
 	}
 	public bool isOccupied(int[] x){
+		// Is there something on this cell that would block LoS or prevent someone from entering
 		return tiles [x[0], x[1]].GetComponent<MapGridUnit> ().isOccupied;
 	}
-
-	public void selectRange(Vector3 pos, int range){
-		int[] posInt = getTileCoordsFromPos (pos);
-		int x = posInt [0];
-		int z = posInt [1];
-		List<int[]> toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
-		int[] tempCart;
-		for (int i = 0; i < toSet.Count; i++) {
-			tempCart = cubeToCartesian (toSet [i]);
-			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
-				selectRangeUnit(tempCart [0], tempCart [1]);
-			}
-		}
-		selectCentralUnit(x,z);
+	public void setOccupied(int[] x){
+		tiles [x[0], x[1]].GetComponent<MapGridUnit> ().isOccupied = true;
 	}
 
-	public void selectRange(int[] posInt, int range){
-		List<int[]> toSet = getInRange (cartesianToCube (posInt),range);
+	public void setUnOccupied(int[] x){
+		tiles [x[0], x[1]].GetComponent<MapGridUnit> ().isOccupied = false;
+	}
+	public void selectRange(Vector3 pos, int range, string rangeType){
+		// HEX
+		// Setup map to select where to place attack with feedback in map colour
+		int[] posInt = getTileCoordsFromPos (pos);
+		selectRange (posInt, range, rangeType);
+	}
+
+	public void selectRange(int[] posInt, int range, string rangeType){
+		// HEX
+		// Setup map to select where to place attack with feedback in map colour
+
+		List<int[]> toSet;
+		if (rangeType == "LOS") {
+			toSet = getInFieldOfView (cartesianToCube (posInt),range);
+		} else {
+			toSet = getInRange (cartesianToCube (posInt),range);
+		}
 		int[] tempCart = new int[]{0,0};
 		for (int i = 0; i < toSet.Count; i++) {
 			tempCart = cubeToCartesian (toSet [i]);
@@ -268,29 +665,27 @@ public class Map : MonoBehaviour {
 				selectRangeUnit(tempCart [0], tempCart [1]);
 			}
 		}
-		selectCentralUnit(posInt[0],posInt[1]);
+		selectCentralUnit(posInt);
 	}
 	public void selectRangeUnit(int i,int j){
+		// recolour cell to show that AoE will affect it
 		tiles [i, j].GetComponent<MapGridUnit> ().Select ();
 	}
-	public void selectCentralUnit(int i,int j){
-		tiles [i, j].GetComponent<MapGridUnit> ().centralSelect ();
+	public void selectCentralUnit(int[] posIn){
+		// Recolour central cell you are targeting
+		tiles [posIn[0], posIn[1]].GetComponent<MapGridUnit> ().centralSelect ();
+		int[] tempCube = cartesianToCube (posIn);
+		Debug.Log ("Central Selecting Cube Pos: " + tempCube [0] + "   " + tempCube [1] + "   " + tempCube [2] + " ,   Cartesian Pos: " + posIn[0] + "   "+ posIn[1]);
 	}
 
 	public void deSelectRange(Vector3 pos, int range){
+		// Return all cells withing range of pos back to their original colours
 		int[] posInt = getTileCoordsFromPos (pos);
-		int x = posInt [0];
-		int z = posInt [1];
-		List<int[]> toSet = getInRange (cartesianToCube (new int[]{ x, z }),range);
-		int[] tempCart;
-		for (int i = 0; i < toSet.Count; i++) {
-			tempCart = cubeToCartesian (toSet [i]);
-			if (isIntInBoundaries(tempCart [0], tempCart [1])) {
-				deSelectUnit(tempCart);
-			}
-		}
+		deSelectRange (posInt, range);
 	}
 	public void deSelectRange(int[] posInt, int range){
+		// Return all cells withing range of pos back to their original colours
+		// HEX
 		List<int[]> toSet = getInRange (cartesianToCube (posInt),range);
 		int[] tempCart;
 		for (int i = 0; i < toSet.Count; i++) {
@@ -302,15 +697,19 @@ public class Map : MonoBehaviour {
 	}
 
 	public void deSelectUnit(int i, int j){
+		// Return individual cell to its current colour (default, in range..)
 		tiles [i, j].GetComponent<MapGridUnit> ().reColour ();
 	}
 	public void deSelectUnit(int[] i){
+		// Return individual cell to its original colour
 		deSelectUnit (i [0], i [1]);
 	}
 	public void resetUnit(int i, int j){
+		// Change cell to no longer be in range, set it to its unaltered colour.
 		tiles [i, j].GetComponent<MapGridUnit> ().setOutOfRange ();
 	}
 	public void deSelectAll(){
+		// Change all cells on the map to no longer be in range, set it to its unaltered colour. 
 		for (int i = 0; i < NcellZ; i++) {
 			for (int j = 0; j < NcellX; j++) {
 				resetUnit (i, j);
@@ -319,34 +718,58 @@ public class Map : MonoBehaviour {
 	}
 
 	public GameObject getTile(int[] posInt){
+		// Returns the tile at pos posInt in the array
 		return tiles[posInt[0],posInt[1]];
 	}
-	/********************************************************************************************/
-	/******************************** Tile Position Management **********************************/
-	/********************************************************************************************/
+
 
 	public GameObject getTileFromPos(Vector3 pos){
+		// HEX
 		// returns the GameObject of the Tile which is under position given
-		//print("Get Tile From Pos");
 		int[] posInt = getTileCoordsFromPos(pos);
-		//print (posInt[0].ToString () + "  " + posInt[1].ToString ());
 		return tiles [posInt[0], posInt[1]];
 	}
 	public int[] getTileCoordsFromPos(Vector3 pos){
-
-		// UNTESTED
-
+		// HEX
+		// Here I will have to change things for rotating the map 90 degrees
 		int[] posInt = new int [2];
-		posInt [1] = (int) Mathf.Floor((pos[2]-0.5f*offsetZ) / offsetZ);
-		if (posInt [1] % 2 == 0) {
-			posInt [0] = (int)Mathf.Floor ((pos [0]+0.5f*offsetX) / offsetX - 0.5f);
+		// new coordinate system >_>  this is part way to cube, but I don't think extending all the way helps at all.
+		posInt[1] = (int)(pos.z / offsetZ+0.5f);
+		// If row is odd 
+		bool rowIsOdd = posInt [1] % 2 == 1; 
+		if (rowIsOdd) {
+			posInt [0] = (int)((pos.x) / offsetX);
 		} else {
-			posInt [0] = (int)Mathf.Floor ((pos [0]+0.5f*offsetX) / offsetX);
+			posInt [0] = (int)((pos.x + 0.5*offsetX) / offsetX);
 		}
+
+		float relativeZ = (pos.z+0.5f* offsetZ - (posInt[1] * offsetZ))/offsetZ;
+		float relativeX;
+
+		if (rowIsOdd) {
+			relativeX = (pos.x - (posInt [0] - 0.5f) * offsetX)/offsetX;
+		} else {
+			relativeX = (pos.x - (posInt [0]) * offsetX)/offsetX;
+		}
+		if (relativeZ < (0.5f * relativeX) - 0.5f) {// bottom right
+			posInt [1] -= 1;
+			if (rowIsOdd) {
+				posInt [0] += 1;
+			}
+		} else if (relativeZ < (-0.5f * relativeX) - 0.5f) {// bottom left
+			posInt [1] -= 1;
+			if (!rowIsOdd) {
+				posInt [0] -= 1;
+			}
+		}
+		// for testing
+		//selectCentralUnit (posInt);
+
 		return posInt;
 	}
 
 	public Vector3 centreInTile(Vector3 pos){
+		// HEX
 		// Centres the Vector in its current tile.
 		Vector3 temppos = getTileFromPos(pos).transform.position;
 		// Keep Height
@@ -355,7 +778,7 @@ public class Map : MonoBehaviour {
 
 	}
 	public int getIntDistance(Vector3 pos1, Vector3 pos2){ 
-
+		// HEX
 
 		// Returns the integer distence between two locations.
 		int[] posInt1 = getTileCoordsFromPos (pos1);
@@ -363,55 +786,186 @@ public class Map : MonoBehaviour {
 		return getIntDistanceFromCoords(posInt1,posInt2);
 	}
 
+	public Vector3 getPosFromCoords(int[] x){
+
+		return tiles [x[0],x[1]].transform.position;
+	}
+
 	public Vector3 getPosFromCoords(int x, int z){
 		// Returns the central position of a tile based on int inputs
+		// HEX
 		return tiles [x,z].transform.position;
 	}
 	public Vector3 getAbovePosFromCoords(int x, int z){
 		// Returns the central position of a tile based on int inputs
-		Vector3 temp =  tiles [x,z].transform.position;
+		// HEX
+		return getAbovePosFromCoords(new int[]{x,z});
+	}
+	public Vector3 getAbovePosFromCoords(int[] x){
+		// Returns the central position of a tile based on int inputs
+		// HEX
+		Vector3 temp =  tiles [x[0],x[1]].transform.position;
 		temp [1] = 5;
 		return temp;
 	}
 
-	public List<int[]> getPath(int[] pos1, int[]pos2, int maxDist){
-		int wiggleRoom = maxDist - getIntDistanceFromCoords (pos1, pos2);
-		int[] currentPos = pos1;
+
+	/********************************************************************************************/
+	/******************************** Tile Position Management **********************************/
+	/********************************************************************************************/
+
+	public struct pathDist
+	{
+		// structure used to determine the optimal path between points
+		public int[] prev;
+		public int distTraveled;
+		public int distToGo;
+		public pathDist(int[] prevIn,int distIn, int distToGoIn){
+			this.prev = prevIn;
+			this.distTraveled = distIn;
+			this.distToGo = distToGoIn;
+		}
+	}
+
+	public List<int[]> getPath(int[] pos1, int[]pos2, int maxDist, out int distMoved){
+		// HEX PATHFINDING VERSION 1
+		int[] currentPos = new int[]{pos1[0],pos1[1]};
+		Dictionary<int[], pathDist> toCheck = new Dictionary<int[], pathDist>();
+		toCheck.Add (currentPos,new pathDist(pos1,0, getIntDistanceFromCoords(pos1,pos2)));
+		Dictionary<int[], pathDist> doneCheck = new Dictionary<int[], pathDist>();
 		List<int[]> path = new List<int[]>();
-		for(int i = 0;i<maxDist;i++){
-			currentPos = moveTowards (currentPos, pos2);
-			if (isOccupied (currentPos)) {
-				Debug.Log ("Failed moving, someone in the way"+currentPos.ToString());
-				return null;
+		bool foundPath = false;
+		int maxCycles = 20;
+		int j = 0;
+		int[] tempCube;
+		int[] tempCart;
+		int currentDistTraveled;
+		int shortestDist;
+		distMoved = 0;
+		pathDist currentDist;
+		pathDist tempPrev;
+
+		while (!foundPath) {
+			toCheck.TryGetValue (currentPos,out currentDist);
+			currentDistTraveled = currentDist.distTraveled;
+			for (int k = 0; k < 6; k++) {
+				tempCube = getCubeNeighbour (cartesianToCube (currentPos), k);
+				tempCart = cubeToCartesian (tempCube);
+				//Debug.Log ("About to test cube: "+tempCube [0].ToString () + "    " + tempCube [1].ToString () + "    " + tempCube [2].ToString ());
+				//Debug.Log ("About to test cart: "+currentPos [0].ToString () + "    " + currentPos [1].ToString ()  +"  against    " + pos2[0].ToString() + "  " + pos2[1].ToString());
+				if (toCheck.TryGetValue (tempCart,out tempPrev) || doneCheck.TryGetValue(tempCart,out tempPrev)) {
+					// Already been here, maybe check distances for shortes i
+					Debug.Log("ALready been to " + tempCart[0].ToString() +"  " + tempCart[1].ToString());
+				} else {
+					// Add new node to check
+					tempPrev = new pathDist(currentPos,currentDistTraveled+1,getIntDistanceFromCoords (tempCart, pos2));
+					toCheck.Add (tempCart, tempPrev);
+				}
+				//Debug.Log("Path Finding checked cell:   " + tempCart[0].ToString() + "   " + tempCart[1].ToString());
 			}
-			path.Add (currentPos);
-			if (currentPos == pos2) {
-				break;
+			shortestDist = 1000000;
+			// Change currentPos to shortest distance left to check
+			foreach (var tempPathDist in toCheck) {
+				if (tempPathDist.Value.distTraveled + tempPathDist.Value.distToGo < shortestDist && isAvailable(tempPathDist.Key) && tempPathDist.Value.distTraveled < maxDist+1) {
+					//Debug.Log ("For some reason NEVER HAPPENING!!!!!!!!!!!!!!!!!!!!!#%^*%@&!^^^^^^^^^^^^^^^^^^^^^%#^&$@#^&$(*&#@^(");
+					shortestDist = tempPathDist.Value.distTraveled + tempPathDist.Value.distToGo;
+					currentPos = tempPathDist.Key;
+				}
+			}
+
+			if (toCheck.TryGetValue (currentPos, out currentDist)) {
+				Debug.Log ("Done this round, currentPos: " + currentPos[0].ToString() + "   " + currentPos[1].ToString());
+				Debug.Log ("Done this round, targetPos: " + pos2[0].ToString() + "   " + pos2[1].ToString());
+				doneCheck.Add (currentPos, currentDist);
+				toCheck.Remove (currentPos);
+				if (currentPos[0] == pos2[0] && currentPos[1] == pos2[1] ) {
+					// Found the end!!!!
+					path.Add(currentPos);
+					distMoved = 0;
+					j = 0;
+					while (!foundPath) {
+						if (currentPos [0] == pos1 [0] && currentPos [1] == pos1 [1]) {
+							foundPath = true;
+							break;
+						}
+						if (doneCheck.TryGetValue (currentPos, out currentDist)) {
+							// all good
+							currentPos = currentDist.prev;
+							distMoved += 1;
+						} else {
+							Debug.Log (" Could not find currentPos in our list of checked places");
+						}
+						Debug.Log ("Adding point " + currentPos [0].ToString () + "  " + currentPos [1].ToString () + "  to path");
+						path.Add (currentPos);
+
+
+						j++;
+						if (j > maxCycles) {
+							foundPath = true;
+							Debug.Log ("Could not find path back fast enough");
+						}
+					}
+				}
+			} else {
+				Debug.Log ("Path not found");
+			}
+
+
+
+			j++;
+			if (j > maxCycles) {
+				foundPath = true;
+				Debug.Log ("Could not find path fast enough");
 			}
 		}
 		return path;
 
 	}
 	public int[] moveTowards(int[] pos1,int[] pos2){
+		// not HEX
+		int[] newPos = pos1;
 		int deltaX = pos1[0] - pos2[0];
 		int deltaZ = pos1[1] - pos2[1];
 		if (Mathf.Abs (deltaX) >= Mathf.Abs (deltaZ)) {
 			if (pos1 [0] > pos2 [0]) {
-				pos1 [0] -= 1;
+				newPos [0] -= 1;
 			} else if (pos1 [0] < pos2 [0]) {
-				pos1 [0] += 1;
+				newPos [0] += 1;
 			}
 		} else if (Mathf.Abs (deltaX) <= Mathf.Abs (deltaZ)) {
 			if (pos1 [1] > pos2 [1]) {
-				pos1 [1] -= 1;
+				newPos [1] -= 1;
 			} else if (pos1 [1] < pos2 [1]) {
-				pos1 [1] += 1;
+				newPos [1] += 1;
 			}
 		}
-		return pos1;
+		return newPos;
+
 	}
 
 
+	public int[] getCubeNeighbour(int[] cubeIn,int direction){
+		int[] cubeOut = addCube (cubeIn, cubeDirections [direction]);
+		return cubeOut;
+	}
+	public int[] addCube(int[] cube1, int[] cube2){
+		// adds two cube positions together
+		int[] cubeOut = new int[3];
+		for (int i = 0; i < 3; i++) {
+			cubeOut [i] = cube1 [i] + cube2 [i];
+		}
+		return cubeOut;
+	}
+	public void setCubeDirections(){
+		// setup a list of the 6 transformations I have to do to move to a neighbour
+		cubeDirections = new List<int[]>();
+		cubeDirections.Add (new int[]{ 1, -1, 0 });
+		cubeDirections.Add (new int[]{ 1, 0, -1 });
+		cubeDirections.Add (new int[]{ 0, -1, 1 });
+		cubeDirections.Add (new int[]{ 0, 1, -1 });
+		cubeDirections.Add (new int[]{ -1, 1, 0 });
+		cubeDirections.Add (new int[]{ -1, 0, 1 });
+	}
 
 	/********************************************************************************************/
 	/******************************** Boundary Management ***************************************/
@@ -423,12 +977,21 @@ public class Map : MonoBehaviour {
 	}
 	public bool isIntInBoundaries(int x, int z){
 		// Checks if the Int combo is beyond the map tiles
-		return !(x < 0 || x > NcellX-1 || z < 0 || z > NcellZ-1);
+		return isIntInBoundaries(new int[]{x,z});
 	}
 
+	public bool isIntInBoundaries(int[] x){
+		// Checks if the Int combo is beyond the map tiles
+		return !(x[0] < 0 || x[0] > NcellX-1 || x[1] < 0 || x[1] > NcellZ-1);
+	}
+	public bool isAvailable(int[] x){
+		if(isIntInBoundaries(x)){
+			return !isOccupied (x);
+		}
+		return false;
+	}
 	public Vector3 ForceInsideBoundaries(Vector3 pos){
 		// takes a vector and places it barely within the borders if it is outside.
-		//print("Force "+pos.ToString()+ " inside " + Xmax.ToString()+" "+Xmin.ToString());
 		if (pos [0] < Xmin) {
 			pos [0] = Xmin;
 		} else if (pos [0] > Xmax) {
@@ -494,14 +1057,6 @@ public class Map : MonoBehaviour {
 		// Takes two floats in between 0 and 1, numerically showing how far across the map this is.
 		// Called once the MAP is loaded to generate default resources for a certain spot.
 		float[] generatedResources = new float[uniqueResources];
-
-		// RNG WAY I'M LEAVING OUT FOR NOW
-		/*for (int i = 0; i < uniqueResources; i++) {
-
-			int randomNumber = random.Next(0, maxResources);
-			generatedResources [i] = randomNumber;
-		}*/
-
 		if(gameMan.inBattle){
 			// When in battle we will take the tile colour where from where we started the battle.
 			if (gameMan.groundTileResources != null) {

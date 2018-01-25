@@ -37,7 +37,6 @@ public class CombatTracker : MonoBehaviour {
 	public string previousWindowStatus;
 
 	public Map map;
-	public int[] temppos;
 	// Number of turns that have gone by, so I can kill the infinite loops witha  failsafe
 	private int nTurns = 0;
 
@@ -75,6 +74,7 @@ public class CombatTracker : MonoBehaviour {
 	public bool actionFromLocked;
 
 	public List<ColourPalette> colourPalettes = new List<ColourPalette>();
+	public List<int[]> path;
 
 	/********************************************************************************************/ 
 	/**************************************** Upkeep ********************************************/ 
@@ -85,36 +85,64 @@ public class CombatTracker : MonoBehaviour {
 		// Check if current character is moving, reposition and check for done moving
 		if (isMoving) {
 			currentPos = Vector3.MoveTowards (currentPos, moveTarget, moveSpeed);
-			actionFrom.battleAvatar.gameObject.transform.position = currentPos;
+			map.getTileCoordsFromPos (currentPos);
 			if (currentPos == moveTarget) {
-				isMoving = false;
-				setToPosition (actionFrom, coords [0], coords [1]);
-				// Turn is not over after movement, return to the rest of the turn
-				continueTurn ();
+				path.RemoveAt (path.Count-1);
+				if (path.Count > 0) {
+					moveTarget = map.getAbovePosFromCoords( path [path.Count - 1]);
+				} else {
+					isMoving = false;
+					setToPosition (actionFrom, coords [0], coords [1]);
+					// Turn is not over after movement, return to the rest of the turn
+					continueTurn ();
+				}
+			} else {
+				//actionFrom.battleAvatar.transform.position = currentPos;
+				actionFrom.battleAvatar.GetComponent<BasicEnemyAnimations>().setPos(currentPos);
 			}
 		}
 
 		// Check if we are currenntly picking a cell to target, check if highlighted selection should change, apply change
-		temppos = new int[] {0,0};
 		if (selectingTargetLocation) {
-			if (Input.GetButtonDown ("Left")) {
-				temppos[0] -= 1;
-			}else if (Input.GetButtonDown ("Right")) {
-				temppos[0] += 1;
+			int[] temppos = new int[] {0,0,0};
+			if (Input.GetButtonDown ("q")) {
+				temppos[0] += map.cubeDirections [3][0];
+				temppos[1] += map.cubeDirections [3][1];
+				temppos[2] += map.cubeDirections [3][2];
+			}else if (Input.GetButtonDown ("d")) {
+				temppos[0] += map.cubeDirections [2][0];
+				temppos[1] += map.cubeDirections [2][1];
+				temppos[2] += map.cubeDirections [2][2];
 			}	
-			if (Input.GetButtonDown ("Down")) {
-				temppos[1] -= 1;
-			}else if (Input.GetButtonDown ("Up")) {
-				temppos[1] += 1;
+			if (Input.GetButtonDown ("w")) {
+				temppos[0] += map.cubeDirections [4][0];
+				temppos[1] += map.cubeDirections [4][1];
+				temppos[2] += map.cubeDirections [4][2];
+			}else if (Input.GetButtonDown ("s")) {
+				temppos[0] += map.cubeDirections [0][0];
+				temppos[1] += map.cubeDirections [0][1];
+				temppos[2] += map.cubeDirections [0][2];
+			}	
+			if (Input.GetButtonDown ("e")) {
+				temppos[0] += map.cubeDirections [5][0];
+				temppos[1] += map.cubeDirections [5][1];
+				temppos[2] += map.cubeDirections [5][2];
+			}else if (Input.GetButtonDown ("a")) {
+				temppos[0] += map.cubeDirections [1][0];
+				temppos[1] += map.cubeDirections [1][1];
+				temppos[2] += map.cubeDirections [1][2];
 			}
-			if(temppos != new int[] {0,0}){
+			if(temppos != new int[] {0,0,0}){
+				int[] cubePos = map.cartesianToCube (targetIntLocation);
+				cubePos [0] += temppos [0];
+				cubePos [1] += temppos [1];
+				cubePos [2] += temppos [2];
+				int[] cartPos = map.cubeToCartesian (cubePos);
 				map.deSelectRange (targetIntLocation, areaRange);
 				map.getTile (targetIntLocation).GetComponent<MapGridUnit>().reColour ();
-				targetIntLocation[0] += temppos[0];
-				targetIntLocation[1] += temppos[1];
-				targetIntLocation = map.ForceIntInsideBoundaries (targetIntLocation);
+				targetIntLocation = map.ForceIntInsideBoundaries (cartPos);
 				updateCameraTarget (map.getAbovePosFromCoords(targetIntLocation[0],targetIntLocation[1]));
-				map.selectRange (targetIntLocation, areaRange);
+				map.selectRange (targetIntLocation, areaRange, "LOS");// Currently LOS for testing
 			}
 			if (Input.GetButtonUp ("Submit")) {
 				// Check to make sure that when you press "Submit" it will only take you through one menu selection per press
@@ -124,7 +152,7 @@ public class CombatTracker : MonoBehaviour {
 				// when you hit space, get the tile selected to do what we wanted
 				coords = targetIntLocation;
 				// Check if we're actually in range
-				if(map.isInRange(coords[0],coords[1],selectingFromX,selectingFromZ,selectingRange)){
+				if(map.isUnitInRange(coords)){
 					selectingTargetLocation = false;
 					// Remove max range indicators
 					stopSelectingTargetLocation ();
@@ -150,6 +178,7 @@ public class CombatTracker : MonoBehaviour {
 	public void goBackMenu (){
 		Debug.Log ("Going back from window " + windowStatus + " to window " + previousWindowStatus);
 		// Hierarchy of menu screens, calls different functions needed to close and reopen different menu screens.
+		map.deSelectAll();
 		switch (windowStatus) {
 		case "Abilities Menu":
 		case "Item Menu":
@@ -290,16 +319,16 @@ public class CombatTracker : MonoBehaviour {
 			tempIndex = tempTeams.FindIndex (tempTeam => tempTeam == characters [i].team);
 			switch (tempIndex) {
 			case 0:
-				setToPosition (characters [i], 4 + charactersPlaced [tempIndex], 4);
+				setInitialPosition (characters [i], 4 + charactersPlaced [tempIndex], 4);
 				break;
 			case 1:
-				setToPosition (characters [i], map.NcellX - 2, 2 + charactersPlaced [tempIndex]);
+				setInitialPosition (characters [i], map.NcellX - 2, 2 + charactersPlaced [tempIndex]);
 				break;
 			case 2:
-				setToPosition (characters [i], 1, 2 + charactersPlaced [tempIndex]);
+				setInitialPosition (characters [i], 1, 2 + charactersPlaced [tempIndex]);
 				break;
 			case 3:
-				setToPosition (characters [i], map.NcellZ - 2, 2 + charactersPlaced [tempIndex]);
+				setInitialPosition (characters [i], map.NcellZ - 2, 2 + charactersPlaced [tempIndex]);
 				break;
 			}
 			charactersPlaced [tempIndex] += 1;
@@ -310,28 +339,49 @@ public class CombatTracker : MonoBehaviour {
 		map.tiles[x,z].GetComponent<MapGridUnit>().isOccupied = true;
 		charToMove.battleLocation = new int[2]{ x, z };
 		charToMove.battleAvatar.transform.position = map.getAbovePosFromCoords (x, z);
+		charToMove.battleAvatar.GetComponent<BasicEnemyAnimations> ().setPos(map.getAbovePosFromCoords (x, z));
+	}
+	public void setInitialPosition(CharacterClass charToMove, int x, int z){
+		// Set Position but a bit more forceful for the very first position set
+		map.tiles[x,z].GetComponent<MapGridUnit>().isOccupied = true;
+		charToMove.battleLocation = new int[2]{ x, z };
+		charToMove.battleAvatar.transform.position = map.getAbovePosFromCoords (x, z);
 		charToMove.battleAvatar.GetComponent<BasicEnemyAnimations> ().setPos (map.getAbovePosFromCoords (x, z));
 	}
-
 	// Area selection Management
-	public void selectTargetLocation(int x, int z, int range){
+	public void selectTargetLocation(int x, int z, int range, string rangeType){
 		// Set up the map to start looking for a map location to use whatever ability on
 		selectingTargetLocation = true;
 		wasUp = false;
 		map = GameObject.Find ("Map").GetComponent<Map> ();
 		targetIntLocation = new int[]{ x, z };
-		map.setInRange (x, z, range);
+		map.setInRange (x, z, range, rangeType);
 		HideBattleMenu();
 		selectingFromX = x;
 		selectingFromZ = z;
 		selectingRange = range;
 		windowStatus = "Selecting Location";
 	}
-	public void selectTargetLocation(int range){
+	public void selectTargetLocation(int range, string rangeType){
 		// Assume we are selecting from where the curent actor is
 		int x = actionFrom.battleLocation [0];
 		int z = actionFrom.battleLocation [1];
-		selectTargetLocation (x, z, range);
+		selectTargetLocation (x, z, range, rangeType);
+	}
+	public void selectTargetMovableLocation(int x, int z, int range){
+		// Only highlights unoccupied cells. and will check range around objects later.
+		// Set up the map to start looking for a map location to use whatever ability on
+		selectingTargetLocation = true;
+		wasUp = false;
+		map = GameObject.Find ("Map").GetComponent<Map> ();
+		targetIntLocation = new int[]{ x, z };
+		map.setInMovementRange (x,z, range);
+		HideBattleMenu();
+		selectingFromX = x;
+		selectingFromZ = z;
+		selectingRange = range;
+		windowStatus = "Selecting Location";
+
 	}
 	public void stopSelectingTargetLocation(){
 		selectingTargetLocation = false;
@@ -348,6 +398,7 @@ public class CombatTracker : MonoBehaviour {
 
 
 	void endCharacterTurn(){
+		actionFrom.battleAvatar.GetComponent<BasicEnemyAnimations> ().resetDesired ();
 		// Reset parameters
 		map.deSelectAll();
 		actionFrom.turnTaken = true;
@@ -388,11 +439,20 @@ public class CombatTracker : MonoBehaviour {
 	}
 	public void continueTurn(){
 		// Used after movement, for player it will bring back the menu after the movement is done, or use an ability in the AI case
+		actionToDo = null;
 		if (currentTeam == "Player") {
+			map.deSelectAll ();
 			ShowBattleMenu ();
 		} else {
-			continueComputerCharacterTurn ();
+			// half second delay for animations sake
+			StartCoroutine( continueComputerCharacterTurnIn (0.3f) );
 		}
+	}
+
+	IEnumerator continueComputerCharacterTurnIn(float t){
+		// Gives animations a second to go off before starting next turn
+		yield return new WaitForSeconds (t);
+		continueComputerCharacterTurn ();
 	}
 
 	void endTurn(){
@@ -410,8 +470,14 @@ public class CombatTracker : MonoBehaviour {
 			}
 			currentTeam = teams [teamInt];
 			currentTurnCharacters = null;
-			startTurn ();
+			StartCoroutine( startTurnIn (2.0f));
 		}
+	}
+
+	IEnumerator startTurnIn(float t){
+		// Gives animations a second to go off before starting next turn
+		yield return new WaitForSeconds (t);
+		startTurn ();
 	}
 
 	void startTurn(){
@@ -467,7 +533,7 @@ public class CombatTracker : MonoBehaviour {
 			doAction ();
 		} else {
 			// Do post movement part of turn
-			continueComputerCharacterTurn ();
+			continueTurn ();
 		}
 	}
 	bool getRandomTarget( int maxAttempts, int range){
@@ -583,21 +649,24 @@ public class CombatTracker : MonoBehaviour {
 
 		if (actionToDo.name == "Move") {
 			int[] tempOldCoords = actionFrom.battleLocation;
+			//Debug.Log ("Moving start, MP: " + actionFrom.MP.ToString () + " of " + map.getIntDistanceFromCoords (tempOldCoords, coords).ToString () + " needed");
+			int distMoved;
+			path = map.getPath (tempOldCoords, coords, actionFrom.MP, out distMoved);
 			int tempIntDistance = map.getIntDistanceFromCoords (tempOldCoords, coords);
 
-			List<int[]> path = map.getPath (tempOldCoords, coords, actionFrom.MP);
 			// If destination is in range start movement
-			if (tempIntDistance <= actionFrom.MP && path != null) {
+			if ( path != null) {
+				actionFrom.useMP(distMoved);
+				map.deSelectAll ();
+				map.getTile (tempOldCoords).GetComponent<MapGridUnit> ().isOccupied = false;
 				currentPos = actionFrom.battleAvatar.transform.position;
-				moveTarget = map.getAbovePosFromCoords(coords[0],coords[1]);
+				moveTarget = map.getAbovePosFromCoords( path [path.Count - 1]);
 				isMoving = true;
-				actionFrom.MP -= map.getIntDistanceFromCoords (tempOldCoords, coords);
 
 			} else {
 				Debug.Log ("Insufficient MP, " + actionFrom.MP.ToString () + " of " + tempIntDistance.ToString ());
 				continueTurn ();
 			}
-			actionToDo = null;
 
 		/************************************************ ATTACKING *****************************/
 
@@ -617,7 +686,7 @@ public class CombatTracker : MonoBehaviour {
 		} else if (actionToDo != null){
 
 			actionToDo.doAnimation (actionFrom.battleAvatar.transform.position,  map.getAbovePosFromCoords (coords [0], coords [1]),colourPalettes);
-
+			Debug.Log (" aboveposfrom coords  " + map.getAbovePosFromCoords (coords [0], coords [1]).ToString ());
 			if (actionToDo.targetingType == "Single") {
 				if (actionToDo.cast (actionTo)) {
 					killCharacter (actionTo);
@@ -653,12 +722,13 @@ public class CombatTracker : MonoBehaviour {
 				experienceEarned += toKill.baseExperienceGiven;
 			}
 			// Destroy GameObject
-			StartCoroutine (DestroyCharacter (toKill.battleAvatar, 2.2f));
+			StartCoroutine (DestroyCharacter (toKill.battleAvatar, actionToDo.timeToLand + 1.0f));
 			// Do death animation
 			if(toKill.battleAvatar != null){
-				StartCoroutine (StartDeathAnimation (toKill.battleAvatar, 0.5f));
+				StartCoroutine (StartDeathAnimation (toKill.battleAvatar, actionToDo.timeToLand));
 			}
 			//Destroy (toKill.battleAvatar);
+			map.setUnOccupied(toKill.battleLocation);
 			// Remove enemy from list
 			characters.Remove (toKill);
 			numCharacters -= 1;
@@ -675,7 +745,7 @@ public class CombatTracker : MonoBehaviour {
 	IEnumerator StartDeathAnimation(GameObject avatar, float t){
 		// Coroutine to let the enemy model exist for a second after it is killed.
 		yield return new WaitForSeconds(t);
-		avatar.GetComponent<BasicEnemyAnimations> ().animationType = "dying";
+		avatar.GetComponent<BasicEnemyAnimations> ().kill ();
 	}
 
 	public void PlayerAttack(int player, int badguy){

@@ -14,9 +14,9 @@ public class MapGridUnit : MonoBehaviour {
 	public float[] resources;// array of resource value of grid
 	public Material shad;// to let me change tile colour
 	private int uniqueResources;
-	private int maxResources;
+	private float maxResources;
 	public Renderer rend;
-	public int reduceSaturation; // max saturation for a grid unit
+	public float reduceSaturation; // max saturation for a grid unit
 	public bool inRangeColoured;
 	public bool isOccupied;
 
@@ -32,31 +32,25 @@ public class MapGridUnit : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		reduceSaturation = 180;
-		if (reduceSaturation >= uniqueResources) {
-			reduceSaturation = uniqueResources - 1;
-		}
+
 		// WANT: Create Map tile game object from an Asset (I think)
 		// Change Colour?
 		// Add terrain that belongs to one map (Mountains, trees, buildings)
 		// Array of shit that impacts the resources (adjacency? over/under use?)
 	}
 
-	public void Initialize(float[] resourcesIn, int uniqueResourcesIn, int maxResourcesIn){
+	public void Initialize(float[] resourcesIn, int uniqueResourcesIn, float maxResourcesIn){
 		uniqueResources = uniqueResourcesIn;
 		// Needed for colour
 		rend = GetComponent<Renderer>();
 		inRangeColoured = false;
+		reduceSaturation = 0.5f;
 		// Set resources to what was input
 		resources = new float[uniqueResourcesIn];
 		resources = resourcesIn;
 		maxResources = maxResourcesIn;
 		// Change colour
-		if (uniqueResources >= 3) {
-			rend.material.color = new Color ((int)(resources [0] / (maxResources - reduceSaturation)), (int)(resources [1] / maxResources), 0, 255);
-		} else if (uniqueResources == 2) {
-			rend.material.color = new Color ((int)(resources [0] / (maxResources - reduceSaturation)), (int)(resources [1] / maxResources), 0, 255);
-		}
+		reColour();
 		// We will assume at first that noone is in the grid unit.
 		isOccupied = false;
 	}
@@ -73,11 +67,11 @@ public class MapGridUnit : MonoBehaviour {
 			// Colour the tiles that are in range for your action Orange
 			rend.material.color = new Color (0.9f,0.4f,0f, 255);
 		} else {
-			/*if (uniqueResources >= 3) {
-				rend.material.color = new Color (resources [0] / maxResources, resources [1] / maxResources, resources [2] / maxResources, 255);
-			}*/
 			if (uniqueResources == 2) {
-				rend.material.color = new Color ((resources [0] / (maxResources - reduceSaturation)), 0, resources [1] / (maxResources - reduceSaturation), 255);
+				rend.material.color = new Color ((reduceSaturation * resources [0] / maxResources), 0, (reduceSaturation * resources [1] / maxResources), 255);
+			} else {
+				// Default colouring 
+				rend.material.color = new Color (0.4f,0.4f,4f, 255);
 			}
 		}
 	}
@@ -94,6 +88,9 @@ public class MapGridUnit : MonoBehaviour {
 		// Will set the tile to colour itself something to indicate it is in range
 		inRangeColoured = true;
 		reColour ();
+	}
+	public bool isUnitInRange (){
+		return inRangeColoured;
 	}
 	public void setOutOfRange(){
 		// Will set the tile to colour itself sback to normal

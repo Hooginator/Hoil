@@ -32,7 +32,7 @@ public class BattleCameraControls : MonoBehaviour {
 		//Here decides which direction gets a force applied, and later how much will be applied if we try to smooth this out.  
 		// Compares Camera position with the spot initialX and initialZ away from the Player .  Based on where the camera is with respect to this desired position a force will be applied.
 		if (manualCamera) {
-			input = new Vector3 (Input.GetAxis ("Cam_Right") - Input.GetAxis ("Cam_Left"), 0, Input.GetAxis ("Cam_Up") - Input.GetAxis ("Cam_Down"));
+			input = new Vector3 (Input.GetAxis ("Cam_Down") - Input.GetAxis ("Cam_Up"), Input.GetAxis("Cam_Zoom_Out") - Input.GetAxis("Cam_Zoom_In"), Input.GetAxis ("Cam_Right") - Input.GetAxis ("Cam_Left"));
 		} else {
 			
 			if (targetPos [0] + Idealpos [0] > Campos [0] + bufferx) {
@@ -54,7 +54,7 @@ public class BattleCameraControls : MonoBehaviour {
 				tempV3.z = 0;
 				RB.velocity = tempV3;
 			}
-			if (input == Vector3.zero) {
+			if (Vector3.Magnitude( input ) < 0.00001) {
 				// return to manual camera if we're not selecting anything different
 				manualCamera = true;
 			}
@@ -85,7 +85,7 @@ public class BattleCameraControls : MonoBehaviour {
 		var player = gameManager.GetComponent<gameManager>().worldPlayer;
 		inBattle = gameManager.GetComponent<gameManager> ().inBattle;
 		if (inBattle) {
-			moveSpeed = 400;
+			moveSpeed = 600;
 			TR.position = Idealpos +new Vector3(50,0,50);
 		}else{
 			moveSpeed = player.GetComponent<WorldMovementControls>().moveSpeed*2.2f; // takes max "move speed" which is really a force from the Player so we can match it.

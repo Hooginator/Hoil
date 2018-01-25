@@ -14,7 +14,6 @@ public class gameManager : MonoBehaviour {
 	public bool inBattle = true;
 	public static gameManager instance = null;
 	// Characters that will stick around after scenes.
-	//public CharacterClass[] playerCharacters;
 	public List<CharacterClass> playerCharacters;// = new  List<CharacterClass>();
 	public int maxPlayerCharacters = 4;
 	public int currentPlayerCharacters = 0;
@@ -39,7 +38,6 @@ public class gameManager : MonoBehaviour {
 
 	public List<ColourPalette> colourPalettes = new List<ColourPalette>();
 
-	//public Vector3 startPosition = new Vector3(60,2,-10);
 
 	/********************************************************************************************/ 
 	/************************************ Initialization ****************************************/ 
@@ -69,8 +67,6 @@ public class gameManager : MonoBehaviour {
 			worldPlayer = GameObject.Instantiate (playerWorldSprite, new Vector3 (90, 2, 0), Quaternion.identity);
 			worldPlayer.transform.SetParent (gameObject.transform);
 			playerMapPosition = worldPlayer.transform;
-			//playerMapPosition = new Vector3(0,3,0);
-			//playerMapPosition = GameObject.Find("Player").GetComponent<Transform>().position;
 			/****************************************** Start of the game here ***********************************************************/
 			// This will be called once at the very start of the game and then never again, good place to set up one time events at the start.
 			// Create Main character, probably will be more involved than this later :P
@@ -78,17 +74,17 @@ public class gameManager : MonoBehaviour {
 			teams = new  List<GameObject> ();
 
 			// Add Main CharacterPlayer character
-			CharacterClass temp = new CharacterClass ();
+
+			CharacterClass temp = ScriptableObject.CreateInstance<CharacterClass> ();
 			// Initialize stats to level 40 so we can beat level 15 generated badguy easily
 			temp.Initialize ("Main Character", 40, 0, "Player");
 			playerCharacters.Add (temp);
 			//currentPlayerCharacters += 1;
 
 			// Add second player character
-			CharacterClass temp2 = new CharacterClass ();
+			CharacterClass temp2 =  ScriptableObject.CreateInstance<CharacterClass> ();
 			temp2.Initialize ("Secondary Character", 25, 0, "Player");
 			playerCharacters.Add (temp2);
-			//currentPlayerCharacters += 1;
 
 			// Create the two teams and set their parent transforms to this gameobject (to not be destroyed)
 			GameObject tempTeam1 = GameObject.Instantiate (Resources.Load ("Blue Base"), new Vector3 (0, 1, 0), Quaternion.identity) as GameObject;
@@ -98,8 +94,6 @@ public class gameManager : MonoBehaviour {
 			tempTeam2.GetComponent<Transform> ().parent = gameObject.transform;
 			teams.Add (tempTeam2);
 
-			//teams[0].GetComponent<Team>().Initialize();
-			//teams[1].GetComponent<Team>().Initialize();
 			// Initialize everything that would also be initialized post battle
 			// Apply the movement controls for the world map to the player
 			WorldMovementControls WMC = worldPlayer.AddComponent<WorldMovementControls> ();
@@ -130,33 +124,9 @@ public class gameManager : MonoBehaviour {
 		//Reinitialisze the teams bases
 		for (int i = 0; i < teams.Count; i++) {
 			teams [i].SetActive (true);
-			//teams [i].GetComponent<Team> ().Initialize ();
 		}
-		// Spawn Enemies after world battle
-		// Out for now as this references the main base which gets destroyed... might need to add that to the do not destroy list
-		//teams [0].spawnEnemies ();
-		//teams [1].spawnEnemies ();
 	}
-	/*
-	public void initializeColourPalette(){
-		// Red fireball stuff
-		ColourPalette temp = new ColourPalette();
-		List<Color> tempColour = new List<Color>();
-		tempColour.Add (new Color (0.6f, 0.1f, 0.1f));
-		tempColour.Add (new Color (0.7f,0.5f,0.5f));
-		tempColour.Add (new Color (0.8f,0.3f,0.3f));
-		temp.init (tempColour,"Fire");
-		colourPalettes.Add (temp);
-		temp = null;
-		tempColour = null;
-		temp = new ColourPalette();
-		tempColour = new List<Color>();
-		tempColour.Add (new Color (0.1f, 0.1f, 0.9f));
-		tempColour.Add (new Color (0.2f,0.4f,0.8f));
-		tempColour.Add (new Color (0.0f,0.3f,0.7f));
-		temp.init (tempColour,"Ice");
-		colourPalettes.Add (temp);
-	}*/
+
 
 	/********************************************************************************************/ 
 	/******************************* Battle Management ******************************************/ 
@@ -166,8 +136,6 @@ public class gameManager : MonoBehaviour {
 		// Get the colour of the tile the enemy was on for the battle
 		groundTileResources = null;
 		playerMapPosition = worldPlayer.GetComponent<Transform>();
-		//print (playerMapPosition.position.ToString ());
-		//GameObject.Destroy (worldPlayer);
 		// Disable the World version of player
 		worldPlayer.SetActive(false);
 		// disable the bases for each team on the world map
@@ -196,18 +164,18 @@ public class gameManager : MonoBehaviour {
 		// Add Starting AI Computer opponents
 		int maxRed = 4;
 		for (int i = 0; i < maxRed; i++) {
-			combatants.Add (new CharacterClass ());
+			combatants.Add ( ScriptableObject.CreateInstance<CharacterClass> ());
 			combatants [i+currentPlayerCharacters].Initialize ("Red Enemy " + i.ToString (), 15, 1, "Red");
 		}
 		int maxBlue = 4;
 		for (int i = maxRed; i < maxRed + maxBlue; i++) {
-			combatants.Add (new CharacterClass ());
+			combatants.Add ( ScriptableObject.CreateInstance<CharacterClass> ());
 			combatants [i+currentPlayerCharacters].Initialize ("Blue Enemy " + i.ToString (), 15, 2, "Blue");
 		}
 		inBattle = true;
 	}
 	public void StartBattle(GameObject enemyGameObject){
-		// Once collided with enemy, starta  fight. 
+		// Once collided with enemy, start a  fight. 
 		// I will need enemy information coming through here
 		enemyToFight = enemyGameObject.GetComponent<EnemyBehavior>().prefab;
 		enemyLevel = enemyGameObject.GetComponent<EnemyBehavior> ().level;
@@ -215,8 +183,6 @@ public class gameManager : MonoBehaviour {
 		// Get the colour of the tile the enemy was on for the battle
 		groundTileResources = GameObject.Find ("Map").GetComponent<Map> ().getTileFromPos (enemyGameObject.transform.position).GetComponent<MapGridUnit>().resources;
 		playerMapPosition = worldPlayer.GetComponent<Transform>();
-		//print (playerMapPosition.position.ToString ());
-		//GameObject.Destroy (worldPlayer);
 		// Disable the World version of player
 		worldPlayer.SetActive(false);
 		// disable the bases for each team on the world map
@@ -246,12 +212,10 @@ public class gameManager : MonoBehaviour {
 		if (teamName == "Blue") {
 			teams [0].GetComponent<Team> ().level -= levelAmount;
 			teams [0].GetComponent<Team> ().updateLevelIndicator ();
-			//print ("Blue level now: "+teams [0].GetComponent<Team> ().level.ToString ());
 		}
 		if (teamName == "Red") {
 			teams [1].GetComponent<Team> ().level -= levelAmount;
 			teams [1].GetComponent<Team> ().updateLevelIndicator ();
-			//print ("Red level now: "+teams [1].GetComponent<Team> ().level.ToString ());
 		}
 	}
 
@@ -267,7 +231,6 @@ public class gameManager : MonoBehaviour {
 
 		InitializeWorld ();
 		inBattle = false;
-		//GameObject.Find ("Player").GetComponent<WorldMovementControls> ().Initialize ();
 	}
 	public bool checkInBattle(){
 		return inBattle;

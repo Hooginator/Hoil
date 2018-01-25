@@ -52,10 +52,9 @@ public class EnemyBehavior : MonoBehaviour {
 			if (difference.magnitude < 0.01) {
 				NewTarget ();
 			}
-			// Move angle towards where eemy is going
+			// Move angle towards where enemy is going
 			Vector3 angle = Vector3.RotateTowards (TR.forward, difference, RotationSpeed, 2.0F);
-			// Apply angle
-			//TR.rotation = Quaternion.LookRotation (angle);
+
 		}
 
 	}
